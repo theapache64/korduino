@@ -88,6 +88,7 @@ Give a ⭐️ if this project helped you!
 - [ ] Add networking support (For Arduino, via: `ESP8266HTTPClient.h` and `WiFiClientSecureBearSSL.h` )
 - [ ] Setup PlatformIO installation
 - [ ] Add compiler flags for: setting mode (either Arduino/StandardC++), target platform (eg: `espressif8266` via an enum), board, framework, monitor_speed, upload speed (platform/IO). See [this](https://github.com/theapache64/green/blob/master/platformio.ini) for reference
+- [ ] Add/verify testing support
 - [ ] Release 0.0.1
 
 ## 📝 License
