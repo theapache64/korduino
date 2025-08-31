@@ -64,8 +64,7 @@ Give a ⭐️ if this project helped you!
 
 ## 🛣️ Roadmap
 
-> Primary Goal: Arduino Support
-> Secondary Goal: Standard C++ Support
+> Primary Goal: Arduino Support; Secondary Goal: Standard C++ Support
 
 - [x] [POC](https://x.com/theapache64/status/1961612291243458703) showing end-to-end flow
 - [x] Setup testing framework
