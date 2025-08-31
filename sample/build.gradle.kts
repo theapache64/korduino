@@ -22,8 +22,8 @@ dependencies {
 
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions.freeCompilerArgs.addAll(
-        "-P", "plugin:korduino:outputFile=/Users/theapache64/Documents/PlatformIO/Projects/hello-pio/src/main.cpp",
-        "-P", "plugin:korduino:enabled=true"
+        "-P", "plugin:korduino:MODE=ARDUINO",
+        "-P", "plugin:korduino:ENABLED=true" // optional
     )
 }
 
