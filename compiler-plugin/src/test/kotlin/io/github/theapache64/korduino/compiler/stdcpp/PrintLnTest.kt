@@ -1,14 +1,16 @@
-package io.github.theapache64.korduino.compiler
+package io.github.theapache64.korduino.compiler.stdcpp
 
 import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
+import io.github.theapache64.korduino.compiler.util.compileStdCpp
+import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
-class StdCppTest {
+class PrintLnTest {
     @Test
-    fun printLn() {
+    fun basic() {
 
-        val input = SourceFile.kotlin(
+        val input = SourceFile.Companion.kotlin(
             "Main.kt",
             """
             fun main() : Int {

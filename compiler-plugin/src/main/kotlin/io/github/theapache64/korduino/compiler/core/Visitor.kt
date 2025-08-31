@@ -35,7 +35,12 @@ class Visitor(
             val dataTypeClassName = declaration.returnType.getClass()?.name?.asString()
             val returnType = dataTypes.get(key = dataTypeClassName)
                 ?: error("Unsupported data type '$dataTypeClassName' (platform: $platform). $LINK_GITHUB_ISSUES ")
-            codeBuilder.appendLine("$returnType ${declaration.name.asString()}() {")
+            codeBuilder.appendLine("${returnType.type} ${declaration.name.asString()}() {")
+
+            if (returnType.header != null && !codeBuilder.containsHeader(returnType)) {
+                codeBuilder.addHeader(returnType)
+            }
+
             super.visitFunction(declaration)
             codeBuilder.appendLine("}")
         }
@@ -65,8 +70,8 @@ class Visitor(
         codeBuilder.appendLine("""    ${cppFqName.fqName(value)};""")
 
         // Check if the header is present
-        if (!codeBuilder.contains(cppFqName.header)) {
-            codeBuilder.add(cppFqName.header)
+        if (!codeBuilder.containsHeader(cppFqName.header)) {
+            codeBuilder.addHeader(cppFqName.header)
         }
 
         super.visitCall(expression)

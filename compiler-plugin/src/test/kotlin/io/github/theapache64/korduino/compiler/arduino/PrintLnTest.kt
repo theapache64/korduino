@@ -1,14 +1,16 @@
-package io.github.theapache64.korduino.compiler
+package io.github.theapache64.korduino.compiler.arduino
 
 import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
+import io.github.theapache64.korduino.compiler.util.compileArduino
+import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
-class ArduinoTest {
+class PrintLnTest {
     @Test
-    fun beginAndPrintln() {
+    fun basic() {
 
-        val input = SourceFile.kotlin(
+        val input = SourceFile.Companion.kotlin(
             "Main.kt",
             """
             fun setup() {
@@ -17,7 +19,6 @@ class ArduinoTest {
 
             fun loop() {
                 io.github.theapache64.korduino.core.Serial.println("Hello ESP!")
-                io.github.theapache64.korduino.core.delay(1000)
             }
         """.trimIndent(),
         )
@@ -31,7 +32,6 @@ class ArduinoTest {
             }
             void loop() {
                 Serial.println("Hello ESP!");
-                delay(1000);
             }
             
         """.trimIndent()

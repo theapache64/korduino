@@ -1,10 +1,14 @@
-package io.github.theapache64.korduino.compiler
+package io.github.theapache64.korduino.compiler.util
 
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import io.github.theapache64.korduino.compiler.Arg
 import io.github.theapache64.korduino.compiler.core.ArgProcessor
+import io.github.theapache64.korduino.compiler.core.Extension
 import io.github.theapache64.korduino.compiler.core.Registrar
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import java.io.File
 
 
 fun compileArduino(sourceFiles: List<SourceFile>): JvmCompilationResult {
@@ -30,4 +34,11 @@ private fun compile(
             "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:MODE=${platform.name}",
         )
     }.compile()
+}
+
+@OptIn(ExperimentalCompilerApi::class)
+fun JvmCompilationResult.readActualOutput(): String {
+    val pattern = "${Extension.CPP_MSG_PREFIX}'(.+)'".toRegex()
+    val filePath = pattern.find(this.messages)?.groups[1]?.value ?: error("Couldn't find output file from messages")
+    return File(filePath).readText()
 }

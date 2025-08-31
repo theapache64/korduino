@@ -5,14 +5,12 @@ enum class Header(
 ) {
     Arduino("Arduino.h"),
     IoStream("iostream");
-
-    fun includeStatement() = "#include <${fileName}>"
 }
 
-internal fun StringBuilder.contains(header: Header): Boolean {
-    return contains(header.includeStatement())
+internal fun StringBuilder.containsHeader(header: Header): Boolean {
+    return contains(header.fileName.includeStatement())
 }
 
-internal fun StringBuilder.add(header: Header): StringBuilder {
-    return this.insert(0, header.includeStatement() + "\n")
+internal fun StringBuilder.addHeader(header: Header): StringBuilder {
+    return this.insert(0, header.fileName.includeStatement() + "\n")
 }
