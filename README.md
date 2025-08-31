@@ -69,8 +69,8 @@ Give a ⭐️ if this project helped you!
 
 - [x] [POC](https://x.com/theapache64/status/1961612291243458703) showing end-to-end flow
 - [x] Setup testing framework
-- [ ] 🚧 Basic : println + delay support
-- [ ] Add mode support (C++/Arduino) (arch)
+- [x] Basic : println + delay support
+- [x] Add mode support (C++/Arduino) (arch)
 - [ ] Add `pinMode` support
 - [ ] Add `int/String/Long/Double/Float/Boolean` support
 - [ ] Add `function` support (with `return`)
