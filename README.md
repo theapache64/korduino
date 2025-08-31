@@ -8,7 +8,7 @@
 
 > An attempt to write programs for Arduino in Kotlin
 
-Korduino is a Kotlin compiler plugin that'll convert Kotlin code to Arduino C++ code, compile the C++ code, upload it to the microcontroller and start a serial monitor to observe the output 🙌🏼
+Korduino is a Kotlin compiler plugin that'll convert Kotlin code to Arduino C++ code or plain C++ code, compile the C++ code, upload it to the microcontroller and start a serial monitor to observe the output 🙌🏼
 
 
 
@@ -62,10 +62,33 @@ Give a ⭐️ if this project helped you!
 </a>
 
 
-## ☑️ TODO
+## 🛣️ Roadmap
+
+> Primary Goal: Arduino Support
+> Secondary Goal: Standard C++ Support
 
 - [x] [POC](https://x.com/theapache64/status/1961612291243458703) showing end-to-end flow
-- [ ] 
+- [ ] 🚧 Setup testing framework
+- [ ] 🚧 Basic : println + delay support
+- [ ] Add mode support (C++/Arduino) (arch)
+- [ ] Add `pinMode` support
+- [ ] Add `int/String/Long/Double/Float/Boolean` support
+- [ ] Add `function` support (with `return`)
+- [ ] Add `const` support
+- [ ] Add `if-else` support
+- [ ] Add `for` loop support
+- [ ] Add `while` loop support
+- [ ] Add `Array` support
+- [ ] Add `List` support
+- [ ] Add `Map` support
+- [ ] Add additional header file support (external libs) 
+- [ ] Add additional header file support (create and use) 
+- [ ] Add `Class/Object` support
+- [ ] Add multi-file support
+- [ ] Add networking support (For Arduino, via: `ESP8266HTTPClient.h` and `WiFiClientSecureBearSSL.h` )
+- [ ] Setup PlatformIO installation
+- [ ] Add compiler flags for: setting mode (either Arduino/StandardC++), target platform (eg: `espressif8266` via an enum), board, framework, monitor_speed, upload speed (platform/IO). See [this](https://github.com/theapache64/green/blob/master/platformio.ini) for reference
+- [ ] Release 0.0.1
 
 ## 📝 License
 

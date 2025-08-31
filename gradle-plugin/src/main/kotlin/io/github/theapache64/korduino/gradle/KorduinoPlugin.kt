@@ -118,6 +118,7 @@ abstract class RunKorduinoTask : DefaultTask() {
     private fun executePioMonitor() {
         logger.info("Executing: pio device monitor")
 
+        // TODO: Support other platforms
         val script = $$"""
                         tell application "Terminal"
                             do script "cd '/Users/theapache64/Documents/PlatformIO/Projects/hello-pio' && export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH && pio device monitor"
