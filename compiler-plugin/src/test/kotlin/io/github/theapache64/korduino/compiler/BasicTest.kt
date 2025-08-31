@@ -6,6 +6,7 @@ import com.tschuchort.compiletesting.SourceFile
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.File
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class BasicTest {
     @OptIn(ExperimentalCompilerApi::class)
@@ -41,7 +42,7 @@ class BasicTest {
             
         """.trimIndent()
 
-        "x".should.be.equal("y")
+        actualOutput.should.equal(expectedOutput)
     }
 }
 

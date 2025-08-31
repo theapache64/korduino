@@ -8,18 +8,22 @@ version = "0.0.1"
 
 repositories {
     mavenCentral()
+    // mavenLocal()
     maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
-    // compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable")
     compileOnly(kotlin("compiler"))
 
-    // Testing
+    // ### Testing ###
     testImplementation(kotlin("test"))
     testImplementation(project(":core"))
+
+    // Kotlin Compiler for testing
     testImplementation("dev.zacsweers.kctfork:core:0.8.0")
-    testImplementation("com.github.theapache64:expekt:1.0.0")
+
+    // Assertion
+    testImplementation("com.github.theapache64:expekt:1.0.2")
 }
 
 tasks.test {
