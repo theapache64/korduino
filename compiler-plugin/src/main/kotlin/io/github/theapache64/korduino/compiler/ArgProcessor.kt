@@ -3,37 +3,36 @@ package io.github.theapache64.korduino.compiler
 import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
 import org.jetbrains.kotlin.compiler.plugin.CliOption
 import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
-import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.config.CompilerConfigurationKey
 
-enum class Target {
-    ARDUINO,
-    CPP
-}
-
-object PluginKeys {
-    val ENABLED = CompilerConfigurationKey<Boolean>("enabled")
-    val OUTPUT_FILE = CompilerConfigurationKey<String>("outputFile")
-    val TARGET = CompilerConfigurationKey<Target>("target") // TODO:
-}
-
-
-@OptIn(ExperimentalCompilerApi::class)
 class ArgProcessor : CommandLineProcessor {
 
     override val pluginId: String = "korduino"
 
-    override val pluginOptions: Collection<CliOption> = listOf(
-        CliOption("enabled", "<true|false>", "Enable the plugin", required = true),
-        CliOption("outputFile", "<path>", "Output file path", required = true),
-    )
+    override val pluginOptions: Collection<CliOption> =
+        ArgId.entries.map {
+            when (it) {
+                ArgId.ENABLED -> Arg.Enabled.toCliOption()
+                ArgId.MODE -> Arg.Mode.toCliOption()
+            }
+        }
 
     override fun processOption(option: AbstractCliOption, value: String, configuration: CompilerConfiguration) {
-
-        when (option.optionName) {
-            "enabled" -> configuration.put(PluginKeys.ENABLED, value.toBoolean())
-            "outputFile" -> configuration.put(PluginKeys.OUTPUT_FILE, value)
+        val argId = ArgId.valueOf(option.optionName)
+        when (argId) {
+            ArgId.ENABLED -> configuration.put(Arg.Enabled.key, value.toBoolean())
+            ArgId.MODE -> configuration.put(Arg.Mode.key, Arg.Mode.Platform.valueOf(value))
         }
     }
 }
+
+
+private fun Arg<*>.toCliOption(): CliOption {
+    return CliOption(
+        optionName = id.name,
+        valueDescription = valueDescription,
+        description = description,
+        required = isRequired
+    )
+}
+

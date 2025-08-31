@@ -4,7 +4,7 @@ import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
 import kotlin.test.Test
 
-class ArduinoTest {
+class StandardCppTest {
     @Test
     fun beginAndPrintln() {
 
@@ -16,8 +16,7 @@ class ArduinoTest {
             }
 
             fun loop() {
-                io.github.theapache64.korduino.core.Serial.println("Hello ESP!")
-                io.github.theapache64.korduino.core.delay(1000)
+                println("Hello ESP!")
             }
         """.trimIndent(),
         )
@@ -26,6 +25,7 @@ class ArduinoTest {
 
         val expectedOutput = """
             #include <Arduino.h>
+
             void setup() {
                 Serial.begin(115200);
             }

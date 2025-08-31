@@ -1,33 +1,49 @@
 package io.github.theapache64.korduino.compiler
 
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 
-val functionMap = mapOf(
-    "kotlin.io.println" to "Serial.println",
-    "io.github.theapache64.korduino.core.Serial.begin" to "Serial.begin",
-    "io.github.theapache64.korduino.core.Serial.println" to "Serial.println",
-    "io.github.theapache64.korduino.core.delay" to "delay"
+
+enum class Function(
+    val fqName: (value: String?) -> String,
+    val header: Header
+) {
+    // Arduino
+    PrintLn({ "Serial.println($it)" }, Header.Arduino),
+    Begin({ "Serial.begin($it)" }, Header.Arduino),
+    Delay({ "delay($it)" }, Header.Arduino),
+
+    // Std CPP
+    COUT({ "std::cout << \"$it\" << std::endl;" }, Header.IoStream)
+}
+
+private val arduinoFunctions = mapOf<String, Function>(
+    "kotlin.io.println" to Function.PrintLn,
+    "io.github.theapache64.korduino.core.Serial.println" to Function.PrintLn,
+    "io.github.theapache64.korduino.core.Serial.begin" to Function.Begin,
+    "io.github.theapache64.korduino.core.delay" to Function.Delay
 )
 
-class Visitor : IrVisitorVoid() {
+private val stdCppFunctions = mapOf<String, Function>(
+    "kotlin.io.println" to Function.COUT
+)
 
-    private val codeBuilder = StringBuilder()
+class Visitor(
+    private val platform: Arg.Mode.Platform
+) : IrVisitorVoid() {
 
-    fun generateCode(): String = codeBuilder.toString()
-
-
-    override fun visitModuleFragment(declaration: IrModuleFragment) {
-        codeBuilder.appendLine("#include <Arduino.h>")
-        codeBuilder.appendLine("")
-        super.visitModuleFragment(declaration)
+    private val functions = when (platform) {
+        Arg.Mode.Platform.ARDUINO -> arduinoFunctions
+        Arg.Mode.Platform.STD_CPP -> stdCppFunctions
     }
 
+    private val codeBuilder = StringBuilder()
+    fun generateCode(): String = codeBuilder.toString()
 
     override fun visitFunction(declaration: IrFunction) {
 
@@ -42,9 +58,9 @@ class Visitor : IrVisitorVoid() {
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
-        val cppFqName = functionMap[fqName] ?: error("Unsupported function name '$fqName'. Please raise a ticket here if you think its a framework miss -> https://github.com/theapache64/korduino/issues ")
+        val cppFqName = functions[fqName]
+            ?: error("Unsupported function name '$fqName' (platform: $platform) . Please raise a ticket here if you think its a framework miss -> https://github.com/theapache64/korduino/issues ")
         val argument = expression.arguments[0]
-
         val value = if (argument is IrConst) {
             val value = argument.value
             if (value is String) {
@@ -53,7 +69,6 @@ class Visitor : IrVisitorVoid() {
                 value.toString()
             }
         } else if (argument is IrGetObjectValue) {
-
             val value = (expression.arguments[function.parameters[1].symbol.owner] as IrConst).value
             if (value is String) {
                 "\"$value\""
@@ -63,10 +78,15 @@ class Visitor : IrVisitorVoid() {
         } else {
             ""
         }
-        codeBuilder.appendLine("""    $cppFqName($value);""")
+        codeBuilder.appendLine("""    ${cppFqName.fqName(value)};""")
+
+        // Check if header is present
+        if(!codeBuilder.contains(cppFqName.header)){
+            codeBuilder.add(cppFqName.header)
+        }
+
         super.visitCall(expression)
     }
-
 
 
     override fun visitElement(element: IrElement) {
