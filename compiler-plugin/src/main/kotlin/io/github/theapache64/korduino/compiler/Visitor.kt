@@ -15,7 +15,7 @@ enum class Function(
     val header: Header
 ) {
     // Arduino
-    PrintLn({ "Serial.println($it)" }, Header.Arduino),
+    PrintLn({ "Serial.println(\"$it\")" }, Header.Arduino),
     Begin({ "Serial.begin($it)" }, Header.Arduino),
     Delay({ "delay($it)" }, Header.Arduino),
 
@@ -23,8 +23,9 @@ enum class Function(
     COUT({ "std::cout << \"$it\" << std::endl" }, Header.IoStream)
 }
 
-private val commonDataTypes = mapOf<String, String>(
-    "Int" to "int"
+private val commonDataTypes = mapOf(
+    "Int" to "int",
+    "Unit" to "void",
 )
 
 private val arduinoDataTypes = mapOf<String, String>(
