@@ -7,10 +7,10 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.File
 import kotlin.test.Test
 
-class VisitorTest {
+class BasicTest {
     @OptIn(ExperimentalCompilerApi::class)
     @Test
-    fun test() {
+    fun beginAndPrintln() {
 
         val input = SourceFile.kotlin(
             "Main.kt",
@@ -32,16 +32,16 @@ class VisitorTest {
             #include <Arduino.h>
 
             void setup() {
-                io.github.theapache64.korduino.core.Serial.begin(115200);
+                Serial.begin(115200);
             }
             void loop() {
-                io.github.theapache64.korduino.core.Serial.println("Hello ESP!");
-                io.github.theapache64.korduino.core.delay(1000);
+                Serial.println("Hello ESP!");
+                delay(1000);
             }
             
         """.trimIndent()
 
-        actualOutput.should.equal(expectedOutput)
+        "x".should.be.equal("y")
     }
 }
 

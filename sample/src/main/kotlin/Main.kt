@@ -6,6 +6,6 @@ fun setup() {
 }
 
 fun loop() {
-    Serial.println("Hello SP!")
+    Serial.println("Hello ESSP!!")
     delay(1000)
 }

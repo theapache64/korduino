@@ -12,9 +12,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable")
-    testImplementation(kotlin("test"))
+    // compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable")
+    compileOnly(kotlin("compiler"))
 
+    // Testing
+    testImplementation(kotlin("test"))
     testImplementation(project(":core"))
     testImplementation("dev.zacsweers.kctfork:core:0.8.0")
     testImplementation("com.github.theapache64:expekt:1.0.0")
