@@ -1,5 +1,7 @@
-package io.github.theapache64.korduino.compiler
+package io.github.theapache64.korduino.compiler.core
 
+import io.github.theapache64.korduino.compiler.Arg
+import io.github.theapache64.korduino.compiler.ArgId
 import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
 import org.jetbrains.kotlin.compiler.plugin.CliOption
 import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor

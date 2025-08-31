@@ -3,6 +3,8 @@ package io.github.theapache64.korduino.compiler
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import io.github.theapache64.korduino.compiler.core.ArgProcessor
+import io.github.theapache64.korduino.compiler.core.Registrar
 
 
 fun compileArduino(sourceFiles: List<SourceFile>): JvmCompilationResult {

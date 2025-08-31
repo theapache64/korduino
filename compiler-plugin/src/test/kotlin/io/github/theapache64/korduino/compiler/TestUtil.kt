@@ -1,6 +1,7 @@
 package io.github.theapache64.korduino.compiler
 
 import com.tschuchort.compiletesting.JvmCompilationResult
+import io.github.theapache64.korduino.compiler.core.Extension
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.File
 

@@ -1,5 +1,6 @@
-package io.github.theapache64.korduino.compiler
+package io.github.theapache64.korduino.compiler.core
 
+import io.github.theapache64.korduino.compiler.Arg
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
