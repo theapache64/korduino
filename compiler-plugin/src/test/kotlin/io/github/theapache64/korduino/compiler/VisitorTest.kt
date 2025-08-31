@@ -15,16 +15,13 @@ class VisitorTest {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
-            import io.github.theapache64.korduino.core.Serial
-            import io.github.theapache64.korduino.core.delay
-
             fun setup() {
-                Serial.begin(115200)
+                io.github.theapache64.korduino.core.Serial.begin(115200)
             }
 
             fun loop() {
-                Serial.println("Hello SP!")
-                delay(1000)
+                io.github.theapache64.korduino.core.Serial.println("Hello ESP!")
+                io.github.theapache64.korduino.core.delay(1000)
             }
         """.trimIndent(),
         )
@@ -38,7 +35,7 @@ class VisitorTest {
                 io.github.theapache64.korduino.core.Serial.begin(115200);
             }
             void loop() {
-                io.github.theapache64.korduino.core.Serial.println("Hello SP!");
+                io.github.theapache64.korduino.core.Serial.println("Hello ESP!");
                 io.github.theapache64.korduino.core.delay(1000);
             }
             

@@ -65,7 +65,7 @@ Give a ⭐️ if this project helped you!
 ## ☑️ TODO
 
 - [x] [POC](https://x.com/theapache64/status/1961612291243458703) showing end-to-end flow
-- [ ] TODO
+- [ ] 
 
 ## 📝 License
 
