@@ -32,4 +32,32 @@ class PrintLnTest {
 
         actualOutput.should.equal(expectedOutput)
     }
+
+    @Test
+    fun multiple() {
+
+        val input = SourceFile.Companion.kotlin(
+            "Main.kt",
+            """
+            fun main() : Int {
+                println("Hello Kotlin!")
+                println("Hello Kotlin 2!")
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput()
+
+        val expectedOutput = """
+            #include <iostream>
+            int main() {
+                std::cout << "Hello Kotlin!" << std::endl;
+                std::cout << "Hello Kotlin 2!" << std::endl;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
 }
