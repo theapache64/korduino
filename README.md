@@ -1,6 +1,6 @@
 ![](cover.jpeg)
 
-# korduino
+# 🚧 korduino [WORK IN PROGRESS]
 
 <a href="https://twitter.com/theapache64" target="_blank">
 <img alt="Twitter: theapache64" src="https://img.shields.io/twitter/follow/theapache64.svg?style=social" />
