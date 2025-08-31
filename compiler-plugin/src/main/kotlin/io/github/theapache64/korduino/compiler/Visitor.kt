@@ -9,7 +9,10 @@ import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 
 val functionMap = mapOf(
-    "kotlin.io.println" to "Serial.println"
+    "kotlin.io.println" to "Serial.println",
+    "io.github.theapache64.korduino.core.Serial.begin" to "Serial.begin",
+    "io.github.theapache64.korduino.core.Serial.println" to "Serial.println",
+    "io.github.theapache64.korduino.core.delay" to "delay"
 )
 
 class Visitor : IrVisitorVoid() {
