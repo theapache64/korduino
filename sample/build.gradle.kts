@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "2.2.0"
     id("io.github.theapache64.korduino.gradle")
@@ -18,8 +20,7 @@ dependencies {
 }
 
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-
+tasks.withType<KotlinCompile>().configureEach {
     compilerOptions.freeCompilerArgs.addAll(
         "-P", "plugin:korduino:outputFile=/Users/theapache64/Documents/PlatformIO/Projects/hello-pio/src/main.cpp",
         "-P", "plugin:korduino:enabled=true"

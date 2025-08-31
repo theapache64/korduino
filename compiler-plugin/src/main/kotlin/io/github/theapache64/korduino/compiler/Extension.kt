@@ -12,6 +12,9 @@ class Extension(
     private val outputFilePath: String
 ) : IrGenerationExtension {
 
+    companion object {
+        const val CPP_MSG_PREFIX = "C\\+\\+ code generated at: "
+    }
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         val visitor = Visitor()
@@ -22,7 +25,7 @@ class Extension(
         file.writeText(cppCode)
         messageCollector.report(
             org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.INFO,
-            "C++ code generated at: '${file.absolutePath}'"
+            "$CPP_MSG_PREFIX '${file.absolutePath}'"
         )
     }
 }

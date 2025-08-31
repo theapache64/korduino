@@ -42,7 +42,7 @@ class Visitor : IrVisitorVoid() {
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
-        val cppFqName = functionMap[fqName] ?: fqName
+        val cppFqName = functionMap[fqName] ?: error("Unsupported function name '$fqName'. Please raise a ticket here if you think its a framework miss -> https://github.com/theapache64/korduino/issues ")
         val argument = expression.arguments[0]
 
         val value = if (argument is IrConst) {

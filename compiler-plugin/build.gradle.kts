@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "2.2.0"
     id("java-gradle-plugin")
@@ -29,6 +31,18 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(17)
+}
+
+tasks.withType<KotlinCompile> {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            listOf(
+                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi"
+            )
+        )
+    }
 }

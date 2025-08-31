@@ -6,9 +6,7 @@ import com.tschuchort.compiletesting.SourceFile
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.utils.indexOfFirst
 import org.junit.jupiter.api.Assertions
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import java.lang.reflect.InvocationTargetException
+import java.io.File
 
 fun assertFunction(javaCode: String, functionStatement: String, expectedFunction: String) {
     Assertions.assertEquals(expectedFunction, fetchMethodByPrefix(javaCode, functionStatement))
@@ -23,9 +21,8 @@ fun fetchMethodByPrefix(classText: String, methodSignaturePrefix: String): Strin
         "Method with prefix '$methodSignaturePrefix' not found within class:\n$classText"
     }
 
-    val multiplePrefixMatches = classLines
-        .indexOfFirst(methodFirstLineIndex + 1, methodSignaturePredicate)
-        .let { index -> index != -1 }
+    val multiplePrefixMatches =
+        classLines.indexOfFirst(methodFirstLineIndex + 1, methodSignaturePredicate).let { index -> index != -1 }
 
     check(!multiplePrefixMatches) {
         "Multiple methods with prefix '$methodSignaturePrefix' found within class:\n$classText"
@@ -46,14 +43,11 @@ fun fetchMethodByPrefix(classText: String, methodSignaturePrefix: String): Strin
         currentLineIndex++
     }
 
-    return classLines
-        .subList(methodFirstLineIndex, currentLineIndex)
+    return classLines.subList(methodFirstLineIndex, currentLineIndex)
         .joinToString("\n") { it.substring(indentationSize) }
 }
 
 
-
-@OptIn(ExperimentalCompilerApi::class)
 fun compile(
     sourceFiles: List<SourceFile>,
 ): JvmCompilationResult {
@@ -68,22 +62,8 @@ fun compile(
 
 
 @OptIn(ExperimentalCompilerApi::class)
-fun invokeMain(result: JvmCompilationResult, className: String): String {
-    val oldOut = System.out
-    try {
-        val buffer = ByteArrayOutputStream()
-        System.setOut(PrintStream(buffer, false, "UTF-8"))
-
-        try {
-            val kClazz = result.classLoader.loadClass(className)
-            val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
-            main.invoke(null)
-        } catch (e: InvocationTargetException) {
-            throw e.targetException
-        }
-
-        return buffer.toString("UTF-8")
-    } finally {
-        System.setOut(oldOut)
-    }
+fun JvmCompilationResult.readActualOutput(): String {
+    val pattern = "${Extension.CPP_MSG_PREFIX}'(.+)'".toRegex()
+    val filePath = pattern.find(this.messages)?.groups[1]?.value ?: error("Couldn't find output file from messages")
+    return File(filePath).readText()
 }
