@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
+import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 
@@ -19,8 +20,18 @@ enum class Function(
     Delay({ "delay($it)" }, Header.Arduino),
 
     // Std CPP
-    COUT({ "std::cout << \"$it\" << std::endl;" }, Header.IoStream)
+    COUT({ "std::cout << \"$it\" << std::endl" }, Header.IoStream)
 }
+
+private val commonDataTypes = mapOf<String, String>(
+    "Int" to "int"
+)
+
+private val arduinoDataTypes = mapOf<String, String>(
+
+)
+
+private val dataTypes = commonDataTypes + arduinoDataTypes
 
 private val arduinoFunctions = mapOf<String, Function>(
     "kotlin.io.println" to Function.PrintLn,
@@ -37,6 +48,10 @@ class Visitor(
     private val platform: Arg.Mode.Platform
 ) : IrVisitorVoid() {
 
+    companion object {
+        const val LINK_GITHUB_ISSUES = "https://github.com/theapache64/korduino/issues/new"
+    }
+
     private val functions = when (platform) {
         Arg.Mode.Platform.ARDUINO -> arduinoFunctions
         Arg.Mode.Platform.STD_CPP -> stdCppFunctions
@@ -48,7 +63,10 @@ class Visitor(
     override fun visitFunction(declaration: IrFunction) {
 
         if (declaration.parameters.isEmpty() && declaration.name.asString() != "<init>") {
-            codeBuilder.appendLine("void ${declaration.name.asString()}() {")
+            val dataTypeClassName = declaration.returnType.getClass()?.name?.asString()
+            val returnType = dataTypes.get(key = dataTypeClassName)
+                ?: error("Unsupported data type '$dataTypeClassName' (platform: $platform) . Please raise a ticket here if you think its a framework miss -> $LINK_GITHUB_ISSUES ")
+            codeBuilder.appendLine("$returnType ${declaration.name.asString()}() {")
             super.visitFunction(declaration)
             codeBuilder.appendLine("}")
         }
@@ -59,29 +77,27 @@ class Visitor(
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
         val cppFqName = functions[fqName]
-            ?: error("Unsupported function name '$fqName' (platform: $platform) . Please raise a ticket here if you think its a framework miss -> https://github.com/theapache64/korduino/issues ")
+            ?: error("Unsupported function name '$fqName' (platform: $platform) . Please raise a ticket here if you think its a framework miss -> $LINK_GITHUB_ISSUES ")
         val argument = expression.arguments[0]
-        val value = if (argument is IrConst) {
-            val value = argument.value
-            if (value is String) {
-                "\"$value\""
-            } else {
-                value.toString()
+        val value = when (argument) {
+            is IrConst -> {
+                val value = argument.value
+                value as? String ?: value.toString()
             }
-        } else if (argument is IrGetObjectValue) {
-            val value = (expression.arguments[function.parameters[1].symbol.owner] as IrConst).value
-            if (value is String) {
-                "\"$value\""
-            } else {
-                value.toString()
+
+            is IrGetObjectValue -> {
+                val value = (expression.arguments[function.parameters[1].symbol.owner] as IrConst).value
+                value as? String ?: value.toString()
             }
-        } else {
-            ""
+
+            else -> {
+                ""
+            }
         }
         codeBuilder.appendLine("""    ${cppFqName.fqName(value)};""")
 
         // Check if header is present
-        if(!codeBuilder.contains(cppFqName.header)){
+        if (!codeBuilder.contains(cppFqName.header)) {
             codeBuilder.add(cppFqName.header)
         }
 
