@@ -23,7 +23,7 @@ dependencies {
     testImplementation("dev.zacsweers.kctfork:core:0.8.0")
 
     // Assertion
-    testImplementation("com.github.theapache64:expekt:1.0.2")
+    testImplementation("com.github.theapache64:expekt:1.0.3")
 }
 
 tasks.test {

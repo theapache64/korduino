@@ -68,7 +68,7 @@ Give a ⭐️ if this project helped you!
 > Secondary Goal: Standard C++ Support
 
 - [x] [POC](https://x.com/theapache64/status/1961612291243458703) showing end-to-end flow
-- [ ] 🚧 Setup testing framework
+- [x] Setup testing framework
 - [ ] 🚧 Basic : println + delay support
 - [ ] Add mode support (C++/Arduino) (arch)
 - [ ] Add `pinMode` support
