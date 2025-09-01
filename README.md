@@ -71,7 +71,7 @@ Give a ⭐️ if this project helped you!
 - [x] Basic : println + delay support
 - [x] Add mode support (C++/Arduino) (arch)
 - [x] Add `pinMode` support
-- [ ] Setup PlatformIO installation (building, uploading, and serial monitor)
+- [ ] 🚧 Setup PlatformIO installation (building, uploading, and serial monitor)
 - [ ] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
 - [ ] Add `int/String/Long/Double/Float/Boolean` support
 - [ ] Add `function` support (with `return`)
@@ -82,6 +82,7 @@ Give a ⭐️ if this project helped you!
 - [ ] Add `Array` support
 - [ ] Add `List` support
 - [ ] Add `Map` support
+- [ ] Add nested structure support (nested-ifs, nested-loops etc)
 - [ ] Add additional header file support (external libs) 
 - [ ] Add additional header file support (create and use) 
 - [ ] Add `Class/Object` support

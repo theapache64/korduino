@@ -23,13 +23,15 @@ class Extension(
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         val visitor = Visitor(platform)
         moduleFragment.accept(visitor, null)
-        val files = mutableListOf<Path>()
-        val fileName = moduleFragment.files[0].nameWithoutExtension // TODO: Manage multiple files
-        val cppCode = visitor.generateCode()
-        val file = createTempFile(fileName, suffix = ".cpp").apply {
-            writeText(cppCode)
+        val files = mutableListOf<Path>().apply {
+            for (moduleFile in moduleFragment.files) {
+                val cppCode = visitor.generateCode() // TODO: Support multiple files
+                val file = createTempFile(moduleFile.nameWithoutExtension, suffix = ".cpp").apply {
+                    writeText(cppCode)
+                }
+                add(file)
+            }
         }
-        files.add(file)
         val srcDir = Pio.create(files)
         messageCollector.report(
             CompilerMessageSeverity.INFO, "$CPP_MSG_PREFIX'${srcDir.absolutePathString()}'"
