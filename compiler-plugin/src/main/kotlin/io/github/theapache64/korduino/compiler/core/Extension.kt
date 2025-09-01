@@ -24,12 +24,12 @@ class Extension(
         val visitor = Visitor(platform)
         moduleFragment.accept(visitor, null)
         val files = mutableListOf<Path>()
-        val fileName = moduleFragment.files[0].nameWithoutExtension
+        val fileName = moduleFragment.files[0].nameWithoutExtension // TODO: Manage multiple files
         val cppCode = visitor.generateCode()
         val file = createTempFile(fileName, suffix = ".cpp").apply {
             writeText(cppCode)
         }
-        files.add(file) // TODO: Manage multiple files
+        files.add(file)
         val srcDir = Pio.create(files)
         messageCollector.report(
             CompilerMessageSeverity.INFO, "$CPP_MSG_PREFIX'${srcDir.absolutePathString()}'"
