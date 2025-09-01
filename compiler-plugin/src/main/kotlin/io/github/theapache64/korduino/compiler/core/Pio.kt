@@ -2,18 +2,23 @@ package io.github.theapache64.korduino.compiler.core
 
 import io.github.theapache64.korduino.util.unzip
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.Path
-import kotlin.io.path.copyTo
-import kotlin.io.path.name
+import kotlin.io.path.*
 
 object Pio {
     @OptIn(ExperimentalPathApi::class)
     fun create(cppFiles: List<Path>): Path {
         val zipPath = Pio::class.java.getResource("/pio.zip")?.path ?: error("Couldn't find pio zip file in resources")
-        val srcZipPath = Path(zipPath)
+        var srcZipPath = Path(zipPath)
+        if (!srcZipPath.exists()) {
+            // Read from JAR otherwise.
+            val zipStream = Pio::class.java
+                .getResourceAsStream("/pio.zip") ?: error("Couldn't find pio zip file in compiler JAR")
+            srcZipPath = createTempFile("pio", suffix = ".zip").apply {
+                toFile().writeBytes(zipStream.readBytes())
+            }
+        }
         val pioDir = srcZipPath.unzip()
-        val srcDir = pioDir.resolve("src")
+        val srcDir = pioDir.resolve("pio/src")
         for (cppFile in cppFiles) {
             cppFile.copyTo(srcDir.resolve(cppFile.name))
         }

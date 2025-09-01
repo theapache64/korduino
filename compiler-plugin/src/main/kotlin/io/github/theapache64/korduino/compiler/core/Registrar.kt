@@ -18,7 +18,7 @@ class Registrar : CompilerPluginRegistrar() {
         val platform = configuration.get(Arg.Mode.key, Arg.Mode.Platform.ARDUINO)
 
         IrGenerationExtension.registerExtension(
-            extension = Extension(messageCollector, outputFile, platform)
+            extension = Extension(messageCollector, platform)
         )
     }
 

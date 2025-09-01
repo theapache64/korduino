@@ -40,5 +40,6 @@ private fun compile(
 fun JvmCompilationResult.readActualOutput(): String {
     val pattern = "${Extension.CPP_MSG_PREFIX}'(.+)'".toRegex()
     val filePath = pattern.find(this.messages)?.groups[1]?.value ?: error("Couldn't find output file from messages")
-    return File(filePath).readText()
+    val outputDir = File(filePath).resolve("pio/src/")
+    return outputDir.listFiles().filter { it.extension == "cpp" }[0].readText()
 }

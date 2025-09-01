@@ -26,7 +26,7 @@ class PioTest {
             )
         }
         val dir = Pio.create(listOf(inputCppFile))
-        val actualCppFile = dir.resolve("src/${inputCppFile.name}")
+        val actualCppFile = dir.resolve("pio/src/${inputCppFile.name}")
 
         actualCppFile.exists().should.`true`
         actualCppFile.readText().should.equal(inputCppFile.readText())

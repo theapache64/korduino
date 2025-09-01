@@ -27,7 +27,7 @@ sealed class Arg<T>(
         key = CompilerConfigurationKey(ArgId.MODE.name),
         valueDescription = "<${Platform.entries.joinToString(separator = "|", transform = { it.name })}>",
         description = "Mode decides the C++ file structure",
-        isRequired = true
+        isRequired = false
     ) {
         enum class Platform {
             ARDUINO,
