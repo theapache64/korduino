@@ -19,13 +19,7 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions.freeCompilerArgs.addAll(
-        "-P", "plugin:korduino:MODE=ARDUINO",
-        "-P", "plugin:korduino:ENABLED=true" // optional
-    )
+korduino {
 }
 
 tasks.test {

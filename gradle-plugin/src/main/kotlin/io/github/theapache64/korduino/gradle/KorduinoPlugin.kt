@@ -19,6 +19,14 @@ class KorduinoPlugin : Plugin<Project> {
         project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
             task.compilerOptions {
                 freeCompilerArgs.addAll("-P", "plugin:korduino:BUILD_DIR=$buildDir")
+                freeCompilerArgs.addAll("-P", "plugin:korduino:MODE=${extension.mode ?: error("""
+                    Korduino mode not set. <ARDUINO|STD_CPP>
+                    
+                    // example
+                    korduino {
+                        mode = "ARDUINO"
+                    }
+                """.trimIndent())}")
             }
         }
 
@@ -34,6 +42,7 @@ class KorduinoPlugin : Plugin<Project> {
 
 open class KorduinoExtension {
     var buildDir: File? = null
+    var mode: String? = null
 }
 
 abstract class RunKorduinoTask : DefaultTask() {
@@ -57,18 +66,13 @@ abstract class RunKorduinoTask : DefaultTask() {
         }
     }
 
-    private fun launchTerminal(dir: File, command: String) {
+    private fun launchTerminal(dir: File, @Suppress("SameParameterValue") command: String) {
         try {
             val processBuilder = when {
                 System.getProperty("os.name").lowercase().contains("windows") -> {
                     // Windows: Use cmd.exe
                     ProcessBuilder(
-                        "cmd.exe",
-                        "/c",
-                        "start",
-                        "cmd.exe",
-                        "/k",
-                        "cd /d \"${dir.absolutePath}\" && $command"
+                        "cmd.exe", "/c", "start", "cmd.exe", "/k", "cd /d \"${dir.absolutePath}\" && $command"
                     )
                 }
 
@@ -99,13 +103,7 @@ abstract class RunKorduinoTask : DefaultTask() {
                         )
 
                         "konsole" -> ProcessBuilder(
-                            "konsole",
-                            "--workdir",
-                            dir.absolutePath,
-                            "-e",
-                            "bash",
-                            "-c",
-                            "$command; exec bash"
+                            "konsole", "--workdir", dir.absolutePath, "-e", "bash", "-c", "$command; exec bash"
                         )
 
                         "xfce4-terminal" -> ProcessBuilder(
@@ -115,9 +113,7 @@ abstract class RunKorduinoTask : DefaultTask() {
                         )
 
                         "xterm" -> ProcessBuilder(
-                            "xterm",
-                            "-e",
-                            "bash -c 'cd \"${dir.absolutePath}\" && $command; exec bash'"
+                            "xterm", "-e", "bash -c 'cd \"${dir.absolutePath}\" && $command; exec bash'"
                         )
 
                         else -> throw RuntimeException("No supported terminal emulator found")
@@ -140,14 +136,13 @@ abstract class RunKorduinoTask : DefaultTask() {
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun executeCommand(
         command: String
     ) {
-        val process = ProcessBuilder(*command.split(" ").toTypedArray())
-            .directory(extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"))
-            .redirectOutput(ProcessBuilder.Redirect.PIPE)
-            .redirectError(ProcessBuilder.Redirect.PIPE)
-            .start()
+        val process = ProcessBuilder(*command.split(" ").toTypedArray()).directory(
+                extension.buildDir?.resolve("pio") ?: error("buildDir can't be null")
+            ).redirectOutput(ProcessBuilder.Redirect.PIPE).redirectError(ProcessBuilder.Redirect.PIPE).start()
 
 
         val outputThread = Thread {
