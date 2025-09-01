@@ -47,13 +47,98 @@ abstract class RunKorduinoTask : DefaultTask() {
             // Build and upload code
             executeCommand("pio run --target upload")
             // Start serial monitor
-            executeCommand("script -q /dev/null pio device monitor --raw")
+            launchTerminal(
+                dir = extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
+                command = "pio device monitor"
+            )
         } catch (e: Exception) {
             logger.error("Task execution failed: ${e.message}", e)
             throw e
         }
     }
 
+    private fun launchTerminal(dir: File, command: String) {
+        try {
+            val processBuilder = when {
+                System.getProperty("os.name").lowercase().contains("windows") -> {
+                    // Windows: Use cmd.exe
+                    ProcessBuilder(
+                        "cmd.exe",
+                        "/c",
+                        "start",
+                        "cmd.exe",
+                        "/k",
+                        "cd /d \"${dir.absolutePath}\" && $command"
+                    )
+                }
+
+                System.getProperty("os.name").lowercase().contains("mac") -> {
+                    // macOS: Use Terminal.app with AppleScript
+                    val script = """
+                    tell application "Terminal"
+                        activate
+                        do script "cd '${dir.absolutePath}' && $command"
+                    end tell
+                """.trimIndent()
+                    ProcessBuilder("osascript", "-e", script)
+                }
+
+                else -> {
+                    // Linux/Unix: Try common terminal emulators
+                    val terminals = listOf("gnome-terminal", "konsole", "xfce4-terminal", "xterm")
+                    val availableTerminal = terminals.firstOrNull { isCommandAvailable(it) }
+
+                    when (availableTerminal) {
+                        "gnome-terminal" -> ProcessBuilder(
+                            "gnome-terminal",
+                            "--working-directory=${dir.absolutePath}",
+                            "--",
+                            "bash",
+                            "-c",
+                            "$command; exec bash"
+                        )
+
+                        "konsole" -> ProcessBuilder(
+                            "konsole",
+                            "--workdir",
+                            dir.absolutePath,
+                            "-e",
+                            "bash",
+                            "-c",
+                            "$command; exec bash"
+                        )
+
+                        "xfce4-terminal" -> ProcessBuilder(
+                            "xfce4-terminal",
+                            "--working-directory=${dir.absolutePath}",
+                            "--command=bash -c '$command; exec bash'"
+                        )
+
+                        "xterm" -> ProcessBuilder(
+                            "xterm",
+                            "-e",
+                            "bash -c 'cd \"${dir.absolutePath}\" && $command; exec bash'"
+                        )
+
+                        else -> throw RuntimeException("No supported terminal emulator found")
+                    }
+                }
+            }
+
+            processBuilder.start()
+        } catch (e: Exception) {
+            println("Failed to launch terminal: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    private fun isCommandAvailable(command: String): Boolean {
+        return try {
+            ProcessBuilder("which", command).start().waitFor() == 0
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     private fun executeCommand(
         command: String
