@@ -35,7 +35,7 @@ fun Path.unzip(
                             parent.createDirectories()
                         }
                     }
-
+                    outputFile.deleteIfExists()
                     outputFile.createFile()
                     outputFile.outputStream().use { output ->
                         input.copyTo(output)

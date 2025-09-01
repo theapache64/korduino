@@ -32,6 +32,7 @@ private fun compile(
         messageOutputStream = System.out
         kotlincArguments += listOf(
             "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:MODE=${platform.name}",
+            "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:BUILD_DIR=build",
         )
     }.compile()
 }

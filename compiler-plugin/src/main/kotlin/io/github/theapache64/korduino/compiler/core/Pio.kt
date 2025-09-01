@@ -20,7 +20,7 @@ object Pio {
         val pioDir = srcZipPath.unzip(Path(buildDir))
         val srcDir = pioDir.resolve("pio/src")
         for (cppFile in cppFiles) {
-            cppFile.copyTo(srcDir.resolve(cppFile.name))
+            cppFile.copyTo(srcDir.resolve(cppFile.name), overwrite = true)
         }
         return pioDir
     }
