@@ -30,5 +30,6 @@ class PioTest {
 
         actualCppFile.exists().should.`true`
         actualCppFile.readText().should.equal(inputCppFile.readText())
+        inputCppFile.deleteIfExists()
     }
 }

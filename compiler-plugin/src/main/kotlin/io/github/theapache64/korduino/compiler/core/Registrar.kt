@@ -15,9 +15,6 @@ class Registrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         val messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
-
-        // TODO: Make this dynamic
-        val outputFile = "/Users/theapache64/Documents/PlatformIO/Projects/hello-pio/src/main.cpp"
         val platform = configuration.get(Arg.Mode.key, Arg.Mode.Platform.ARDUINO)
 
         IrGenerationExtension.registerExtension(
