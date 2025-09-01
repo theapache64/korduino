@@ -14,14 +14,10 @@ enum class Function(
     COUT({ "std::cout << \"$it\" << std::endl" }, Header.IoStream)
 }
 
-val arduinoFunctions = mapOf<String, Function>(
-    "kotlin.io.println" to Function.PrintLn,
+val functions = mapOf<String, Function>(
+    "kotlin.io.println" to Function.COUT,
     "io.github.theapache64.korduino.core.Serial.println" to Function.PrintLn,
     "io.github.theapache64.korduino.core.Serial.begin" to Function.Begin,
     "io.github.theapache64.korduino.core.delay" to Function.Delay,
     "io.github.theapache64.korduino.core.pinMode" to Function.PinMode,
-)
-
-val stdCppFunctions = mapOf<String, Function>(
-    "kotlin.io.println" to Function.COUT
 )

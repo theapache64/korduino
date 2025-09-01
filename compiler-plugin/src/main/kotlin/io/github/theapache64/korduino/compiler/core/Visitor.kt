@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 
 
 class Visitor(
@@ -22,13 +23,12 @@ class Visitor(
             "Please raise a issue here if you think its a framework miss -> https://github.com/theapache64/korduino/issues/new"
     }
 
-    private val functions = when (platform) {
-        Arg.Mode.Platform.ARDUINO -> arduinoFunctions
-        Arg.Mode.Platform.STD_CPP -> stdCppFunctions
-    }
-
     private val codeBuilder = StringBuilder()
     fun generateCode(): String = codeBuilder.toString()
+
+    override fun visitElement(element: IrElement) {
+        element.acceptChildrenVoid(this)
+    }
 
     override fun visitFunction(declaration: IrFunction) {
 
@@ -42,7 +42,7 @@ class Visitor(
                 codeBuilder.addHeader(returnType)
             }
 
-            super.visitFunction(declaration)
+            super.visitFunction(declaration) // TODO: Explore: declaration.acceptChildrenVoid(this)
             codeBuilder.appendLine("}")
         }
     }
@@ -89,8 +89,6 @@ class Visitor(
     }
 
 
-    override fun visitElement(element: IrElement) {
-        element.acceptChildren(this, null)
-    }
+
 }
 
