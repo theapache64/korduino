@@ -2,7 +2,7 @@ package io.github.theapache64.korduino.compiler
 
 enum class DataType(
     val type: String,
-    val header: String? = null
+    val extraHeader: String? = null
 ) {
     INT("int"),
     VOID("void"),

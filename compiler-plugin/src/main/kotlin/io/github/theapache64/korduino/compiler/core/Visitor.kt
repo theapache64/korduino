@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
+import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
@@ -37,7 +38,7 @@ class Visitor(
                 ?: error("Unsupported data type '$dataTypeClassName' (platform: $platform). $LINK_GITHUB_ISSUES ")
             codeBuilder.appendLine("${returnType.type} ${declaration.name.asString()}() {")
 
-            if (returnType.header != null && !codeBuilder.containsHeader(returnType)) {
+            if (returnType.extraHeader != null && !codeBuilder.containsHeader(returnType)) {
                 codeBuilder.addHeader(returnType)
             }
 
@@ -53,21 +54,31 @@ class Visitor(
         val fqName = function.fqNameWhenAvailable?.asString()
         val cppFqName = functions[fqName]
             ?: error("Unsupported function name '$fqName' (platform: $platform). $LINK_GITHUB_ISSUES ")
-        val argument = expression.arguments[0]
-        val value = when (argument) {
-            is IrConst -> {
-                val value = argument.value
-                value as? String ?: value.toString()
-            }
+        val argValues = mutableListOf<String>()
+        for (expArg in expression.arguments) {
+            if (expArg == null) continue
+            val argValue = when (expArg) {
+                is IrConst -> {
+                    val value = expArg.value
+                    value as? String ?: value.toString()
+                }
 
-            is IrGetObjectValue -> {
-                val value = (expression.arguments[function.parameters[1].symbol.owner] as IrConst).value
-                value as? String ?: value.toString()
-            }
+                is IrGetObjectValue -> {
+                    null
+                }
 
-            else -> ""
+                is IrGetEnumValueImpl -> {
+                    expArg.symbol.owner.name.asString()
+                }
+
+                else -> error("Unhandled argValue type ${expArg::class.simpleName}")
+            }
+            if (argValue != null) {
+                argValues.add(argValue)
+            }
         }
-        codeBuilder.appendLine("""    ${cppFqName.fqName(value)};""")
+
+        codeBuilder.appendLine("""    ${cppFqName.fqName(argValues.joinToString(separator = ", "))};""")
 
         // Check if the header is present
         if (!codeBuilder.containsHeader(cppFqName.header)) {

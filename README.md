@@ -70,7 +70,7 @@ Give a ⭐️ if this project helped you!
 - [x] Setup testing framework
 - [x] Basic : println + delay support
 - [x] Add mode support (C++/Arduino) (arch)
-- [ ] Setup PlatformIO installation (building, uploading and serial monitor)
+- [ ] Setup PlatformIO installation (building, uploading, and serial monitor)
 - [ ] Add `pinMode` support
 - [ ] Add `int/String/Long/Double/Float/Boolean` support
 - [ ] Add `function` support (with `return`)
