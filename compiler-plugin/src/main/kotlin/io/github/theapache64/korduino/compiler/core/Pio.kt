@@ -6,7 +6,7 @@ import kotlin.io.path.*
 
 object Pio {
     @OptIn(ExperimentalPathApi::class)
-    fun create(cppFiles: List<Path>): Path {
+    fun create(cppFiles: List<Path>, buildDir: String): Path {
         val zipPath = Pio::class.java.getResource("/pio.zip")?.path ?: error("Couldn't find pio zip file in resources")
         var srcZipPath = Path(zipPath)
         if (!srcZipPath.exists()) {
@@ -17,7 +17,7 @@ object Pio {
                 toFile().writeBytes(zipStream.readBytes())
             }
         }
-        val pioDir = srcZipPath.unzip()
+        val pioDir = srcZipPath.unzip(Path(buildDir))
         val srcDir = pioDir.resolve("pio/src")
         for (cppFile in cppFiles) {
             cppFile.copyTo(srcDir.resolve(cppFile.name))

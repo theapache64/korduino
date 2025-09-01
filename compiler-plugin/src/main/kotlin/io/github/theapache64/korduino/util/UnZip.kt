@@ -21,10 +21,9 @@ import java.util.zip.ZipFile
 import kotlin.io.path.*
 
 fun Path.unzip(
-    outputDir: Path = getDefaultOutputDir(this)
+    outputDir: Path
 ): Path {
     // Delete existing first
-    outputDir.toFile().deleteRecursively()
     ZipFile(this.toFile()).use { zip ->
         zip.entries().asSequence().forEach { entry ->
             if (!entry.isDirectory) {
@@ -47,8 +46,4 @@ fun Path.unzip(
     }
 
     return outputDir
-}
-
-fun getDefaultOutputDir(inputZipPath: Path): Path {
-    return inputZipPath.parent / inputZipPath.nameWithoutExtension
 }

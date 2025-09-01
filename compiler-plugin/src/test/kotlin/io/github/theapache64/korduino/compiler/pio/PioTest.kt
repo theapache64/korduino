@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class PioTest {
     @Test
-    fun unzip() {
+    fun sourceCreation() {
         val inputCppFile = createTempFile("sample_", ".cpp").apply {
             writeText(
                 """
@@ -25,7 +25,7 @@ class PioTest {
             """.trimIndent()
             )
         }
-        val dir = Pio.create(listOf(inputCppFile))
+        val dir = Pio.create(listOf(inputCppFile), "build")
         val actualCppFile = dir.resolve("pio/src/${inputCppFile.name}")
 
         actualCppFile.exists().should.`true`

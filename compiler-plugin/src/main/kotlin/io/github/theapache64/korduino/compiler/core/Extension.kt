@@ -7,17 +7,24 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.ir.backend.js.utils.nameWithoutExtension
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.createTempFile
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
 class Extension(
-    private val messageCollector: MessageCollector, private val platform: Arg.Mode.Platform
+    private val messageCollector: MessageCollector,
+    private val platform: Arg.Mode.Platform,
+    private val buildDir: String
 ) : IrGenerationExtension {
 
     companion object {
         const val CPP_MSG_PREFIX = "CPP code generated at: "
+    }
+
+    private val tempDir = Path("$buildDir${File.separator}cpp").also { tempDir ->
+        if (!tempDir.exists()) {
+            tempDir.createDirectories()
+        }
     }
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
@@ -26,13 +33,13 @@ class Extension(
         val files = mutableListOf<Path>().apply {
             for (moduleFile in moduleFragment.files) {
                 val cppCode = visitor.generateCode() // TODO: Support multiple files
-                val file = createTempFile(moduleFile.nameWithoutExtension, suffix = ".cpp").apply {
+                val file = tempDir.resolve("${moduleFile.nameWithoutExtension}.cpp").apply {
                     writeText(cppCode)
                 }
                 add(file)
             }
         }
-        val srcDir = Pio.create(files)
+        val srcDir = Pio.create(files, buildDir)
         messageCollector.report(
             CompilerMessageSeverity.INFO, "$CPP_MSG_PREFIX'${srcDir.absolutePathString()}'"
         )

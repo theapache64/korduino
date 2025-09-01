@@ -16,9 +16,9 @@ class Registrar : CompilerPluginRegistrar() {
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         val messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         val platform = configuration.get(Arg.Mode.key, Arg.Mode.Platform.ARDUINO)
-
+        val buildDir = configuration.get(Arg.BuildDir.key) ?: error("buildDir can't be null")
         IrGenerationExtension.registerExtension(
-            extension = Extension(messageCollector, platform)
+            extension = Extension(messageCollector, platform, buildDir)
         )
     }
 

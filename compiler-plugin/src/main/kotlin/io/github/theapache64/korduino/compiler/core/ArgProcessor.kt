@@ -16,6 +16,7 @@ class ArgProcessor : CommandLineProcessor {
             when (it) {
                 ArgId.ENABLED -> Arg.Enabled.toCliOption()
                 ArgId.MODE -> Arg.Mode.toCliOption()
+                ArgId.BUILD_DIR -> Arg.BuildDir.toCliOption()
             }
         }
 
@@ -24,6 +25,7 @@ class ArgProcessor : CommandLineProcessor {
         when (argId) {
             ArgId.ENABLED -> configuration.put(Arg.Enabled.key, value.toBoolean())
             ArgId.MODE -> configuration.put(Arg.Mode.key, Arg.Mode.Platform.valueOf(value))
+            ArgId.BUILD_DIR -> configuration.put(Arg.BuildDir.key, value)
         }
     }
 }
