@@ -8,3 +8,4 @@ rootProject.name = "korduino"
 include("core")
 include("compiler-plugin")
 include("sample")
+include("common")

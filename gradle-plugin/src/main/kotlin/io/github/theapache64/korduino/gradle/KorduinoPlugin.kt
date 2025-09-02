@@ -52,6 +52,9 @@ abstract class RunKorduinoTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
+        when(extension.mode){
+
+        }
         try {
             // Build and upload code
             executeCommand("pio run --target upload")
