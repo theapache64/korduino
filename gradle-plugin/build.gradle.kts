@@ -22,6 +22,7 @@ gradlePlugin {
 
 dependencies {
     implementation(kotlin("gradle-plugin"))
+    implementation(project(":common"))
     testImplementation(kotlin("test"))
 }
 
@@ -31,9 +32,4 @@ tasks.test {
 
 kotlin {
     jvmToolchain(17)
-    sourceSets {
-        main {
-            kotlin.srcDir("../common/src/main")
-        }
-    }
 }

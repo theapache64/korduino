@@ -1,11 +1,20 @@
 pluginManagement {
-    includeBuild("gradle-plugin")
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
 }
+
 rootProject.name = "korduino"
+
+include("common")
 include("core")
 include("compiler-plugin")
-include("sample")
-include("common")
+include("gradle-plugin")
+// include("sample")
