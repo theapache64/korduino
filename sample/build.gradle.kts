@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm") version "2.2.0"
     id("io.github.theapache64.korduino.gradle")
@@ -20,6 +18,7 @@ dependencies {
 }
 
 korduino {
+    mode = "ARDUINO"
 }
 
 tasks.test {

@@ -1,5 +1,6 @@
 package io.github.theapache64.korduino.gradle
 
+import io.github.theapache64.korduino.common.Hello
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -11,6 +12,9 @@ import java.io.File
 
 class KorduinoPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+        // Using Hello.say() function during plugin initialization
+        println("Korduino Plugin initialized: ${Hello.say()}")
+
         val extension = project.extensions.create("korduino", KorduinoExtension::class.java)
         val buildDir = extension.buildDir ?: project.layout.buildDirectory.asFile.get().also { buildDir ->
             extension.buildDir = buildDir
@@ -19,14 +23,20 @@ class KorduinoPlugin : Plugin<Project> {
         project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
             task.compilerOptions {
                 freeCompilerArgs.addAll("-P", "plugin:korduino:BUILD_DIR=$buildDir")
-                freeCompilerArgs.addAll("-P", "plugin:korduino:MODE=${extension.mode ?: error("""
+                freeCompilerArgs.addAll(
+                    "-P", "plugin:korduino:MODE=${
+                        extension.mode ?: error(
+                            """
                     Korduino mode not set. <ARDUINO|STD_CPP>
                     
                     // example
                     korduino {
                         mode = "ARDUINO"
                     }
-                """.trimIndent())}")
+                """.trimIndent()
+                        )
+                    }"
+                )
             }
         }
 
@@ -52,7 +62,7 @@ abstract class RunKorduinoTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        when(extension.mode){
+        when (extension.mode) {
 
         }
         try {
@@ -144,8 +154,8 @@ abstract class RunKorduinoTask : DefaultTask() {
         command: String
     ) {
         val process = ProcessBuilder(*command.split(" ").toTypedArray()).directory(
-                extension.buildDir?.resolve("pio") ?: error("buildDir can't be null")
-            ).redirectOutput(ProcessBuilder.Redirect.PIPE).redirectError(ProcessBuilder.Redirect.PIPE).start()
+            extension.buildDir?.resolve("pio") ?: error("buildDir can't be null")
+        ).redirectOutput(ProcessBuilder.Redirect.PIPE).redirectError(ProcessBuilder.Redirect.PIPE).start()
 
 
         val outputThread = Thread {
