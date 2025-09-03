@@ -22,7 +22,6 @@ gradlePlugin {
 
 dependencies {
     implementation(kotlin("gradle-plugin"))
-    implementation(project(":common"))
     testImplementation(kotlin("test"))
 }
 
