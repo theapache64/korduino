@@ -44,7 +44,7 @@ fun JvmCompilationResult.readActualOutput(platform: Arg.Platform.Target): String
     val outputDir = File(filePath).resolve(
         when(platform){
             Arg.Platform.Target.ARDUINO -> "pio/src/"
-            Arg.Platform.Target.STD_CPP -> ""
+            Arg.Platform.Target.STD_CPP -> "cpp"
         }
     )
     println("QuickTag: :readActualOutput: ${outputDir.absolutePath}")

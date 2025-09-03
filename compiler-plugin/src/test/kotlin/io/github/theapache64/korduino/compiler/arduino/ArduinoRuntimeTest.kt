@@ -1,12 +1,12 @@
-package io.github.theapache64.korduino.compiler.pio
+package io.github.theapache64.korduino.compiler.arduino
 
 import com.github.theapache64.expekt.should
-import io.github.theapache64.korduino.compiler.core.Pio
+import io.github.theapache64.korduino.compiler.core.ArduinoDirGenerator
 import org.jetbrains.kotlin.konan.file.createTempDir
 import kotlin.io.path.*
 import kotlin.test.Test
 
-class PioTest {
+class ArduinoRuntimeTest {
     @Test
     fun sourceCreation() {
         val inputCppFile = createTempFile("sample_", ".cpp").apply {
@@ -18,7 +18,7 @@ class PioTest {
                     Serial.begin(115200);
                     Serial.println("I 'was' Kotlin!");
                 }
-
+1
                 void loop() {
                     Serial.println("Hello Kotlin!");
                     delay(2000);
@@ -26,7 +26,7 @@ class PioTest {
             """.trimIndent()
             )
         }
-        val dir = Pio.create(listOf(inputCppFile), createTempDir("build").path)
+        val dir = ArduinoDirGenerator().create(listOf(inputCppFile), createTempDir("build").path)
         val actualCppFile = dir.resolve("pio/src/${inputCppFile.name}")
 
         actualCppFile.exists().should.`true`

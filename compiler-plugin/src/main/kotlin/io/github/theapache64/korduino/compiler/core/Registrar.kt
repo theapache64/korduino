@@ -14,8 +14,12 @@ class Registrar : CompilerPluginRegistrar() {
         val messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         val target = configuration.get(Arg.Platform.key, Arg.Platform.Target.ARDUINO)
         val buildDir = configuration.get(Arg.BuildDir.key) ?: error("buildDir can't be null")
+        val dirGenerator = when (target) {
+            Arg.Platform.Target.ARDUINO -> ArduinoDirGenerator()
+            Arg.Platform.Target.STD_CPP -> StdCppDirGenerator()
+        }
         IrGenerationExtension.registerExtension(
-            extension = Extension(messageCollector, target, buildDir)
+            extension = Extension(messageCollector, target, buildDir, dirGenerator)
         )
     }
 

@@ -14,7 +14,8 @@ import kotlin.io.path.*
 class Extension(
     private val messageCollector: MessageCollector,
     private val target: Arg.Platform.Target,
-    private val buildDir: String
+    private val buildDir: String,
+    private  val targetDirGenerator: TargetDirGenerator
 ) : IrGenerationExtension {
 
     companion object {
@@ -39,14 +40,7 @@ class Extension(
                 add(file)
             }
         }
-        val srcDir = when(target){
-            Arg.Platform.Target.ARDUINO -> {
-                Pio.create(files, buildDir)
-            }
-            Arg.Platform.Target.STD_CPP -> {
-                tempDir
-            }
-        }
+        val srcDir = targetDirGenerator.create(files, buildDir)
         messageCollector.report(
             CompilerMessageSeverity.INFO, "$CPP_MSG_PREFIX'${srcDir.absolutePathString()}'"
         )
