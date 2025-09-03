@@ -61,6 +61,6 @@ val functionalTest = tasks.register<Test>("functionalTest") {
     )
 }
 
-tasks.named("check") {
+tasks.named("test") {
     dependsOn(functionalTest)
 }
