@@ -3,7 +3,7 @@ package io.github.theapache64.korduino.compiler.util
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import io.github.theapache64.korduino.compiler.Arg
+import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.core.ArgProcessor
 import io.github.theapache64.korduino.compiler.core.Extension
 import io.github.theapache64.korduino.compiler.core.Registrar
@@ -12,16 +12,16 @@ import java.io.File
 
 
 fun compileArduino(sourceFiles: List<SourceFile>): JvmCompilationResult {
-    return compile(sourceFiles, Arg.Mode.Platform.ARDUINO)
+    return compile(sourceFiles, Arg.Platform.Target.ARDUINO)
 }
 
 fun compileStdCpp(sourceFiles: List<SourceFile>): JvmCompilationResult {
-    return compile(sourceFiles, Arg.Mode.Platform.STD_CPP)
+    return compile(sourceFiles, Arg.Platform.Target.STD_CPP)
 }
 
 private fun compile(
     sourceFiles: List<SourceFile>,
-    platform: Arg.Mode.Platform
+    target: Arg.Platform.Target
 ): JvmCompilationResult {
     return KotlinCompilation().apply {
         sources = sourceFiles
@@ -31,16 +31,22 @@ private fun compile(
         verbose = false
         messageOutputStream = System.out
         kotlincArguments += listOf(
-            "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:MODE=${platform.name}",
+            "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:PLATFORM=${target.name}",
             "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:BUILD_DIR=build",
         )
     }.compile()
 }
 
 @OptIn(ExperimentalCompilerApi::class)
-fun JvmCompilationResult.readActualOutput(): String {
+fun JvmCompilationResult.readActualOutput(platform: Arg.Platform.Target): String {
     val pattern = "${Extension.CPP_MSG_PREFIX}'(.+)'".toRegex()
     val filePath = pattern.find(this.messages)?.groups[1]?.value ?: error("Couldn't find output file from messages")
-    val outputDir = File(filePath).resolve("pio/src/")
+    val outputDir = File(filePath).resolve(
+        when(platform){
+            Arg.Platform.Target.ARDUINO -> "pio/src/"
+            Arg.Platform.Target.STD_CPP -> ""
+        }
+    )
+    println("QuickTag: :readActualOutput: ${outputDir.absolutePath}")
     return outputDir.listFiles().filter { it.extension == "cpp" }[0].readText()
 }

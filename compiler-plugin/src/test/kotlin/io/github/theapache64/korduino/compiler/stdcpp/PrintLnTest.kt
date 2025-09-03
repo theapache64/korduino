@@ -2,6 +2,7 @@ package io.github.theapache64.korduino.compiler.stdcpp
 
 import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
+import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.util.compileStdCpp
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
@@ -20,7 +21,7 @@ class PrintLnTest {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput()
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             #include <iostream>
@@ -47,7 +48,7 @@ class PrintLnTest {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput()
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             #include <iostream>
