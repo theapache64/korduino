@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("compiler"))
+    implementation(project(":common"))
     testImplementation(kotlin("test"))
 }
 
