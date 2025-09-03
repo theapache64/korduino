@@ -79,8 +79,15 @@ abstract class RunKorduinoTask : DefaultTask() {
                     throw e
                 }
             }
+
             Arg.Platform.Target.STD_CPP -> {
-                TODO()
+                try {
+                    val cppFile = extension.buildDir?.listFiles()?.find { it.extension == "cpp" } ?: error("Couldn't find a cpp file in '${extension.buildDir?.absolutePath}'")
+                    executeCommand("g++ ${cppFile.absolutePath} -o out && ./out")
+                } catch (e: Exception) {
+                    logger.error("Task execution failed: ${e.message}", e)
+                    throw e
+                }
             }
 
             null -> logger.error("Target can't be null")
