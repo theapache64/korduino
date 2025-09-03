@@ -29,6 +29,9 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    
+    // Ensure dependencies are published to maven local before running tests
+    dependsOn(":common:publishToMavenLocal")
 }
 
 kotlin {
@@ -49,6 +52,13 @@ val functionalTest = tasks.register<Test>("functionalTest") {
     group = "verification"
     testClassesDirs = sourceSets["functionalTests"].output.classesDirs
     classpath = sourceSets["functionalTests"].runtimeClasspath
+    
+    // Ensure all publishable modules are published to maven local before running tests
+    dependsOn(
+        ":common:publishToMavenLocal",
+        ":compiler-plugin:publishToMavenLocal", 
+        ":gradle-plugin:publishToMavenLocal"
+    )
 }
 
 tasks.named("check") {

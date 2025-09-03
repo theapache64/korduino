@@ -21,7 +21,7 @@ class KorduinoPlugin : Plugin<Project> {
 
         project.dependencies.add(
             "kotlinCompilerPluginClasspath",
-            "io.github.theapache64.korduino:compiler-plugin:0.0.1"
+            "io.github.theapache64.korduino:compiler-plugin:0.0.1" // TODO: The version and group name should come from root kts file
         )
 
 

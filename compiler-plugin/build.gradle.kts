@@ -27,6 +27,9 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    
+    // Ensure dependencies are published to maven local before running tests
+    dependsOn(":common:publishToMavenLocal")
 }
 
 kotlin {
