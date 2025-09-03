@@ -1,6 +1,6 @@
 package io.github.theapache64.korduino.compiler.core
 
-import io.github.theapache64.korduino.compiler.Arg
+import io.github.theapache64.korduino.common.Arg
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -13,7 +13,7 @@ import kotlin.io.path.*
 
 class Extension(
     private val messageCollector: MessageCollector,
-    private val platform: Arg.Mode.Platform,
+    private val target: Arg.Platform.Target,
     private val buildDir: String
 ) : IrGenerationExtension {
 
@@ -28,7 +28,7 @@ class Extension(
     }
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        val visitor = Visitor(platform)
+        val visitor = Visitor(target)
         moduleFragment.accept(visitor, null)
         val files = mutableListOf<Path>().apply {
             for (moduleFile in moduleFragment.files) {

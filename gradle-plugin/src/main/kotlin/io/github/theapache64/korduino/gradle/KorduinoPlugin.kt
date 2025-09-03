@@ -1,6 +1,6 @@
 package io.github.theapache64.korduino.gradle
 
-import io.github.theapache64.korduino.common.Hello
+import io.github.theapache64.korduino.common.Arg
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -17,9 +17,6 @@ class KorduinoPlugin : Plugin<Project> {
     }
 
     override fun apply(project: Project) {
-        // Using Hello.say() function during plugin initialization
-        println("Korduino Plugin initialized: ${Hello.say()}")
-
         val extension = project.extensions.create("korduino", KorduinoExtension::class.java)
         val buildDir = extension.buildDir ?: project.layout.buildDirectory.asFile.get().also { buildDir ->
             extension.buildDir = buildDir
@@ -30,7 +27,7 @@ class KorduinoPlugin : Plugin<Project> {
                 freeCompilerArgs.addAll("-P", "plugin:korduino:BUILD_DIR=$buildDir")
                 freeCompilerArgs.addAll(
                     "-P", "plugin:korduino:MODE=${
-                        extension.mode ?: error(
+                        extension.target ?: error(
                             """
                     Korduino mode not set. <ARDUINO|STD_CPP>
                     
@@ -57,7 +54,7 @@ class KorduinoPlugin : Plugin<Project> {
 
 open class KorduinoExtension {
     var buildDir: File? = null
-    var mode: String? = null
+    var target: Arg.Platform.Target? = null
 }
 
 abstract class RunKorduinoTask : DefaultTask() {
@@ -67,21 +64,28 @@ abstract class RunKorduinoTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        when (extension.mode) {
+        when (extension.target) {
+            Arg.Platform.Target.ARDUINO -> {
+                try {
+                    // Build and upload code
+                    executeCommand("pio run --target upload")
+                    // Start serial monitor
+                    launchTerminal(
+                        dir = extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
+                        command = "pio device monitor"
+                    )
+                } catch (e: Exception) {
+                    logger.error("Task execution failed: ${e.message}", e)
+                    throw e
+                }
+            }
+            Arg.Platform.Target.STD_CPP -> {
+                TODO()
+            }
 
+            null -> logger.error("Target can't be null")
         }
-        try {
-            // Build and upload code
-            executeCommand("pio run --target upload")
-            // Start serial monitor
-            launchTerminal(
-                dir = extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
-                command = "pio device monitor"
-            )
-        } catch (e: Exception) {
-            logger.error("Task execution failed: ${e.message}", e)
-            throw e
-        }
+
     }
 
     private fun launchTerminal(dir: File, @Suppress("SameParameterValue") command: String) {

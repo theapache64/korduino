@@ -1,10 +1,10 @@
-package io.github.theapache64.korduino.compiler
+package io.github.theapache64.korduino.common
 
 import org.jetbrains.kotlin.config.CompilerConfigurationKey
 
 enum class ArgId {
     ENABLED,
-    MODE,
+    PLATFORM,
     BUILD_DIR
 }
 
@@ -23,13 +23,13 @@ sealed class Arg<T>(
         isRequired = false
     )
 
-    object Mode : Arg<Mode.Platform>(
-        id = ArgId.MODE,
-        valueDescription = "<${Platform.entries.joinToString(separator = "|", transform = { it.name })}>",
+    object Platform : Arg<Platform.Target>(
+        id = ArgId.PLATFORM,
+        valueDescription = "<${Target.entries.joinToString(separator = "|", transform = { it.name })}>",
         description = "Mode decides the C++ file structure",
         isRequired = false
     ) {
-        enum class Platform {
+        enum class Target {
             ARDUINO,
             STD_CPP
         }
