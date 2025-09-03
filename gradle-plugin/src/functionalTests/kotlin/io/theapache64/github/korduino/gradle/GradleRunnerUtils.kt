@@ -9,6 +9,8 @@ fun TemporaryFolder.createProject(gradleFileContent: String): GradleRunner {
     // Adding plugin
     buildGradleFile.appendText(gradleFileContent)
 
-    return GradleRunner.create().withPluginClasspath().withProjectDir(root)
+    return GradleRunner.create()
+        .withPluginClasspath()
+        .withProjectDir(root)
         .withTestKitDir(newFolder())
 }

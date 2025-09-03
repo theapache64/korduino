@@ -1,5 +1,6 @@
 package io.github.theapache64.korduino.compiler.core
 
+import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.*
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -15,7 +16,7 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 
 
 class Visitor(
-    private val platform: Arg.Mode.Platform
+    private val target: Arg.Platform.Target
 ) : IrVisitorVoid() {
 
     companion object {
@@ -35,7 +36,7 @@ class Visitor(
         if (declaration.parameters.isEmpty() && declaration.name.asString() != "<init>") {
             val dataTypeClassName = declaration.returnType.getClass()?.name?.asString()
             val returnType = dataTypes.get(key = dataTypeClassName)
-                ?: error("Unsupported data type '$dataTypeClassName' (platform: $platform). $LINK_GITHUB_ISSUES ")
+                ?: error("Unsupported data type '$dataTypeClassName' (platform: $target). $LINK_GITHUB_ISSUES ")
             codeBuilder.appendLine("${returnType.type} ${declaration.name.asString()}() {")
 
             if (returnType.extraHeader != null && !codeBuilder.containsHeader(returnType)) {
@@ -53,7 +54,7 @@ class Visitor(
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
         val cppFqName = functions[fqName]
-            ?: error("Unsupported function name '$fqName' (platform: $platform). $LINK_GITHUB_ISSUES ")
+            ?: error("Unsupported function name '$fqName' (platform: $target). $LINK_GITHUB_ISSUES ")
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
             if (expArg == null) continue

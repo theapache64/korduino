@@ -26,14 +26,14 @@ class KorduinoPlugin : Plugin<Project> {
             task.compilerOptions {
                 freeCompilerArgs.addAll("-P", "plugin:korduino:BUILD_DIR=$buildDir")
                 freeCompilerArgs.addAll(
-                    "-P", "plugin:korduino:MODE=${
-                        extension.target ?: error(
+                    "-P", "plugin:korduino:PLATFORM=${
+                        extension.platform ?: error(
                             """
                     Korduino mode not set. <ARDUINO|STD_CPP>
                     
                     // example
                     korduino {
-                        mode = "ARDUINO"
+                        platform = "ARDUINO"
                     }
                 """.trimIndent()
                         )
@@ -54,7 +54,7 @@ class KorduinoPlugin : Plugin<Project> {
 
 open class KorduinoExtension {
     var buildDir: File? = null
-    var target: Arg.Platform.Target? = null
+    var platform: String? = null
 }
 
 abstract class RunKorduinoTask : DefaultTask() {
@@ -64,7 +64,8 @@ abstract class RunKorduinoTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        when (extension.target) {
+        val platform = Arg.Platform.Target.valueOf(extension.platform ?: error("platform can't be null"))
+        when (platform) {
             Arg.Platform.Target.ARDUINO -> {
                 try {
                     // Build and upload code
@@ -89,8 +90,6 @@ abstract class RunKorduinoTask : DefaultTask() {
                     throw e
                 }
             }
-
-            null -> logger.error("Target can't be null")
         }
 
     }

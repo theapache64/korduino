@@ -39,7 +39,14 @@ class Extension(
                 add(file)
             }
         }
-        val srcDir = Pio.create(files, buildDir)
+        val srcDir = when(target){
+            Arg.Platform.Target.ARDUINO -> {
+                Pio.create(files, buildDir)
+            }
+            Arg.Platform.Target.STD_CPP -> {
+                tempDir
+            }
+        }
         messageCollector.report(
             CompilerMessageSeverity.INFO, "$CPP_MSG_PREFIX'${srcDir.absolutePathString()}'"
         )

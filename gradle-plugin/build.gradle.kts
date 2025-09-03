@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     id("java-gradle-plugin")
+    id("maven-publish")
 }
 
 

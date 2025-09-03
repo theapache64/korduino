@@ -1,6 +1,7 @@
 package io.theapache64.github.korduino.gradle
 
 import com.github.theapache64.expekt.should
+import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.gradle.KorduinoPlugin
 import org.junit.Rule
 import org.junit.Test
@@ -12,20 +13,22 @@ class SetupTest {
 
     @Test
     fun `Check test setup`() {
-        val project = testProjectDir.createProject(
-            """
+        for (platform in Arg.Platform.Target.entries) {
+            val project = testProjectDir.createProject(
+                """
            plugins {
                 kotlin("jvm")
                 id("io.github.theapache64.korduino.gradle")
            }
            
            korduino {
-               mode = "ARDUINO"
+               platform = "${platform.name}"
            }
         """.trimIndent()
-        )
-        val task = project.withArguments("tasks").build()
-        task.output.should.contain(KorduinoPlugin.TASK_RUN_DESC)
+            )
+            val task = project.withArguments("tasks").build()
+            task.output.should.contain(KorduinoPlugin.TASK_RUN_DESC)
+        }
     }
 
 }
