@@ -1,6 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.2.0"
-    id("io.github.theapache64.korduino.gradle")
+    kotlin("jvm")
 }
 
 group = "io.github.theapache64.korduino"
@@ -13,13 +12,12 @@ repositories {
 
 dependencies {
     implementation(project(":core"))
-    kotlinCompilerPluginClasspath(project(":compiler-plugin"))
     testImplementation(kotlin("test"))
 }
 
-korduino {
+/*korduino {
     mode = "ARDUINO"
-}
+}*/
 
 tasks.test {
     useJUnitPlatform()

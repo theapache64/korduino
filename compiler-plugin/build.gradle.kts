@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm")
 }
 
 group = "io.github.theapache64.korduino"
