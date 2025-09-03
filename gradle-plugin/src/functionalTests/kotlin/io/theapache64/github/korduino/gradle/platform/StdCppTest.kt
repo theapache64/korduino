@@ -24,7 +24,9 @@ class StdCppTest {
            
            repositories {
                 mavenCentral()
+                mavenLocal()
            }
+           
            korduino {
                platform = "STD_CPP"
            }
@@ -33,8 +35,9 @@ class StdCppTest {
 
         // Create kotlin file first
         val kotlinContent = """
-            fun main(){
+            fun main() : Int {
                 println("Hello Kotlin")
+                return 0
             }
         """.trimIndent()
 

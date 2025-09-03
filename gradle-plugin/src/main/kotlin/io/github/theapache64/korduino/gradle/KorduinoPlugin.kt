@@ -18,17 +18,19 @@ class KorduinoPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension = project.extensions.create("korduino", KorduinoExtension::class.java)
-        val buildDir = extension.buildDir ?: project.layout.buildDirectory.asFile.get().also { buildDir ->
-            extension.buildDir = buildDir
-        }
 
         project.dependencies.add(
             "kotlinCompilerPluginClasspath",
             "io.github.theapache64.korduino:compiler-plugin:0.0.1"
         )
 
+
         project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
             task.compilerOptions {
+                val buildDir = extension.buildDir ?: project.layout.buildDirectory.asFile.get().also { buildDir ->
+                    extension.buildDir = buildDir
+                }
+
                 freeCompilerArgs.addAll("-P", "plugin:korduino:BUILD_DIR=$buildDir")
                 freeCompilerArgs.addAll(
                     "-P", "plugin:korduino:PLATFORM=${
@@ -69,6 +71,7 @@ abstract class RunKorduinoTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
+
         val platform = Arg.Platform.Target.valueOf(extension.platform ?: error("platform can't be null"))
         when (platform) {
             Arg.Platform.Target.ARDUINO -> {
