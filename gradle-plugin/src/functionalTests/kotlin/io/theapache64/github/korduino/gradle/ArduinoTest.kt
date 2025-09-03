@@ -15,7 +15,7 @@ class ArduinoTest {
 
     @Test
     fun `Check test setup`() {
-        val gradleRunner = createProject(
+        val project = createProject(
             """
            plugins {
                 kotlin("jvm")
@@ -27,9 +27,8 @@ class ArduinoTest {
            }
         """.trimIndent()
         )
-        val result = gradleRunner.withArguments("tasks").build()
-
-        result.output.should.contain(KorduinoPlugin.TASK_RUN_DESC)
+        val task = project.withArguments("tasks").build()
+        task.output.should.contain(KorduinoPlugin.TASK_RUN_DESC)
     }
 
     private fun createProject(gradleFileContent: String): GradleRunner {
