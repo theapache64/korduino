@@ -1,10 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm")
 }
-
-group = "io.github.theapache64.korduino"
-// [latest version - i promise!]
-version = "0.0.1"
 
 repositories {
     mavenCentral()

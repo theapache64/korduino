@@ -11,6 +11,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
 class KorduinoPlugin : Plugin<Project> {
+
+    companion object {
+        const val TASK_RUN_DESC = "Run your Kotlin code on connected microcontroller"
+    }
+
     override fun apply(project: Project) {
         // Using Hello.say() function during plugin initialization
         println("Korduino Plugin initialized: ${Hello.say()}")
@@ -42,7 +47,7 @@ class KorduinoPlugin : Plugin<Project> {
 
         project.tasks.register("run", RunKorduinoTask::class.java) { task ->
             task.group = "korduino"
-            task.description = "Clean, compile Kotlin, copy files, and run PlatformIO commands"
+            task.description = TASK_RUN_DESC
             task.extension = extension
 
             task.dependsOn("clean", "compileKotlin")

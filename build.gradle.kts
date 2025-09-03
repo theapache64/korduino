@@ -3,6 +3,6 @@ plugins {
 }
 
 allprojects {
-    group = "org.jetbrains.kotlin.compiler.plugin.template"
-    version = "0.1.0-SNAPSHOT"
+    group = "io.github.theapache64.korduino"
+    version = "0.0.1"
 }
