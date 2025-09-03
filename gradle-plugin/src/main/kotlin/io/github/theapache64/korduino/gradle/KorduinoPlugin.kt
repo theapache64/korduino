@@ -22,6 +22,11 @@ class KorduinoPlugin : Plugin<Project> {
             extension.buildDir = buildDir
         }
 
+        project.dependencies.add(
+            "kotlinCompilerPluginClasspath",
+            "io.github.theapache64.korduino:compiler-plugin:0.0.1"
+        )
+
         project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
             task.compilerOptions {
                 freeCompilerArgs.addAll("-P", "plugin:korduino:BUILD_DIR=$buildDir")
@@ -69,7 +74,10 @@ abstract class RunKorduinoTask : DefaultTask() {
             Arg.Platform.Target.ARDUINO -> {
                 try {
                     // Build and upload code
-                    executeCommand("pio run --target upload")
+                    executeCommand(
+                        extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
+                        "pio run --target upload"
+                    )
                     // Start serial monitor
                     launchTerminal(
                         dir = extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
@@ -83,8 +91,12 @@ abstract class RunKorduinoTask : DefaultTask() {
 
             Arg.Platform.Target.STD_CPP -> {
                 try {
-                    val cppFile = extension.buildDir?.listFiles()?.find { it.extension == "cpp" } ?: error("Couldn't find a cpp file in '${extension.buildDir?.absolutePath}'")
-                    executeCommand("g++ ${cppFile.absolutePath} -o out && ./out")
+                    val cppDir = extension.buildDir?.resolve("cpp")
+                    val cppFile = cppDir?.listFiles()?.find { it.extension == "cpp" }
+                        ?: error("Couldn't find a cpp file in '${extension.buildDir?.absolutePath}'")
+                    println("QuickTag: RunKorduinoTask:execute: cppFile: ${cppFile.absolutePath} -> ${cppFile.exists()}")
+                    executeCommand(cppDir, "g++ ${cppFile.absolutePath} -o outs")
+                    executeCommand(cppDir, "./outs")
                 } catch (e: Exception) {
                     logger.error("Task execution failed: ${e.message}", e)
                     throw e
@@ -166,10 +178,11 @@ abstract class RunKorduinoTask : DefaultTask() {
 
     @Suppress("SameParameterValue")
     private fun executeCommand(
-        command: String
+        directory: File,
+        command: String,
     ) {
         val process = ProcessBuilder(*command.split(" ").toTypedArray()).directory(
-            extension.buildDir?.resolve("pio") ?: error("buildDir can't be null")
+            directory
         ).redirectOutput(ProcessBuilder.Redirect.PIPE).redirectError(ProcessBuilder.Redirect.PIPE).start()
 
 
