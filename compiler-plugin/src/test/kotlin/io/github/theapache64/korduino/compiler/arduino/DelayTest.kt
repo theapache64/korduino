@@ -17,7 +17,7 @@ class DelayTest {
     @Test
     fun basic() {
 
-        val input = SourceFile.Companion.kotlin(
+        val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun loop() {

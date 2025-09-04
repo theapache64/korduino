@@ -17,7 +17,7 @@ class PrintLnTest {
     @Test
     fun basic() {
 
-        val input = SourceFile.Companion.kotlin(
+        val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENT
             fun setup() {
@@ -49,7 +49,7 @@ class PrintLnTest {
     @Test
     fun multiple() {
 
-        val input = SourceFile.Companion.kotlin(
+        val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENT
             fun setup() {
