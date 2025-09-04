@@ -7,10 +7,3 @@ enum class Header(
     IoStream("iostream");
 }
 
-internal fun StringBuilder.containsHeader(header: Header): Boolean {
-    return contains(header.fileName.includeStatement())
-}
-
-internal fun StringBuilder.addHeader(header: Header): StringBuilder {
-    return this.insert(0, header.fileName.includeStatement() + "\n")
-}
