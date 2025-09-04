@@ -23,7 +23,7 @@ class DynamicCppTest {
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 println("Hello Kotlin!")
-                cpp("hello();world();", "libHello", "libWorld")
+                cpp(code = "hello();world();", "libHello", "libWorld")
                 return 0
             }
         """.trimIndent(),
