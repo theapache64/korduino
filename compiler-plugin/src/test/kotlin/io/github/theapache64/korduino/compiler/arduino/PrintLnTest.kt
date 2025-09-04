@@ -8,18 +8,24 @@ import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
 class PrintLnTest {
+    companion object {
+        private const val IMPORT_STATEMENT = """
+            import io.github.theapache64.korduino.core.Serial
+        """
+    }
+
     @Test
     fun basic() {
 
         val input = SourceFile.Companion.kotlin(
             "Main.kt",
-            """
+            """$IMPORT_STATEMENT
             fun setup() {
-                io.github.theapache64.korduino.core.Serial.begin(115200)
+                Serial.begin(115200)
             }
 
             fun loop() {
-                io.github.theapache64.korduino.core.Serial.println("Hello ESP!")
+                Serial.println("Hello ESP!")
             }
         """.trimIndent(),
         )
@@ -45,14 +51,14 @@ class PrintLnTest {
 
         val input = SourceFile.Companion.kotlin(
             "Main.kt",
-            """
+            """$IMPORT_STATEMENT
             fun setup() {
-                io.github.theapache64.korduino.core.Serial.begin(115200)
+                Serial.begin(115200)
             }
 
             fun loop() {
-                io.github.theapache64.korduino.core.Serial.println("Hello ESP!")
-                io.github.theapache64.korduino.core.Serial.println("Hello ESP 2!")
+                Serial.println("Hello ESP!")
+                Serial.println("Hello ESP 2!")
             }
         """.trimIndent(),
         )
