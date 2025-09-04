@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.konan.file.createTempDir
 import kotlin.io.path.*
 import kotlin.test.Test
 
-class ArduinoRuntimeTest {
+class ArduinoDirGeneratorTest {
     @Test
     fun sourceCreation() {
         val inputCppFile = createTempFile("sample_", ".cpp").apply {
@@ -18,7 +18,7 @@ class ArduinoRuntimeTest {
                     Serial.begin(115200);
                     Serial.println("I 'was' Kotlin!");
                 }
-1
+
                 void loop() {
                     Serial.println("Hello Kotlin!");
                     delay(2000);
