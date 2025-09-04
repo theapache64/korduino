@@ -1,6 +1,7 @@
 package io.github.theapache64.korduino.gradle
 
 import io.github.theapache64.korduino.common.Arg
+import io.github.theapache64.korduino.common.executeCommand
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -79,7 +80,7 @@ abstract class RunKorduinoTask : DefaultTask() {
                     // Build and upload code
                     executeCommand(
                         extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
-                        "pio run --target upload"
+                        arrayOf("pio", "run", "--target", "upload")
                     )
                     // Start serial monitor
                     launchTerminal(
@@ -98,8 +99,8 @@ abstract class RunKorduinoTask : DefaultTask() {
                     val cppFile = cppDir?.listFiles()?.find { it.extension == "cpp" }
                         ?: error("Couldn't find a cpp file in '${extension.buildDir?.absolutePath}'")
                     println("QuickTag: RunKorduinoTask:execute: cppFile: ${cppFile.absolutePath} -> ${cppFile.exists()}")
-                    executeCommand(cppDir, "g++ ${cppFile.absolutePath} -o outs")
-                    executeCommand(cppDir, "./outs")
+                    executeCommand(cppDir, arrayOf("g++", cppFile.absolutePath, "-o", "outs"))
+                    executeCommand(cppDir, arrayOf("./outs"))
                 } catch (e: Exception) {
                     logger.error("Task execution failed: ${e.message}", e)
                     throw e
@@ -178,45 +179,5 @@ abstract class RunKorduinoTask : DefaultTask() {
             false
         }
     }
-
-    @Suppress("SameParameterValue")
-    private fun executeCommand(
-        directory: File,
-        command: String,
-    ) {
-        val process = ProcessBuilder(*command.split(" ").toTypedArray()).directory(
-            directory
-        ).redirectOutput(ProcessBuilder.Redirect.PIPE).redirectError(ProcessBuilder.Redirect.PIPE).start()
-
-
-        val outputThread = Thread {
-            process.inputStream.bufferedReader().useLines { lines ->
-                lines.forEach { line ->
-                    println(line)
-                }
-            }
-        }
-
-        val errorThread = Thread {
-            process.errorStream.bufferedReader().useLines { lines ->
-                lines.forEach { line ->
-                    println("PIO ERROR: $line")
-                }
-            }
-        }
-
-        outputThread.start()
-        errorThread.start()
-
-        val exitCode = process.waitFor()
-        outputThread.join()
-        errorThread.join()
-
-        if (exitCode != 0) {
-            logger.error("PlatformIO command failed")
-            throw kotlin.RuntimeException("`$command` failed with exit code: $exitCode")
-        }
-
-        logger.info("PIO upload completed successfully")
-    }
 }
+

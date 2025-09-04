@@ -4,6 +4,7 @@ import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import io.github.theapache64.korduino.common.Arg
+import io.github.theapache64.korduino.common.executeCommand
 import io.github.theapache64.korduino.compiler.core.ArgProcessor
 import io.github.theapache64.korduino.compiler.core.Extension
 import io.github.theapache64.korduino.compiler.core.Registrar
@@ -48,5 +49,16 @@ fun JvmCompilationResult.readActualOutput(platform: Arg.Platform.Target): String
         }
     )
     println("QuickTag: :readActualOutput: ${outputDir.absolutePath}")
-    return outputDir.listFiles().filter { it.extension == "cpp" }[0].readText()
+    val cppFile = outputDir.listFiles().filter { it.extension == "cpp" }[0]
+    return cppFile.formatCppCode().readText()
+}
+
+private fun File.formatCppCode() : File {
+    executeCommand(
+        this.parentFile,
+        arrayOf(
+            "clang-format", "-i", this.absolutePath, "--style","{BasedOnStyle: Chromium, IndentWidth: 4}"
+        )
+    )
+    return this
 }
