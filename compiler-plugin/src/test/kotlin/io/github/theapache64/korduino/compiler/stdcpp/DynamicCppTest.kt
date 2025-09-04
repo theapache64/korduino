@@ -14,9 +14,39 @@ class DynamicCppTest {
         """
     }
 
-
     @Test
     fun basic() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                println("Hello Kotlin!")
+                cpp(code = "int x; std::cin >> x;")
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int main() {
+                std::cout << "Hello Kotlin!" << std::endl;
+                int x;
+                std::cin >> x;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+
+
+    @Test
+    fun withHeaders() {
 
         val input = SourceFile.kotlin(
             "Main.kt",
