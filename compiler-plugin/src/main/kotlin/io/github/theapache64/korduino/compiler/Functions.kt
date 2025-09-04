@@ -11,7 +11,7 @@ enum class Function(
     PinMode({ "pinMode($it)" }, Header.Arduino),
 
     // Std CPP
-    COUT({ "std::cout << \"$it\" << std::endl" }, Header.IoStream)
+    COUT({ "std::cout << \"$it\" << std::endl" }, Header.IoStream),
 }
 
 val functions = mapOf<String, Function>(

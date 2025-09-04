@@ -73,8 +73,9 @@ Give a ⭐️ if this project helped you!
 - [x] Add `pinMode` support
 - [x] Setup PlatformIO installation (building, uploading, and serial monitor)
 - [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
-- [ ] 🚧 Add `int/String/Long/Double/Float/Boolean` support
-- [ ] Add `function` support (with `return`)
+- [ ] 🚧 Add `int/String/Long/Double/Float/Boolean/return` support
+- [ ] Add `function` support (with and without `return`)
+- [ ] Add `extension function` support (with and without `return`)
 - [ ] Add `const` support
 - [ ] Add `if-else` support
 - [ ] Add `for` loop support
