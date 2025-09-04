@@ -3,7 +3,6 @@
 package io.theapache64.github.korduino.gradle.platform
 
 import com.github.theapache64.expekt.should
-import io.github.theapache64.korduino.gradle.KorduinoPlugin
 import io.theapache64.github.korduino.gradle.createProject
 import org.junit.Rule
 import org.junit.Test
