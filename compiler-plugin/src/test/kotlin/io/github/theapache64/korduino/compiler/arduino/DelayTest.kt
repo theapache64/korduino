@@ -8,14 +8,19 @@ import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
 class DelayTest {
+    companion object {
+        private const val IMPORT_STATEMENTS = """
+            import io.github.theapache64.korduino.core.delay
+        """
+    }
     @Test
     fun basic() {
 
         val input = SourceFile.Companion.kotlin(
             "Main.kt",
-            """
+            """$IMPORT_STATEMENTS
             fun loop() {
-                io.github.theapache64.korduino.core.delay(1000)
+                delay(1000)
             }
         """.trimIndent(),
         )
