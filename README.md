@@ -72,8 +72,8 @@ Give a ⭐️ if this project helped you!
 - [x] Add mode support (C++/Arduino) (arch)
 - [x] Add `pinMode` support
 - [x] Setup PlatformIO installation (building, uploading, and serial monitor)
-- [ ] 🚧 Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
-- [ ] Add `int/String/Long/Double/Float/Boolean` support
+- [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
+- [ ] 🚧 Add `int/String/Long/Double/Float/Boolean` support
 - [ ] Add `function` support (with `return`)
 - [ ] Add `const` support
 - [ ] Add `if-else` support
