@@ -76,5 +76,41 @@ class ReturnStatementTest {
         actualOutput.should.equal(expectedOutput)
     }
 
+    @Test
+    fun functionIntAsReturn() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                println("Hello Kotlin!")
+                return getThatInt()
+            }
+            
+            fun getThatInt() : Int {
+                return 123
+            }
+
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int main() {
+                std::cout << "Hello Kotlin!" << std::endl;
+                return getThatInt();
+            }
+            int getThatInt() {
+                return 123;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+
 
 }

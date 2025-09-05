@@ -7,10 +7,7 @@ import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrReturnImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
+import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
@@ -53,12 +50,7 @@ class Visitor(
     }
 
     override fun visitReturn(expression: IrReturn) {
-        super.visitReturn(expression)
-    }
-
-    override fun visitReturn(expression: IrReturn, data: Nothing?) {
-        codeBuilder.appendLine("return ${expression.toCodeString().joinToString(separator = ",")};")
-        super.visitReturn(expression, data)
+        codeBuilder.appendLine("return ${expression.toCodeString().joinToString(separator = "")};")
     }
 
 
@@ -75,10 +67,11 @@ class Visitor(
 
         val (functionCall, headers) = if (fqName == "io.github.theapache64.korduino.core.cpp") {
             Pair(argValues[0], argValues.subList(1, argValues.size))
+        } else if (fqName != null && !functions.containsKey(fqName)) {
+            Pair("$fqName(${argValues.joinToString(separator = ", ")})", emptyList())
         } else {
             val cppFqName = functions[fqName]
                 ?: error("Unsupported function name '$fqName' (platform: $target). $LINK_GITHUB_ISSUES ")
-
             Pair(cppFqName.fqName(argValues.joinToString(separator = ", ")), listOf(cppFqName.header.fileName))
         }
 
@@ -126,6 +119,16 @@ class Visitor(
 
             is IrReturnImpl -> {
                 argValues.addAll(this.value.toCodeString())
+            }
+
+            is IrCallImpl -> {
+                argValues.addAll(
+                    listOf(
+                        this.symbol.owner.name.asString(), // function name
+                        "(",
+                        ")"
+                    )
+                )
             }
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
