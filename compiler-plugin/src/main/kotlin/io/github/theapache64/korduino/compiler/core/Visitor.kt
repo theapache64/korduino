@@ -2,16 +2,14 @@ package io.github.theapache64.korduino.compiler.core
 
 import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.CodeBuilder
-import io.github.theapache64.korduino.compiler.containsHeader
 import io.github.theapache64.korduino.compiler.dataTypes
 import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.expressions.IrCall
-import org.jetbrains.kotlin.ir.expressions.IrConst
-import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
+import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrReturnImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.getClass
@@ -54,40 +52,25 @@ class Visitor(
         }
     }
 
+    override fun visitReturn(expression: IrReturn) {
+        super.visitReturn(expression)
+    }
+
+    override fun visitReturn(expression: IrReturn, data: Nothing?) {
+        codeBuilder.appendLine("return ${expression.toCodeString().joinToString(separator = ",")};")
+        super.visitReturn(expression, data)
+    }
+
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
 
-
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
             if (expArg == null) continue
-            when (expArg) {
-                is IrConst -> {
-                    val value = expArg.value
-                    argValues.add(value as? String ?: value.toString())
-                }
-
-                is IrGetObjectValue -> {
-                    null
-                }
-
-                is IrGetEnumValueImpl -> {
-                    argValues.add(expArg.symbol.owner.name.asString())
-                }
-
-                is IrVarargImpl -> {
-                    expArg.elements.forEach {
-                        val varArg = (it as IrConstImpl).value.toString()
-                        argValues.add(varArg)
-                    }
-                    null
-                }
-
-                else -> error("Unhandled argValue type ${expArg::class.simpleName}")
-            }
+            argValues.addAll(expArg.toCodeString())
         }
 
         val (functionCall, headers) = if (fqName == "io.github.theapache64.korduino.core.cpp") {
@@ -115,6 +98,39 @@ class Visitor(
         }
 
         super.visitCall(expression)
+    }
+
+    private fun IrExpression.toCodeString(): List<String> {
+        val argValues = mutableListOf<String>()
+        when (this) {
+            is IrConst -> {
+                val value = value
+                argValues.add(value as? String ?: value.toString())
+            }
+
+            is IrGetObjectValue -> {
+                null
+            }
+
+            is IrGetEnumValueImpl -> {
+                argValues.add(symbol.owner.name.asString())
+            }
+
+            is IrVarargImpl -> {
+                elements.forEach {
+                    val varArg = (it as IrConstImpl).value.toString()
+                    argValues.add(varArg)
+                }
+                null
+            }
+
+            is IrReturnImpl -> {
+                argValues.addAll(this.value.toCodeString())
+            }
+
+            else -> error("Unhandled argValue type ${this::class.simpleName}")
+        }
+        return argValues
     }
 
 

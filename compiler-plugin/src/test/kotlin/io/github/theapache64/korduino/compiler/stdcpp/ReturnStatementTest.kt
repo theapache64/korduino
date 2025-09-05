@@ -33,7 +33,7 @@ class ReturnStatementTest {
             #include <iostream>
             int main() {
                 std::cout << "Hello Kotlin!" << std::endl;
-                return 0
+                return 0;
             }
             
         """.trimIndent()
