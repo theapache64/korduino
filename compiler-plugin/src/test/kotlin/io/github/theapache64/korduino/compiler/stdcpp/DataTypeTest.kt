@@ -15,6 +15,34 @@ class DataTypeTest {
     }
 
     @Test
+    fun int() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                val a = 1
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            #include <string>
+            int main() {
+                int a = 1;
+                return 0
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
     fun basic() {
 
         val input = SourceFile.kotlin(
