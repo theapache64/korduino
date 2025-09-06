@@ -82,7 +82,6 @@ class CppParser() {
         return this.split(",")
             .filter { it.isNotBlank() }
             .map { param ->
-                println("QuickTag: CppParser:toParams: '$param'")
                 val (dataType, name) = param.split(" ")
                 CppParam(dataType, name)
             }

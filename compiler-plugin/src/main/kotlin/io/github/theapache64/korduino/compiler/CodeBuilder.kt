@@ -37,7 +37,7 @@ class CodeBuilder(
     }
 
     private fun StringBuilder.applyCppRules(): StringBuilder {
-        //rule #1: a function should be defined above its call site; so we've to rearrange it accordingly if such instance exist
+        //rule #1: a function should be defined above its call site; so let's rearrange it accordingly if such instances exist
         val result = cppParser.parse(this.toString())
         for (cppFunction in result.cppFunctions) {
             val minCallSite = result.functionCalls[cppFunction.id()]?.minBy { it.lineNo }

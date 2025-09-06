@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class ReturnStatementTest {
     companion object {
-        const val IMPORT_STATEMENTS ="""
+        const val IMPORT_STATEMENTS = """
             
         """
     }
@@ -112,7 +112,7 @@ class ReturnStatementTest {
     }
 
     @Test
-    fun functionIntAsReturnAtWrongPosition() {
+    fun functionDefinitionAtWrongPosition() {
 
         val input = SourceFile.kotlin(
             "Main.kt",
@@ -137,6 +137,119 @@ class ReturnStatementTest {
             }
             int main() {
                 std::cout << "Hello Kotlin!" << std::endl;
+                return getThatInt();
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun functionDefinitionWithParamAtWrongPosition() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                println("Hello Kotlin!")
+                return getThatInt(123)
+            }
+            
+            fun getThatInt(x : Int) : Int {
+                return x
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int getThatInt(int x) {
+                return x;
+            }
+            int main() {
+                std::cout << "Hello Kotlin!" << std::endl;
+                return getThatInt(123);
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun functionDefinitionWithParamAndValAtWrongPosition() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                println("Hello Kotlin!")
+                val y =  getThatInt(123)
+                return y
+            }
+            
+            fun getThatInt(x : Int) : Int {
+                return x
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int getThatInt(int x) {
+                return x;
+            }
+            int main() {
+                std::cout << "Hello Kotlin!" << std::endl;
+                int y = getThatInt(123);
+                return y;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun overLoadedFunctionDefinitionAtWrongPosition() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                println("Hello Kotlin!")
+                val x = getThatInt(456)
+                return getThatInt()
+            }
+            
+            fun getThatInt() : Int {
+                return 123
+            }
+            
+            fun getThatInt(x: Int) : Int {
+                return x
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int getThatInt() {
+                return 123;
+            }
+            int getThatInt(int x) {
+                return x;
+            }
+            int main() {
+                std::cout << "Hello Kotlin!" << std::endl;
+                int x = getThatInt(456);
                 return getThatInt();
             }
             
@@ -179,7 +292,6 @@ class ReturnStatementTest {
 
         actualOutput.should.equal(expectedOutput)
     }
-
 
 
 }

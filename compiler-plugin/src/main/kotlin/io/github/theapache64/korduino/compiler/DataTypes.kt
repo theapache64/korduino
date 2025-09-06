@@ -10,9 +10,9 @@ enum class DataType(
 }
 
 private val commonDataTypes = mapOf(
-    "Int" to DataType.INT,
-    "Unit" to DataType.VOID,
-    "String" to DataType.String
+    "kotlin.Int" to DataType.INT,
+    "kotlin.Unit" to DataType.VOID,
+    "kotlin.String" to DataType.String
 )
 
 private val arduinoDataTypes = mapOf<String, DataType>(
