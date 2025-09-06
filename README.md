@@ -74,6 +74,13 @@ Give a ⭐️ if this project helped you!
 - [x] Setup PlatformIO installation (building, uploading, and serial monitor)
 - [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
 - [ ] 🚧 Add `int/String/Long/Double/Float/Boolean/return` support
+- [ ] Arithmetic Operators (`+-*/%`) 
+- [ ] Increment/decrement operators (`++`, `--`, `+=`, `-=`, `*=`, `/=`, `%=`) 
+- [ ] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`) 
+- [ ] Logical operators
+- [ ] Indexed access operator (`[, ]`)
+- [ ] Null safety operator (`.?`)
+- [ ] Ranges
 - [ ] Add `function` support (with and without `return`)
 - [ ] Add `extension function` support (with and without `return`)
 - [ ] Add `const` support
