@@ -49,6 +49,7 @@ class CodeBuilder(
                     )
                     this.clear()
                     this.append(newCode)
+                    return this.applyCppRules() // Do it again
                 }
             }
         }

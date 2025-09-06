@@ -280,12 +280,12 @@ class ReturnStatementTest {
 
         val expectedOutput = """
             #include <iostream>
+            int getThatInt(int x) {
+                return x;
+            }
             int main() {
                 std::cout << "Hello Kotlin!" << std::endl;
                 return getThatInt(123);
-            }
-            int getThatInt(int x) {
-                return x;
             }
             
         """.trimIndent()

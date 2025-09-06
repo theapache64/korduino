@@ -31,6 +31,7 @@ class CppFormatter() {
         fullCode = fullCode.replace(extractedFunction, "")
         val fullCodeBuilder= fullCode.lines().toMutableList()
         fullCodeBuilder.add(moveToLineNo, extractedFunction)
-        return fullCodeBuilder.joinToString("\n")
+        fullCode = fullCodeBuilder.joinToString("\n")
+        return fullCode
     }
 }
