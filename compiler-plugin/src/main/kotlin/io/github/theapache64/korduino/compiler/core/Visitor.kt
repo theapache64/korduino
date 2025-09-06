@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 
 
 class Visitor(
-    private val target: Arg.Platform.Target
+    private val target: Arg.Platform.Target,
 ) : IrVisitorVoid() {
 
     companion object {

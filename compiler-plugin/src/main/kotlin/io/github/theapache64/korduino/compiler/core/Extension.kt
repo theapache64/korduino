@@ -15,7 +15,7 @@ class Extension(
     private val messageCollector: MessageCollector,
     private val target: Arg.Platform.Target,
     private val buildDir: String,
-    private  val targetDirGenerator: TargetDirGenerator
+    private  val targetDirGenerator: TargetDirGenerator,
 ) : IrGenerationExtension {
 
     companion object {

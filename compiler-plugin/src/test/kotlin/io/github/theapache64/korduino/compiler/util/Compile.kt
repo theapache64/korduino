@@ -13,14 +13,14 @@ import java.io.File
 
 
 fun compileArduino(sourceFiles: List<SourceFile>): JvmCompilationResult {
-    return compile(sourceFiles, Arg.Platform.Target.ARDUINO)
+    return verifyCompilability(sourceFiles, Arg.Platform.Target.ARDUINO)
 }
 
 fun compileStdCpp(sourceFiles: List<SourceFile>): JvmCompilationResult {
-    return compile(sourceFiles, Arg.Platform.Target.STD_CPP)
+    return verifyCompilability(sourceFiles, Arg.Platform.Target.STD_CPP)
 }
 
-private fun compile(
+private fun verifyCompilability(
     sourceFiles: List<SourceFile>,
     target: Arg.Platform.Target
 ): JvmCompilationResult {
@@ -50,15 +50,12 @@ fun JvmCompilationResult.readActualOutput(platform: Arg.Platform.Target): String
     )
     println("QuickTag: :readActualOutput: ${outputDir.absolutePath}")
     val cppFile = outputDir.listFiles().filter { it.extension == "cpp" }[0]
-    return cppFile.formatCppCode().readText()
+    val finalCode =  cppFile.verifyCompilability().readText()
+    return finalCode
 }
 
-private fun File.formatCppCode() : File {
-    executeCommand(
-        this.parentFile,
-        arrayOf(
-            "clang-format", "-i", this.absolutePath, "--style","{BasedOnStyle: Chromium, IndentWidth: 4}"
-        )
-    )
+private fun File.verifyCompilability() : File {
+    // Compile
+    executeCommand(this.parentFile, arrayOf("g++", this.absolutePath, "-o", "outs"))
     return this
 }
