@@ -30,11 +30,9 @@ class DataTypeTest {
         val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
-            #include <iostream>
-            #include <string>
             int main() {
                 int a = 1;
-                return 0
+                return 0;
             }
             
         """.trimIndent()
