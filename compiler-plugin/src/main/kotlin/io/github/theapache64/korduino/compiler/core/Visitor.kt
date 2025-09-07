@@ -62,13 +62,11 @@ class Visitor(
         codeBuilder.appendLine("return ${expression.toCodeString().joinToString(separator = "")};")
     }
 
-    private var currentVariable: IrVariable? = null
-
     override fun visitVariable(declaration: IrVariable) {
-        val previousVariable = currentVariable
-        currentVariable = declaration
-        super.visitVariable(declaration)
-        currentVariable = previousVariable
+        var dataType = dataTypes[declaration.type.classFqName?.asString()]?.type ?: error("couldn't find dataType for")
+        var variableName = declaration.name.asString()
+        var variableCall  = declaration.initializer?.toCodeString()?.joinToString(separator = "")
+        codeBuilder.appendLine("$dataType $variableName = $variableCall;")
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -85,21 +83,8 @@ class Visitor(
         val (functionCall, headers) = if (fqName == "io.github.theapache64.korduino.core.cpp") {
             Pair(argValues[0], argValues.subList(1, argValues.size))
         } else if (fqName != null && !functions.containsKey(fqName)) {
-            var varAssign = ""
-            currentVariable?.let { variable ->
-                if (variable.initializer == expression) {
-                    val dataType = dataTypes[variable.type.classFqName?.asString()]?.type
-                    val variableName = variable.name.asString()
-                    if (dataType != null) {
-                        varAssign = "$dataType $variableName = "
-                    } else {
-                        error("Couldn't find data type for `$variableName`")
-                    }
-                }
-            }
-
             // unknown function
-            Pair("${varAssign}$fqName(${argValues.joinToString(separator = ", ")})", emptyList())
+            Pair("$fqName(${argValues.joinToString(separator = ", ")})", emptyList())
         } else {
             // known function
             val cppFqName = functions[fqName]
