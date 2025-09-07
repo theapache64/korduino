@@ -4,15 +4,23 @@ enum class DataType(
     val type: String,
     val extraHeader: String? = null
 ) {
-    INT("int"),
-    VOID("void"),
-    String("String","string");
+    Int("int"),
+    Float("float"),
+    Long("long long"),
+    Boolean("bool"),
+    Double("double"),
+    Void("void"),
+    String("std::string", "iostream");
 }
 
 private val commonDataTypes = mapOf(
-    "kotlin.Int" to DataType.INT,
-    "kotlin.Unit" to DataType.VOID,
-    "kotlin.String" to DataType.String
+    "kotlin.Int" to DataType.Int,
+    "kotlin.Unit" to DataType.Void,
+    "kotlin.String" to DataType.String,
+    "kotlin.Float" to DataType.Float,
+    "kotlin.Long" to DataType.Long,
+    "kotlin.Double" to DataType.Double,
+    "kotlin.Boolean" to DataType.Boolean,
 )
 
 private val arduinoDataTypes = mapOf<String, DataType>(

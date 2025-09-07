@@ -63,10 +63,14 @@ class Visitor(
     }
 
     override fun visitVariable(declaration: IrVariable) {
-        var dataType = dataTypes[declaration.type.classFqName?.asString()]?.type ?: error("couldn't find dataType for")
-        var variableName = declaration.name.asString()
-        var variableCall  = declaration.initializer?.toCodeString()?.joinToString(separator = "")
-        codeBuilder.appendLine("$dataType $variableName = $variableCall;")
+        val typeFqName = declaration.type.classFqName?.asString()
+        val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
+        val variableName = declaration.name.asString()
+        val variableCall  = declaration.initializer?.toCodeString()?.joinToString(separator = "")
+        if(dataType.extraHeader!=null){
+            codeBuilder.addHeader(dataType.extraHeader)
+        }
+        codeBuilder.appendLine("${dataType.type} $variableName = $variableCall;")
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -114,8 +118,12 @@ class Visitor(
         val argValues = mutableListOf<String>()
         when (this) {
             is IrConst -> {
-                val value = value
-                argValues.add(value as? String ?: value.toString())
+                val value = if(kind== IrConstKind.String){
+                    "\"${value}\""
+                }else{
+                    "$value"
+                }
+                argValues.add(value)
             }
 
             is IrGetObjectValue -> {

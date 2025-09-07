@@ -41,7 +41,34 @@ class DataTypeTest {
     }
 
     @Test
-    fun basic() {
+    fun string() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                val a = "hello kotlin"
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int main() {
+                std::string a = "hello kotlin";
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun full() {
 
         val input = SourceFile.kotlin(
             "Main.kt",
@@ -62,15 +89,14 @@ class DataTypeTest {
 
         val expectedOutput = """
             #include <iostream>
-            #include <string>
             int main() {
                 int a = 1;
-                float b = 2.0f;
+                float b = 2.0;
                 std::string c = "i am string";
-                long long d = 2000L;
+                long long d = 2000;
                 double e = 3.14;
                 bool f = false;
-                return 0
+                return 0;
             }
             
         """.trimIndent()
