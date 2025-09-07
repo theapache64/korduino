@@ -68,7 +68,7 @@ class DataTypeTest {
     }
 
     @Test
-    fun full() {
+    fun allPrimitives() {
 
         val input = SourceFile.kotlin(
             "Main.kt",
