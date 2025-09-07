@@ -159,7 +159,7 @@ class Visitor(
                         "minus" -> "-"
                         "div" -> "/"
                         "times" -> "*"
-                        "rem" -> "%s"
+                        "rem" -> "%"
                         else -> error("Unknown operator `$opName`")
                     }
                     argValues.add(
