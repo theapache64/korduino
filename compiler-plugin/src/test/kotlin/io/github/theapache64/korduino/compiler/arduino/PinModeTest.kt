@@ -25,6 +25,11 @@ class PinModeTest {
                 pinMode(Pin.D1, PinMode.INPUT)
                 pinMode(32, PinMode.OUTPUT)
             }
+            
+            fun loop(){
+            
+            }
+
             """.trimIndent(),
         )
 
@@ -36,6 +41,7 @@ class PinModeTest {
                 pinMode(D1, INPUT);
                 pinMode(32, OUTPUT);
             }
+            void loop() {}
             
         """.trimIndent()
 

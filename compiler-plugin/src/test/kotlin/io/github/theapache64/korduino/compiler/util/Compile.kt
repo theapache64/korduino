@@ -42,20 +42,29 @@ private fun verifyCompilability(
 fun JvmCompilationResult.readActualOutput(platform: Arg.Platform.Target): String {
     val pattern = "${Extension.CPP_MSG_PREFIX}'(.+)'".toRegex()
     val filePath = pattern.find(this.messages)?.groups[1]?.value ?: error("Couldn't find output file from messages")
-    val outputDir = File(filePath).resolve(
-        when(platform){
+    val projectRootDir = File(filePath)
+    val outputDir = projectRootDir.resolve(
+        when (platform) {
             Arg.Platform.Target.ARDUINO -> "pio/src/"
             Arg.Platform.Target.STD_CPP -> "cpp"
         }
     )
     println("QuickTag: :readActualOutput: ${outputDir.absolutePath}")
     val cppFile = outputDir.listFiles().filter { it.extension == "cpp" }[0]
-    val finalCode =  cppFile.verifyCompilability().readText()
+    val finalCode = cppFile.verifyCompilability(platform).readText()
     return finalCode
 }
 
-private fun File.verifyCompilability() : File {
+private fun File.verifyCompilability(target: Arg.Platform.Target): File {
     // Compile
-    executeCommand(this.parentFile, arrayOf("g++", this.absolutePath, "-o", "outs"))
+    when (target) {
+        Arg.Platform.Target.ARDUINO -> {
+            executeCommand(this.parentFile.parentFile, arrayOf("pio", "run"))
+        }
+
+        Arg.Platform.Target.STD_CPP -> {
+            executeCommand(this.parentFile, arrayOf("g++", this.absolutePath, "-o", "outs"))
+        }
+    }
     return this
 }
