@@ -115,6 +115,7 @@ class Visitor(
         super.visitCall(expression)
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrExpression.toCodeString(): List<String> {
         val argValues = mutableListOf<String>()
         when (this) {
@@ -152,6 +153,10 @@ class Visitor(
                 if (isOperator) {
                     val opSymbol = when (val opName = this.symbol.owner.name.asString()) {
                         "plus" -> "+"
+                        "minus" -> "-"
+                        "div" -> "/"
+                        "times" -> "*"
+                        "rem" -> "%s"
                         else -> error("Unknown operator `$opName`")
                     }
                     argValues.add(
