@@ -66,12 +66,13 @@ class Visitor(
         val typeFqName = declaration.type.classFqName?.asString()
         val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
         val variableName = declaration.name.asString()
-        val variableCall  = declaration.initializer?.toCodeString()?.joinToString(separator = "")
-        if(dataType.extraHeader!=null){
+        val variableCall = declaration.initializer?.toCodeString()?.joinToString(separator = "")
+        if (dataType.extraHeader != null) {
             codeBuilder.addHeader(dataType.extraHeader)
         }
         codeBuilder.appendLine("${dataType.type} $variableName = $variableCall;")
     }
+
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall) {
@@ -102,7 +103,7 @@ class Visitor(
             ""
         }
 
-        codeBuilder.appendLine("""    $functionCall$semicolon""") // TODO: Intent should by dynamic. Easiest way would be using a C++ code formatter library
+        codeBuilder.appendLine("""    $functionCall$semicolon""")
 
         for (header in headers) {
             // Check if the header is present
@@ -118,9 +119,9 @@ class Visitor(
         val argValues = mutableListOf<String>()
         when (this) {
             is IrConst -> {
-                val value = if(kind== IrConstKind.String){
+                val value = if (kind == IrConstKind.String) {
                     "\"${value}\""
-                }else{
+                } else {
                     "$value"
                 }
                 argValues.add(value)
@@ -147,15 +148,26 @@ class Visitor(
             }
 
             is IrCallImpl -> {
-                argValues.addAll(
-                    listOf(
-
-                        this.symbol.owner.name.asString(), // function name
-                        "(",
-                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(",") }.joinToString(","),
-                        ")"
+                val isOperator = this.symbol.owner.isOperator
+                if (isOperator) {
+                    val opSymbol = when (val opName = this.symbol.owner.name.asString()) {
+                        "plus" -> "+"
+                        else -> error("Unknown operator `$opName`")
+                    }
+                    argValues.add(
+                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }.joinToString(opSymbol),
                     )
-                )
+                } else {
+                    argValues.addAll(
+                        listOf(
+                            this.symbol.owner.name.asString(), // function name
+                            "(",
+                            this.arguments.mapNotNull { it?.toCodeString()?.joinToString(",") }.joinToString(","),
+                            ")"
+                        )
+                    )
+                }
+
             }
 
             is IrGetValueImpl -> {

@@ -74,7 +74,7 @@ Give a ⭐️ if this project helped you!
 - [x] Setup PlatformIO installation (building, uploading, and serial monitor)
 - [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
 - [x] Add `int/String/Long/Double/Float/Boolean/return` support
-- [ ] 🚧 Arithmetic Operators (`+-*/%`) 
+- [ ] 🚧 Mathematical Operators (`+-*/%`) 
 - [ ] Increment/decrement operators (`++`, `--`, `+=`, `-=`, `*=`, `/=`, `%=`) 
 - [ ] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`) 
 - [ ] Logical operators
@@ -99,6 +99,9 @@ Give a ⭐️ if this project helped you!
 - [ ] Add compiler flags for: setting mode (either Arduino/StandardC++), target platform (eg: `espressif8266` via an enum), board, framework, monitor_speed, upload speed (platform/IO). See [this](https://github.com/theapache64/green/blob/master/platformio.ini) for reference
 - [ ] Add/verify testing support
 - [ ] Release 0.0.1
+- [ ] [Hard keyword](https://kotlinlang.org/docs/keyword-reference.html#hard-keywords) support
+- [ ] [Soft keyword](https://kotlinlang.org/docs/keyword-reference.html#soft-keywords) support
+- [ ] [Modifier keyword](https://kotlinlang.org/docs/keyword-reference.html#modifier-keywords) support
 
 ## 📝 License
 
