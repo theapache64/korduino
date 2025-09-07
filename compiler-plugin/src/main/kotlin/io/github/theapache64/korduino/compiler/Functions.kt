@@ -5,13 +5,13 @@ enum class Function(
     val header: Header
 ) {
     // Arduino
-    PrintLn({ "Serial.println(\"$it\")" }, Header.Arduino),
+    PrintLn({ "Serial.println($it)" }, Header.Arduino),
     Begin({ "Serial.begin($it)" }, Header.Arduino),
     Delay({ "delay($it)" }, Header.Arduino),
     PinMode({ "pinMode($it)" }, Header.Arduino),
 
     // Std CPP
-    COUT({ "std::cout << \"$it\" << std::endl" }, Header.IoStream),
+    COUT({ "std::cout << $it << std::endl" }, Header.IoStream),
 }
 
 val functions = mapOf<String, Function>(

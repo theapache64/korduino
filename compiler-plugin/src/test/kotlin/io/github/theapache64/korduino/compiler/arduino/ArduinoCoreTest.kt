@@ -7,41 +7,33 @@ import io.github.theapache64.korduino.compiler.util.generateAndCompileArduinoSou
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
-class PinModeTest {
-    companion object{
-        val IMPORT_STATEMENTS = """
-            import io.github.theapache64.korduino.core.*
-        """.trimIndent()
+class ArduinoCoreTest {
+    companion object {
+        private const val IMPORT_STATEMENTS = """
+            import io.github.theapache64.korduino.core.delay
+        """
     }
 
     @Test
-    fun basic() {
+    fun missingSetup() {
 
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
-
-            fun setup() {
-                pinMode(Pin.D1, PinMode.INPUT)
-                pinMode(32, PinMode.OUTPUT)
+            fun loop() {
+                delay(1000)
             }
-            
-            fun loop(){
-            
-            }
-
-            """.trimIndent(),
+        """.trimIndent(),
         )
 
         val actualOutput = generateAndCompileArduinoSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
 
         val expectedOutput = """
             #include <Arduino.h>
-            void setup() {
-                pinMode(D1, INPUT);
-                pinMode(32, OUTPUT);
+            void setup() {}
+            void loop() {
+                delay(1000);
             }
-            void loop() {}
             
         """.trimIndent()
 

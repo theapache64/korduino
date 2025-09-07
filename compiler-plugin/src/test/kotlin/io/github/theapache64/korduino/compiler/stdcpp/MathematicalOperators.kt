@@ -4,7 +4,7 @@ import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
 import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.stdcpp.DataTypeTest.Companion.IMPORT_STATEMENTS
-import io.github.theapache64.korduino.compiler.util.compileStdCpp
+import io.github.theapache64.korduino.compiler.util.generateAndCompileCppSourceCode
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
@@ -22,7 +22,7 @@ class MathematicalOperators {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             int main() {
@@ -49,7 +49,7 @@ class MathematicalOperators {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             int main() {
@@ -76,7 +76,7 @@ class MathematicalOperators {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             int main() {
@@ -104,7 +104,7 @@ class MathematicalOperators {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             int main() {
@@ -131,7 +131,7 @@ class MathematicalOperators {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             int main() {

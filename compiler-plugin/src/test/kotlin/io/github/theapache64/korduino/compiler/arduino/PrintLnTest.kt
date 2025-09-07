@@ -3,7 +3,7 @@ package io.github.theapache64.korduino.compiler.arduino
 import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
 import io.github.theapache64.korduino.common.Arg
-import io.github.theapache64.korduino.compiler.util.compileArduino
+import io.github.theapache64.korduino.compiler.util.generateAndCompileArduinoSourceCode
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
@@ -30,7 +30,7 @@ class PrintLnTest {
         """.trimIndent(),
         )
 
-        val actualOutput = compileArduino(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
+        val actualOutput = generateAndCompileArduinoSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
 
         val expectedOutput = """
             #include <Arduino.h>
@@ -63,7 +63,7 @@ class PrintLnTest {
         """.trimIndent(),
         )
 
-        val actualOutput = compileArduino(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
+        val actualOutput = generateAndCompileArduinoSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
 
         val expectedOutput = """
             #include <Arduino.h>

@@ -86,7 +86,10 @@ class Visitor(
         }
 
         val (functionCall, headers) = if (fqName == "io.github.theapache64.korduino.core.cpp") {
-            Pair(argValues[0], argValues.subList(1, argValues.size))
+            val code = argValues[0].let { code ->
+                code.substring(1, code.lastIndex - 1) // stripping out `"`
+            }
+            Pair(code, argValues.subList(1, argValues.size))
         } else if (fqName != null && !functions.containsKey(fqName)) {
             // unknown function
             Pair("$fqName(${argValues.joinToString(separator = ", ")})", emptyList())

@@ -3,7 +3,7 @@ package io.github.theapache64.korduino.compiler.stdcpp
 import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
 import io.github.theapache64.korduino.common.Arg
-import io.github.theapache64.korduino.compiler.util.compileStdCpp
+import io.github.theapache64.korduino.compiler.util.generateAndCompileCppSourceCode
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
@@ -21,12 +21,13 @@ class PrintLnTest {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             #include <iostream>
             int main() {
                 std::cout << "Hello Kotlin!" << std::endl;
+                return 0;
             }
             
         """.trimIndent()
@@ -48,13 +49,14 @@ class PrintLnTest {
         """.trimIndent(),
         )
 
-        val actualOutput = compileStdCpp(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
             #include <iostream>
             int main() {
                 std::cout << "Hello Kotlin!" << std::endl;
                 std::cout << "Hello Kotlin 2!" << std::endl;
+                return 0;
             }
             
         """.trimIndent()

@@ -6,9 +6,22 @@ fun executeCommand(
     directory: File,
     command: Array<String>,
 ) {
-    val process = ProcessBuilder(*command).directory(
-        directory
-    ).redirectOutput(ProcessBuilder.Redirect.PIPE).redirectError(ProcessBuilder.Redirect.PIPE).start()
+    // Expand wildcards manually
+    val expandedCommand = command.flatMap { arg ->
+        if (arg.contains("*")) {
+            val regEx = arg.replace("*", ".*").toRegex()
+            val files = directory.listFiles { file -> file.name.matches(regEx) }
+            files?.map { it.name } ?: listOf(arg)
+        } else {
+            listOf(arg)
+        }
+    }.toTypedArray()
+
+    println("QuickTag: :executeCommand: `cd ${directory.absolutePath} && ${expandedCommand.joinToString(separator = " ")}`")
+    val process = ProcessBuilder(*expandedCommand).directory(directory)
+        .redirectOutput(ProcessBuilder.Redirect.PIPE)
+        .redirectError(ProcessBuilder.Redirect.PIPE)
+        .start()
 
 
     val outputThread = Thread {

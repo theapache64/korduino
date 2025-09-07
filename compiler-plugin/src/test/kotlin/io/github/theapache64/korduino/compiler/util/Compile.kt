@@ -12,19 +12,44 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.File
 
 
-fun compileArduino(sourceFiles: List<SourceFile>): JvmCompilationResult {
-    return verifyCompilability(sourceFiles, Arg.Platform.Target.ARDUINO)
+fun generateAndCompileArduinoSourceCode(sourceFiles: List<SourceFile>): JvmCompilationResult {
+    return compileAndVerifyCompilability(
+        sourceFiles,
+        Arg.Platform.Target.ARDUINO,
+        isCompile = true
+    )
 }
 
-fun compileStdCpp(sourceFiles: List<SourceFile>): JvmCompilationResult {
-    return verifyCompilability(sourceFiles, Arg.Platform.Target.STD_CPP)
+fun generateAndCompileCppSourceCode(sourceFiles: List<SourceFile>): JvmCompilationResult {
+    return compileAndVerifyCompilability(
+        sourceFiles,
+        Arg.Platform.Target.STD_CPP,
+        isCompile = true
+    )
 }
 
-private fun verifyCompilability(
+fun generateArduinoSourceCode(sourceFiles: List<SourceFile>): JvmCompilationResult {
+    return compileAndVerifyCompilability(
+        sourceFiles,
+        Arg.Platform.Target.ARDUINO,
+        isCompile = false
+    )
+}
+
+fun generateCppSourceCode(sourceFiles: List<SourceFile>): JvmCompilationResult {
+    return compileAndVerifyCompilability(
+        sourceFiles,
+        Arg.Platform.Target.STD_CPP,
+        isCompile = false
+    )
+}
+
+private fun compileAndVerifyCompilability(
     sourceFiles: List<SourceFile>,
-    target: Arg.Platform.Target
+    target: Arg.Platform.Target,
+    isCompile: Boolean
 ): JvmCompilationResult {
-    return KotlinCompilation().apply {
+    val result = KotlinCompilation().apply {
         sources = sourceFiles
         compilerPluginRegistrars = listOf(Registrar())
         commandLineProcessors = listOf(ArgProcessor())
@@ -36,14 +61,34 @@ private fun verifyCompilability(
             "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:BUILD_DIR=build",
         )
     }.compile()
+
+    if(isCompile){
+        val projectDir = result.findProjectRootDir()
+        when (target) {
+            Arg.Platform.Target.ARDUINO -> {
+                executeCommand(projectDir.resolve("pio"), arrayOf("pio", "run"))
+            }
+
+            Arg.Platform.Target.STD_CPP -> {
+                executeCommand(projectDir.resolve("cpp"), arrayOf("g++", "*.cpp", "-o", "outs"))
+            }
+        }
+    }
+    return result
+}
+
+private fun JvmCompilationResult.findProjectRootDir(): File {
+    val pattern = "${Extension.CPP_MSG_PREFIX}'(.+)'".toRegex()
+    val filePath = pattern.find(this.messages)?.groups[1]?.value ?: error("Couldn't find output file from messages")
+    return File(filePath)
 }
 
 @OptIn(ExperimentalCompilerApi::class)
-fun JvmCompilationResult.readActualOutput(platform: Arg.Platform.Target): String {
-    val pattern = "${Extension.CPP_MSG_PREFIX}'(.+)'".toRegex()
-    val filePath = pattern.find(this.messages)?.groups[1]?.value ?: error("Couldn't find output file from messages")
-    val projectRootDir = File(filePath)
-    val outputDir = projectRootDir.resolve(
+fun JvmCompilationResult.readActualOutput(
+    platform: Arg.Platform.Target,
+): String {
+
+    val outputDir = findProjectRootDir().resolve(
         when (platform) {
             Arg.Platform.Target.ARDUINO -> "pio/src/"
             Arg.Platform.Target.STD_CPP -> "cpp"
@@ -51,20 +96,6 @@ fun JvmCompilationResult.readActualOutput(platform: Arg.Platform.Target): String
     )
     println("QuickTag: :readActualOutput: ${outputDir.absolutePath}")
     val cppFile = outputDir.listFiles().filter { it.extension == "cpp" }[0]
-    val finalCode = cppFile.verifyCompilability(platform).readText()
-    return finalCode
+    return cppFile.readText()
 }
 
-private fun File.verifyCompilability(target: Arg.Platform.Target): File {
-    // Compile
-    when (target) {
-        Arg.Platform.Target.ARDUINO -> {
-            executeCommand(this.parentFile.parentFile, arrayOf("pio", "run"))
-        }
-
-        Arg.Platform.Target.STD_CPP -> {
-            executeCommand(this.parentFile, arrayOf("g++", this.absolutePath, "-o", "outs"))
-        }
-    }
-    return this
-}
