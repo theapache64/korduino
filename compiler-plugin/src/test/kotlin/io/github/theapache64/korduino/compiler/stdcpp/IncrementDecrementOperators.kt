@@ -9,6 +9,34 @@ import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
 class IncrementDecrementOperators {
+
+    @Test
+    fun basic() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 1
+                a++
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int main() {
+                int a = 1;
+                a++;
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
     @Test
     fun increment() {
         val input = SourceFile.kotlin(

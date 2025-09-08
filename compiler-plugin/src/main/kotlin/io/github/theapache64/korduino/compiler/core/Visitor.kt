@@ -63,14 +63,20 @@ class Visitor(
     }
 
     override fun visitVariable(declaration: IrVariable) {
-        val typeFqName = declaration.type.classFqName?.asString()
-        val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
-        val variableName = declaration.name.asString()
-        val variableCall = declaration.initializer?.toCodeString()?.joinToString(separator = "")
-        if (dataType.extraHeader != null) {
-            codeBuilder.addHeader(dataType.extraHeader)
+        val debugName = (declaration.initializer as? IrGetValueImpl)?.origin?.debugName
+        if(debugName == "POSTFIX_INCR"){
+            val variableName = (declaration.initializer as IrGetValueImpl).symbol.owner.name.asString()
+            codeBuilder.appendLine("$variableName++;")
+        }else{
+            val typeFqName = declaration.type.classFqName?.asString()
+            val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
+            val variableName = declaration.name.asString()
+            val variableCall = declaration.initializer?.toCodeString()?.joinToString(separator = "")
+            if (dataType.extraHeader != null) {
+                codeBuilder.addHeader(dataType.extraHeader)
+            }
+            codeBuilder.appendLine("${dataType.type} $variableName = $variableCall;")
         }
-        codeBuilder.appendLine("${dataType.type} $variableName = $variableCall;")
     }
 
 
@@ -78,6 +84,8 @@ class Visitor(
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
+
+        if(fqName=="kotlin.Int.inc") return // already managed by visible variable
 
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
