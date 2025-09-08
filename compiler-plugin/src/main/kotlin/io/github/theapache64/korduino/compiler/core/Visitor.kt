@@ -177,7 +177,7 @@ class Visitor(
 
             is IrGetValueImpl -> {
                 val symbol = when(val name = this.symbol.owner.name.asString()){
-                    "<unary>" -> "+"
+                    "<unary>" -> ""
                     else -> name
                 }
                 argValues.add(symbol)
@@ -208,6 +208,9 @@ class Visitor(
                 }
             }
 
+            is IrSetValueImpl ->{
+                println("QuickTag: Visitor:toCodeString: $this")
+            }
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }
