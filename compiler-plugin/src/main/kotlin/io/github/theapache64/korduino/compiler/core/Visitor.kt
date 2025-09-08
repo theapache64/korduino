@@ -175,16 +175,25 @@ class Visitor(
 
             }
 
+
+            is IrSetValueImpl ->{
+                val symbol = when(val name = this.origin?.debugName){
+                    "POSTFIX_INCR" -> "" // already handled
+                    else -> error("Unhandled setValue call `$name`")
+                }
+                argValues.add(symbol)
+            }
+
             is IrGetValueImpl -> {
                 val symbol = when(val name = this.symbol.owner.name.asString()){
-                    "<unary>" -> ""
+                    "<unary>" -> "" // already handled
                     else -> name
                 }
                 argValues.add(symbol)
             }
 
             is IrBlockImpl -> {
-                argValues.addAll(this.statements.map { it.toCodeString().joinToString("") })
+                argValues.addAll(this.statements.reversed().map { it.toCodeString().joinToString("") })
             }
 
             is IrVariableImpl -> {
@@ -208,9 +217,6 @@ class Visitor(
                 }
             }
 
-            is IrSetValueImpl ->{
-                println("QuickTag: Visitor:toCodeString: $this")
-            }
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }
