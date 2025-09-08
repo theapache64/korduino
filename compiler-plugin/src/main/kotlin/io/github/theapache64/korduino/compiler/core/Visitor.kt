@@ -31,27 +31,25 @@ class Visitor(
     fun generateCode(): String = codeBuilder.getCode()
 
     override fun visitElement(element: IrElement) {
+        // This is the first function to get a hit. Here we're telling to recursively loop through each element
         element.acceptChildrenVoid(this)
     }
 
     override fun visitFunction(declaration: IrFunction) {
-
         val functionName = declaration.name.asString()
-        if (functionName != "<init>") {
-            val dataTypeClassName = declaration.returnType.classFqName?.asString()
-            val returnType = dataTypes.get(key = dataTypeClassName)
-                ?: error("Unsupported data type '$dataTypeClassName' (platform: $target). $LINK_GITHUB_ISSUES ")
-            val params = extractParams(declaration)
-            codeBuilder.appendLine("${returnType.type} $functionName($params) {")
+        val dataTypeClassName = declaration.returnType.classFqName?.asString()
+        val returnType = dataTypes.get(key = dataTypeClassName)
+            ?: error("Unsupported data type '$dataTypeClassName' (platform: $target). $LINK_GITHUB_ISSUES ")
+        val params = extractParams(declaration)
+        codeBuilder.appendLine("${returnType.type} $functionName($params) {")
 
-            val header = returnType.extraHeader
-            if (header != null && !codeBuilder.containsHeader(header)) {
-                codeBuilder.addHeader(header)
-            }
-
-            super.visitFunction(declaration) // TODO: Explore: declaration.acceptChildrenVoid(this)
-            codeBuilder.appendLine("}")
+        val header = returnType.extraHeader
+        if (header != null && !codeBuilder.containsHeader(header)) {
+            codeBuilder.addHeader(header)
         }
+
+        super.visitFunction(declaration) // TODO: Explore: declaration.acceptChildrenVoid(this)
+        codeBuilder.appendLine("}")
     }
 
     private fun extractParams(declaration: IrFunction): String {
