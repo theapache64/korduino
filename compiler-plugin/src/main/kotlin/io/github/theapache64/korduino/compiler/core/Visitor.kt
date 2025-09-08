@@ -25,6 +25,21 @@ class Visitor(
     companion object {
         const val LINK_GITHUB_ISSUES =
             "Please raise a issue here if you think its a framework miss -> https://github.com/theapache64/korduino/issues/new"
+
+        /**
+         * these functions don't need further processing.
+         * by the time they reach `visitFunction`, they've already been handled by other functions,
+         * so `visitFunction` can skip them.
+         */
+        val SKIPPED_VISIT_FUNCTIONS = setOf(
+            "kotlin.Int.inc",
+            "kotlin.Int.dec"
+        )
+
+        /**
+         * A special function used to put raw cpp code in the generated file.
+         */
+        private const val FUNCTION_RAW_CPP = "io.github.theapache64.korduino.core.cpp"
     }
 
     private val codeBuilder = CodeBuilder()
@@ -71,8 +86,7 @@ class Visitor(
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
-
-        if (fqName == "kotlin.Int.inc" || fqName == "kotlin.Int.dec") return // already managed by visible variable
+        if (fqName in SKIPPED_VISIT_FUNCTIONS) return // already managed by other functions
 
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
@@ -80,7 +94,7 @@ class Visitor(
             argValues.addAll(expArg.toCodeString())
         }
 
-        val (functionCall, headers) = if (fqName == "io.github.theapache64.korduino.core.cpp") {
+        val (functionCall, headers) = if (fqName == FUNCTION_RAW_CPP) {
             val code = argValues[0].let { code ->
                 code.substring(1, code.lastIndex - 1) // stripping out `"`
             }
