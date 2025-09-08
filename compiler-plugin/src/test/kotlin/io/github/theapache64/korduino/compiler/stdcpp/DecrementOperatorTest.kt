@@ -8,16 +8,16 @@ import io.github.theapache64.korduino.compiler.util.generateAndCompileCppSourceC
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
-class IncrementDecrementOperators {
+class DecrementOperatorTest {
 
     @Test
-    fun increment() {
+    fun decrement() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                a++
+                a--
                 return 0
             }
         """.trimIndent(),
@@ -28,7 +28,7 @@ class IncrementDecrementOperators {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                a++;
+                a--;
                 return 0;
             }
             
@@ -38,13 +38,13 @@ class IncrementDecrementOperators {
     }
 
     @Test
-    fun incrementAndReturn() {
+    fun decrementAndReturn() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                val b = a++
+                val b = a--
                 return 0
             }
         """.trimIndent(),
@@ -55,7 +55,7 @@ class IncrementDecrementOperators {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                int b = a++;
+                int b = a--;
                 return 0;
             }
             
@@ -65,14 +65,14 @@ class IncrementDecrementOperators {
     }
 
     @Test
-    fun incrementAndReturnAndIncrement() {
+    fun decrementAndReturnAndDecrement() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                var b = a++
-                b++
+                var b = a--
+                b--
                 return 0
             }
         """.trimIndent(),
@@ -83,8 +83,8 @@ class IncrementDecrementOperators {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                int b = a++;
-                b++;
+                int b = a--;
+                b--;
                 return 0;
             }
             

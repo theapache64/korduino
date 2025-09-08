@@ -74,7 +74,7 @@ class Visitor(
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
 
-        if (fqName == "kotlin.Int.inc") return // already managed by visible variable
+        if (fqName == "kotlin.Int.inc" || fqName == "kotlin.Int.dec") return // already managed by visible variable
 
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
@@ -176,16 +176,16 @@ class Visitor(
             }
 
 
-            is IrSetValueImpl ->{
-                val symbol = when(val name = this.origin?.debugName){
-                    "POSTFIX_INCR" -> "" // already handled
+            is IrSetValueImpl -> {
+                val symbol = when (val name = this.origin?.debugName) {
+                    "POSTFIX_INCR", "POSTFIX_DECR" -> "" // already handled
                     else -> error("Unhandled setValue call `$name`")
                 }
                 argValues.add(symbol)
             }
 
             is IrGetValueImpl -> {
-                val symbol = when(val name = this.symbol.owner.name.asString()){
+                val symbol = when (val name = this.symbol.owner.name.asString()) {
                     "<unary>" -> "" // already handled
                     else -> name
                 }
@@ -200,15 +200,23 @@ class Visitor(
                 val typeFqName = type.classFqName?.asString()
                 val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
                 val variableName = name.asString()
-                if(variableName=="<unary>"){
+                if (variableName == "<unary>") {
                     val debugName = (initializer as? IrGetValueImpl)?.origin?.debugName
-                    if (debugName == "POSTFIX_INCR") {
-                        val variableName = (initializer as IrGetValueImpl).symbol.owner.name.asString()
-                        argValues.add("$variableName++")
-                    }else{
-                        error("Undefined getValue op `$debugName`")
+                    val variableName = (initializer as IrGetValueImpl).symbol.owner.name.asString()
+                    when (debugName) {
+                        "POSTFIX_INCR" -> {
+                            argValues.add("$variableName++")
+                        }
+
+                        "POSTFIX_DECR" -> {
+                            argValues.add("$variableName--")
+                        }
+
+                        else -> {
+                            error("Undefined getValue op `$debugName`")
+                        }
                     }
-                }else{
+                } else {
                     val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
                     if (dataType.extraHeader != null) {
                         codeBuilder.addHeader(dataType.extraHeader)
