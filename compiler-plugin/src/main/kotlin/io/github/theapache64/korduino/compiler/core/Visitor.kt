@@ -10,6 +10,8 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_DECR
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_INCR
 import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classFqName
@@ -190,7 +192,7 @@ class Visitor(
 
             is IrSetValueImpl -> {
                 val symbol = when (val name = this.origin?.debugName) {
-                    "POSTFIX_INCR", "POSTFIX_DECR" -> "" // already handled
+                    POSTFIX_INCR.debugName, POSTFIX_DECR.debugName -> "" // already handled
                     else -> error("Unhandled setValue call `$name`")
                 }
                 argValues.add(symbol)
@@ -216,11 +218,11 @@ class Visitor(
                     val debugName = (initializer as? IrGetValueImpl)?.origin?.debugName
                     val variableName = (initializer as IrGetValueImpl).symbol.owner.name.asString()
                     when (debugName) {
-                        "POSTFIX_INCR" -> {
+                        POSTFIX_INCR.debugName -> {
                             argValues.add("$variableName++")
                         }
 
-                        "POSTFIX_DECR" -> {
+                        POSTFIX_DECR.debugName -> {
                             argValues.add("$variableName--")
                         }
 
@@ -245,4 +247,3 @@ class Visitor(
 
 
 }
-
