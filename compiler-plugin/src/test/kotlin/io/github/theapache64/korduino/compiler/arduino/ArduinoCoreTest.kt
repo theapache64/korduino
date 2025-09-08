@@ -20,6 +20,7 @@ class ArduinoCoreTest {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
+            fun setup(){}
             fun loop() {
                 delay(1000)
             }

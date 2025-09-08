@@ -20,6 +20,7 @@ class DelayTest {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
+            fun setup(){ }
             fun loop() {
                 delay(1000)
             }
@@ -30,6 +31,7 @@ class DelayTest {
 
         val expectedOutput = """
             #include <Arduino.h>
+            void setup() {}
             void loop() {
                 delay(1000);
             }
