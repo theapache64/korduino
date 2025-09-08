@@ -24,14 +24,14 @@ class CppFormatter() {
         }
     }
 
-    fun moveFunction(function: CppFunction, _fullCode: StringBuilder, moveToLineNo: Int): String {
-        var fullCode = _fullCode.toString()
-        val fullCodeLines = fullCode.lines()
+    fun moveFunction(function: CppFunction, fullCode: StringBuilder, moveToLineNo: Int): String {
+        var tempFullCode = fullCode.toString()
+        val fullCodeLines = tempFullCode.lines()
         val extractedFunction = fullCodeLines.subList(function.startLineNo, function.endLineNo).joinToString("\n")
-        fullCode = fullCode.replace(extractedFunction, "")
-        val fullCodeBuilder= fullCode.lines().toMutableList()
+        tempFullCode = tempFullCode.replace(extractedFunction, "")
+        val fullCodeBuilder = tempFullCode.lines().toMutableList()
         fullCodeBuilder.add(moveToLineNo, extractedFunction)
-        fullCode = fullCodeBuilder.joinToString("\n")
-        return fullCode
+        tempFullCode = fullCodeBuilder.joinToString("\n")
+        return tempFullCode
     }
 }

@@ -20,7 +20,6 @@ class CppParser() {
                 }
 
                 line.isFunctionCall() -> {
-                    // TOOD: generate function id and store in functioncalls mapo
                     val (_, functionName, params) = FUNCTION_CALL_REGEX.find(line)?.groupValues
                         ?: error("`$line` doesn't look like a function")
                     val paramCount = if (params.isBlank()) {

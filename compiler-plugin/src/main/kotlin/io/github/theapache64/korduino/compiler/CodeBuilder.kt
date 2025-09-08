@@ -45,7 +45,7 @@ class CodeBuilder(
                 if (minCallSite.lineNo < cppFunction.startLineNo) {
                     // wrong position - rearrange
                     val newCode = cppFormatter.moveFunction(
-                        function = cppFunction, _fullCode = this, moveToLineNo = minCallSite.parent.startLineNo
+                        function = cppFunction, fullCode = this, moveToLineNo = minCallSite.parent.startLineNo
                     )
                     this.clear()
                     this.append(newCode)
