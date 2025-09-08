@@ -5,8 +5,10 @@ import io.github.theapache64.korduino.compiler.CodeBuilder
 import io.github.theapache64.korduino.compiler.dataTypes
 import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -63,20 +65,7 @@ class Visitor(
     }
 
     override fun visitVariable(declaration: IrVariable) {
-        val debugName = (declaration.initializer as? IrGetValueImpl)?.origin?.debugName
-        if(debugName == "POSTFIX_INCR"){
-            val variableName = (declaration.initializer as IrGetValueImpl).symbol.owner.name.asString()
-            codeBuilder.appendLine("$variableName++;")
-        }else{
-            val typeFqName = declaration.type.classFqName?.asString()
-            val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
-            val variableName = declaration.name.asString()
-            val variableCall = declaration.initializer?.toCodeString()?.joinToString(separator = "")
-            if (dataType.extraHeader != null) {
-                codeBuilder.addHeader(dataType.extraHeader)
-            }
-            codeBuilder.appendLine("${dataType.type} $variableName = $variableCall;")
-        }
+        codeBuilder.appendLine("${declaration.toCodeString().joinToString(separator = "")};")
     }
 
 
@@ -85,7 +74,7 @@ class Visitor(
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
 
-        if(fqName=="kotlin.Int.inc") return // already managed by visible variable
+        if (fqName == "kotlin.Int.inc") return // already managed by visible variable
 
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
@@ -127,7 +116,7 @@ class Visitor(
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
-    private fun IrExpression.toCodeString(): List<String> {
+    private fun IrStatement.toCodeString(): List<String> {
         val argValues = mutableListOf<String>()
         when (this) {
             is IrConst -> {
@@ -187,8 +176,38 @@ class Visitor(
             }
 
             is IrGetValueImpl -> {
-                argValues.add(this.symbol.owner.name.asString())
+                val symbol = when(val name = this.symbol.owner.name.asString()){
+                    "<unary>" -> "+"
+                    else -> name
+                }
+                argValues.add(symbol)
             }
+
+            is IrBlockImpl -> {
+                argValues.addAll(this.statements.map { it.toCodeString().joinToString("") })
+            }
+
+            is IrVariableImpl -> {
+                val typeFqName = type.classFqName?.asString()
+                val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
+                val variableName = name.asString()
+                if(variableName=="<unary>"){
+                    val debugName = (initializer as? IrGetValueImpl)?.origin?.debugName
+                    if (debugName == "POSTFIX_INCR") {
+                        val variableName = (initializer as IrGetValueImpl).symbol.owner.name.asString()
+                        argValues.add("$variableName++")
+                    }else{
+                        error("Undefined getValue op `$debugName`")
+                    }
+                }else{
+                    val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
+                    if (dataType.extraHeader != null) {
+                        codeBuilder.addHeader(dataType.extraHeader)
+                    }
+                    argValues.add("${dataType.type} $variableName = $variableCall")
+                }
+            }
+
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }

@@ -75,7 +75,7 @@ Give a ⭐️ if this project helped you!
 - [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
 - [x] Add `int/String/Long/Double/Float/Boolean/return` support
 - [x] Mathematical Operators (`+-*/%`) 
-- [ ] 🚧 Missing setup()/loop() function handling
+- [x] Missing setup()/loop() function handling
 - [ ] Clean up and arch lookback
 - [ ] Increment/decrement operators (`++`, `--`)
 - [ ] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`) 

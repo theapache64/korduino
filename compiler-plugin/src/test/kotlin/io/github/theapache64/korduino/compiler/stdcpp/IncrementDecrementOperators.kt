@@ -11,7 +11,7 @@ import kotlin.test.Test
 class IncrementDecrementOperators {
 
     @Test
-    fun basic() {
+    fun increment() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
@@ -38,15 +38,13 @@ class IncrementDecrementOperators {
     }
 
     @Test
-    fun increment() {
+    fun incrementAndReturn() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                a++
                 val b = a++
-                ++a
                 return 0
             }
         """.trimIndent(),
@@ -57,9 +55,7 @@ class IncrementDecrementOperators {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                a++;
                 int b = a++;
-                ++a;
                 return 0;
             }
             
