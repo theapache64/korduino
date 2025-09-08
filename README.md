@@ -76,8 +76,8 @@ Give a ⭐️ if this project helped you!
 - [x] Add `int/String/Long/Double/Float/Boolean/return` support
 - [x] Mathematical Operators (`+-*/%`) 
 - [x] Missing setup()/loop() function handling
+- [x] Increment/decrement operators (`++`, `--`)
 - [ ] Clean up and arch lookback
-- [ ] Increment/decrement operators (`++`, `--`)
 - [ ] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`) 
 - [ ] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`) 
 - [ ] Logical operators
