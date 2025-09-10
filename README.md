@@ -72,6 +72,7 @@ Give a ⭐️ if this project helped you!
 - [x] Add mode support (C++/Arduino) (arch)
 - [x] Add `pinMode` support
 - [x] Setup PlatformIO installation (building, uploading, and serial monitor)
+- [x] Add `function` support (with and without `return`)
 - [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
 - [x] Add `int/String/Long/Double/Float/Boolean/return` support
 - [x] Mathematical Operators (`+-*/%`) 
@@ -84,8 +85,6 @@ Give a ⭐️ if this project helped you!
 - [ ] Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
 - [ ] Ranges
-- [ ] Add `function` support (with and without `return`)
-- [ ] Add `extension function` support (with and without `return`)
 - [ ] Add `const` support
 - [ ] Add `if-else` support
 - [ ] Add `for` loop support
@@ -93,10 +92,9 @@ Give a ⭐️ if this project helped you!
 - [ ] Add `Array` support
 - [ ] Add `List` support
 - [ ] Add `Map` support
-- [ ] Add nested structure support (nested-ifs, nested-loops etc)
-- [ ] Add additional header file support (external libs) 
-- [ ] Add additional header file support (create and use) 
+- [ ] Add nested structure support (nested-ifs, nested-loops etc) 
 - [ ] Add `Class/Object` support
+- [ ] Add `extension function` support (with and without `return`)
 - [ ] Add multi-file support
 - [ ] Add networking support (For Arduino, via: `ESP8266HTTPClient.h` and `WiFiClientSecureBearSSL.h` )
 - [ ] Add compiler flags for: setting mode (either Arduino/StandardC++), target platform (eg: `espressif8266` via an enum), board, framework, monitor_speed, upload speed (platform/IO). See [this](https://github.com/theapache64/green/blob/master/platformio.ini) for reference

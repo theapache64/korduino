@@ -12,6 +12,8 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_DECR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_INCR
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_DECR
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_INCR
 import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classFqName
@@ -192,7 +194,11 @@ class Visitor(
 
             is IrSetValueImpl -> {
                 val symbol = when (val name = this.origin?.debugName) {
-                    POSTFIX_INCR.debugName, POSTFIX_DECR.debugName -> "" // already handled
+                    POSTFIX_INCR.debugName,
+                    POSTFIX_DECR.debugName,
+                    PREFIX_INCR.debugName,
+                    PREFIX_DECR.debugName,
+                         -> "" // already handled
                     else -> error("Unhandled setValue call `$name`")
                 }
                 argValues.add(symbol)
@@ -207,7 +213,7 @@ class Visitor(
             }
 
             is IrBlockImpl -> {
-                argValues.addAll(this.statements.reversed().map { it.toCodeString().joinToString("") })
+                argValues.addAll(this.statements.map { it.toCodeString().joinToString("") })
             }
 
             is IrVariableImpl -> {
@@ -224,6 +230,14 @@ class Visitor(
 
                         POSTFIX_DECR.debugName -> {
                             argValues.add("$variableName--")
+                        }
+
+                        PREFIX_INCR.debugName -> {
+                            argValues.add("++$variableName")
+                        }
+
+                        PREFIX_DECR.debugName -> {
+                            argValues.add("--$variableName")
                         }
 
                         else -> {
