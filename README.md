@@ -93,7 +93,7 @@ Give a ⭐️ if this project helped you!
 - [ ] Add `List` support
 - [ ] Add `Map` support
 - [ ] Add nested structure support (nested-ifs, nested-loops etc) 
-- [ ] Add `Class/Object` support
+- [ ] Add `Class/Object/init block/ constructor (both primary and secondary)` support
 - [ ] Add `extension function` support (with and without `return`)
 - [ ] Add multi-file support
 - [ ] Add networking support (For Arduino, via: `ESP8266HTTPClient.h` and `WiFiClientSecureBearSSL.h` )

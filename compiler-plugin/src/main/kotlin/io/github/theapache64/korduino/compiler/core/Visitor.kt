@@ -7,6 +7,7 @@ import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
@@ -71,6 +72,8 @@ class Visitor(
         codeBuilder.appendLine("}")
     }
 
+
+
     private fun extractParams(declaration: IrFunction): String {
         return declaration.parameters.joinToString(",") {
             "${dataTypes[it.type.classFqName?.asString()]?.type} ${it.name}"
@@ -119,7 +122,7 @@ class Visitor(
             ""
         }
 
-        codeBuilder.appendLine("""    $functionCall$semicolon""")
+        codeBuilder.appendLine("""$functionCall$semicolon""") // TODO: Remove multi-quotes
 
         for (header in headers) {
             // Check if the header is present

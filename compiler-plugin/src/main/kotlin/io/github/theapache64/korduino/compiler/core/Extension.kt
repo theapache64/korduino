@@ -33,7 +33,7 @@ class Extension(
         moduleFragment.accept(visitor, null)
         val files = mutableListOf<Path>().apply {
             for (moduleFile in moduleFragment.files) {
-                val cppCode = visitor.generateCode() // TODO: Support multiple files
+                val cppCode = visitor.generateCode() // TODO: Support multiple files (currently temp implementation)
                 val file = tempDir.resolve("${moduleFile.nameWithoutExtension}.cpp").apply {
                     writeText(cppCode)
                 }
