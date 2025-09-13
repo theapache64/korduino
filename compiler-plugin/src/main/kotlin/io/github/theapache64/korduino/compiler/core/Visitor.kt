@@ -7,7 +7,6 @@ import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
@@ -38,7 +37,7 @@ class Visitor(
          */
         val SKIPPED_VISIT_FUNCTIONS = setOf(
             "kotlin.Int.inc_${POSTFIX_INCR.debugName}",
-            "kotlin.Int.dec_${POSTFIX_DECR.debugName}"
+            "kotlin.Int.dec_${POSTFIX_DECR.debugName}",
         )
 
         /**
@@ -73,7 +72,6 @@ class Visitor(
     }
 
 
-
     private fun extractParams(declaration: IrFunction): String {
         return declaration.parameters.joinToString(",") {
             "${dataTypes[it.type.classFqName?.asString()]?.type} ${it.name}"
@@ -94,7 +92,6 @@ class Visitor(
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
         if ("${fqName}_${expression.origin?.debugName}" in SKIPPED_VISIT_FUNCTIONS) return // already managed by other functions
-
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
             if (expArg == null) continue
@@ -113,7 +110,8 @@ class Visitor(
             // known function
             val cppFqName = functions[fqName]
                 ?: error("Unsupported function name '$fqName' (platform: $target). $LINK_GITHUB_ISSUES ")
-            Pair(cppFqName.fqName(argValues.joinToString(separator = ", ")), listOf(cppFqName.header.fileName))
+            val headers = if(cppFqName.header != null) listOf(cppFqName.header.fileName) else emptyList()
+            Pair(cppFqName.fqName(argValues.joinToString(separator = ", ")), headers)
         }
 
         val semicolon = if (!functionCall.trim().endsWith(";")) {
@@ -199,9 +197,9 @@ class Visitor(
                 val symbol = when (val name = this.origin?.debugName) {
                     POSTFIX_INCR.debugName,
                     POSTFIX_DECR.debugName,
-                    PREFIX_INCR.debugName,
-                    PREFIX_DECR.debugName,
-                         -> "" // already handled
+                        -> "" // already handled
+                    PREFIX_INCR.debugName -> "++"
+                    PREFIX_DECR.debugName -> "--"
                     else -> error("Unhandled setValue call `$name`")
                 }
                 argValues.add(symbol)

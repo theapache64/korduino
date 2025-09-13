@@ -2,7 +2,7 @@ package io.github.theapache64.korduino.compiler
 
 enum class Function(
     val fqName: (value: String?) -> String,
-    val header: Header
+    val header: Header?
 ) {
     // Arduino
     PrintLn({ "Serial.println($it)" }, Header.Arduino),
@@ -12,6 +12,7 @@ enum class Function(
 
     // Std CPP
     COUT({ "std::cout << $it << std::endl" }, Header.IoStream),
+    INCREMENT({ "++$it" }, null),
 }
 
 val functions = mapOf<String, Function>(
@@ -20,4 +21,5 @@ val functions = mapOf<String, Function>(
     "io.github.theapache64.korduino.core.Serial.begin" to Function.Begin,
     "io.github.theapache64.korduino.core.delay" to Function.Delay,
     "io.github.theapache64.korduino.core.pinMode" to Function.PinMode,
+    "kotlin.Int.inc" to Function.INCREMENT,
 )
