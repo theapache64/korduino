@@ -109,7 +109,7 @@ class Visitor(
             ";"
         }
 
-        if(functionCall.isNotBlank()) {
+        if (functionCall.isNotBlank()) {
             codeBuilder.appendLine("$functionCall$semicolon")
         }
 
@@ -247,7 +247,7 @@ class Visitor(
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }
-        return argValues
+        return argValues.filter { it.isNotBlank() }
     }
 
 

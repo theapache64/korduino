@@ -38,6 +38,38 @@ class IncrementOperatorTest {
     }
 
     @Test
+    fun postfixIncrementAsParam() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 1
+                return increment(a++)
+            }
+            
+            fun increment(a: Int) : Int {
+                return a+1
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int increment(int a) {
+                return a + 1;
+            }
+            int main() {
+                int a = 1;
+                return increment(a++);
+            }
+
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
     fun postfixIncrementAndReturn() {
         val input = SourceFile.kotlin(
             "Main.kt",
