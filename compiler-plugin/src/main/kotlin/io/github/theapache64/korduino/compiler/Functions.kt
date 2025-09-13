@@ -13,6 +13,7 @@ enum class Function(
     // Std CPP
     COUT({ "std::cout << $it << std::endl" }, Header.IoStream),
     INCREMENT({ varName -> if (varName.isNullOrBlank()) "" else "++$varName" }, null),
+    DECREMENT({ varName -> if (varName.isNullOrBlank()) "" else "--$varName" }, null),
 }
 
 val functions = mapOf<String, Function>(
@@ -24,4 +25,8 @@ val functions = mapOf<String, Function>(
     "kotlin.Int.inc" to Function.INCREMENT,
     "kotlin.Double.inc" to Function.INCREMENT,
     "kotlin.Long.inc" to Function.INCREMENT,
+
+    "kotlin.Int.dec" to Function.DECREMENT,
+    "kotlin.Double.dec" to Function.DECREMENT,
+    "kotlin.Long.dec" to Function.DECREMENT,
 )
