@@ -169,7 +169,8 @@ class Visitor(
                         else -> error("Unknown operator `$opName`")
                     }
                     argValues.add(
-                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }.joinToString(" $opSymbol "),
+                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
+                            .joinToString(" $opSymbol "),
                     )
                 } else {
                     argValues.addAll(
@@ -221,27 +222,16 @@ class Visitor(
                 if (variableName == "<unary>") {
                     val debugName = (initializer as? IrGetValueImpl)?.origin?.debugName
                     val variableName = (initializer as IrGetValueImpl).symbol.owner.name.asString()
-                    when (debugName) {
-                        POSTFIX_INCR.debugName -> {
-                            argValues.add("$variableName++")
-                        }
-
-                        POSTFIX_DECR.debugName -> {
-                            argValues.add("$variableName--")
-                        }
-
-                        PREFIX_INCR.debugName -> {
-                            argValues.add("++$variableName")
-                        }
-
-                        PREFIX_DECR.debugName -> {
-                            argValues.add("--$variableName")
-                        }
-
+                    val statement = when (debugName) {
+                        POSTFIX_INCR.debugName -> "$variableName++"
+                        POSTFIX_DECR.debugName -> "$variableName--"
+                        PREFIX_INCR.debugName -> "++$variableName"
+                        PREFIX_DECR.debugName -> "--$variableName"
                         else -> {
                             error("Undefined getValue op `$debugName`")
                         }
                     }
+                    argValues.add(statement)
                 } else {
                     val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
                     if (dataType.extraHeader != null) {
