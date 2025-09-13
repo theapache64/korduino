@@ -40,17 +40,18 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun postfixIncrementAsParam() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun postfixAsParam(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                return increment(a++)
+                return modify(a${symbol})
             }
             
-            fun increment(a: Int) : Int {
+            fun modify(a: Int) : Int {
                 return a+1
             }
         """.trimIndent(),
@@ -59,12 +60,12 @@ class IncrementDecrementOperatorTest {
         val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
-            int increment(int a) {
+            int modify(int a) {
                 return a + 1;
             }
             int main() {
                 int a = 1;
-                return increment(a++);
+                return modify(a${symbol});
             }
 
         """.trimIndent()
@@ -72,14 +73,15 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun postfixIncrementAndReturn() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun postfixAndReturn(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                val b = a++
+                val b = a${symbol}
                 return 0
             }
         """.trimIndent(),
@@ -90,7 +92,7 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                int b = a++;
+                int b = a${symbol};
                 return 0;
             }
             
@@ -99,15 +101,16 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun postfixDualIncrementAndReturn() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun postfixDualAndReturn(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                var b = a++
-                b++
+                var b = a${symbol}
+                b${symbol}
                 return 0
             }
         """.trimIndent(),
@@ -118,8 +121,8 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                int b = a++;
-                b++;
+                int b = a${symbol};
+                b${symbol};
                 return 0;
             }
             
@@ -128,14 +131,15 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun prefixIncrement() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun prefix(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                ++a
+                ${symbol}a
                 return 0
             }
         """.trimIndent(),
@@ -146,7 +150,7 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                ++a;
+                ${symbol}a;
                 return 0;
             }
             
@@ -155,14 +159,15 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun prefixIncrementAndReturn() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun prefixAndReturn(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                val b = ++a
+                val b = ${symbol}a
                 return 0
             }
         """.trimIndent(),
@@ -173,7 +178,37 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                int b = ++a;
+                int b = ${symbol}a;
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun prefixDualAndReturn(symbol: String) {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 1
+                var b = ${symbol}a
+                ${symbol}b
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int main() {
+                int a = 1;
+                int b = ${symbol}a;
+                ${symbol}b;
                 return 0;
             }
             
@@ -183,14 +218,14 @@ class IncrementDecrementOperatorTest {
     }
 
     @Test
-    fun prefixDualIncrementAndReturn() {
+    fun mixedOperators() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
                 var b = ++a
-                ++b
+                var c = b--
                 return 0
             }
         """.trimIndent(),
@@ -202,7 +237,7 @@ class IncrementDecrementOperatorTest {
             int main() {
                 int a = 1;
                 int b = ++a;
-                ++b;
+                int c = b--;
                 return 0;
             }
             
@@ -211,43 +246,15 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun mixedIncrement() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun operatorInArithmeticExpression(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                var b = ++a
-                var c = b++
-                return 0
-            }
-        """.trimIndent(),
-        )
-
-        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
-
-        val expectedOutput = """
-            int main() {
-                int a = 1;
-                int b = ++a;
-                int c = b++;
-                return 0;
-            }
-            
-        """.trimIndent()
-
-        actualOutput.should.equal(expectedOutput)
-    }
-
-    @Test
-    fun incrementInArithmeticExpression() {
-        val input = SourceFile.kotlin(
-            "Main.kt",
-            """$IMPORT_STATEMENTS
-            fun main() : Int {
-                var a = 1
-                var b = 2 + a++
+                var b = 2 + a${symbol}
                 return b
             }
         """.trimIndent(),
@@ -256,7 +263,7 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                int b = 2 + a++;
+                int b = 2 + a${symbol};
                 return b;
             }
             
@@ -264,14 +271,15 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun incrementLongType() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun operatorLongType(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Long {
                 var a = 1L
-                a++
+                a${symbol}
                 return a
             }
         """.trimIndent(),
@@ -280,7 +288,7 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             long long main() {
                 long long a = 1;
-                a++;
+                a${symbol};
                 return a;
             }
             
@@ -288,14 +296,15 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun incrementDoubleType() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun operatorDoubleType(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Double {
                 var a = 1.0
-                ++a
+                ${symbol}a
                 return a
             }
         """.trimIndent(),
@@ -304,7 +313,7 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             double main() {
                 double a = 1.0;
-                ++a;
+                ${symbol}a;
                 return a;
             }
             
@@ -312,14 +321,15 @@ class IncrementDecrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
-    @Test
-    fun chainedIncrement() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun chainedOperator(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                var b = a++ + ++a
+                var b = a$symbol + ${symbol}a
                 return b
             }
         """.trimIndent(),
@@ -328,13 +338,64 @@ class IncrementDecrementOperatorTest {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                int b = a++ + ++a;
+                int b = a$symbol + ${symbol}a;
                 return b;
             }
             
         """.trimIndent()
         actualOutput.should.equal(expectedOutput)
     }
+
+
+    @Test
+    fun chainedMixed() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 1
+                var b = a++ + --a
+                return b
+            }
+        """.trimIndent(),
+        )
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val expectedOutput = """
+            int main() {
+                int a = 1;
+                int b = a++ + --a;
+                return b;
+            }
+            
+        """.trimIndent()
+        actualOutput.should.equal(expectedOutput)
+    }
+
+
+    @Test
+    fun chainedMixedReverse() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 1
+                var b = a-- + ++a
+                return b
+            }
+        """.trimIndent(),
+        )
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val expectedOutput = """
+            int main() {
+                int a = 1;
+                int b = a-- + ++a;
+                return b;
+            }
+            
+        """.trimIndent()
+        actualOutput.should.equal(expectedOutput)
+    }
+
 
     // TODO: Add more tests cases with loops, object etc once those constructs are ready
 }
