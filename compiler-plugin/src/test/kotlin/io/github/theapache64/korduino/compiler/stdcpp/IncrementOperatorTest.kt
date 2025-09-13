@@ -237,4 +237,101 @@ class IncrementOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
+    @Test
+    fun incrementInArithmeticExpression() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 1
+                var b = 2 + a++
+                return b
+            }
+        """.trimIndent(),
+        )
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val expectedOutput = """
+            int main() {
+                int a = 1;
+                int b = 2 + a++;
+                return b;
+            }
+            
+        """.trimIndent()
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun incrementLongType() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Long {
+                var a = 1L
+                a++
+                return a
+            }
+        """.trimIndent(),
+        )
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val expectedOutput = """
+            long long main() {
+                long long a = 1;
+                a++;
+                return a;
+            }
+            
+        """.trimIndent()
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun incrementDoubleType() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Double {
+                var a = 1.0
+                ++a
+                return a
+            }
+        """.trimIndent(),
+        )
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val expectedOutput = """
+            double main() {
+                double a = 1.0;
+                ++a;
+                return a;
+            }
+            
+        """.trimIndent()
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun chainedIncrement() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 1
+                var b = a++ + ++a
+                return b
+            }
+        """.trimIndent(),
+        )
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        val expectedOutput = """
+            int main() {
+                int a = 1;
+                int b = a++ + ++a;
+                return b;
+            }
+            
+        """.trimIndent()
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    // TODO: Add more tests cases with loops, object etc once those constructs are ready
 }

@@ -22,4 +22,6 @@ val functions = mapOf<String, Function>(
     "io.github.theapache64.korduino.core.delay" to Function.Delay,
     "io.github.theapache64.korduino.core.pinMode" to Function.PinMode,
     "kotlin.Int.inc" to Function.INCREMENT,
+    "kotlin.Double.inc" to Function.INCREMENT,
+    "kotlin.Long.inc" to Function.INCREMENT,
 )
