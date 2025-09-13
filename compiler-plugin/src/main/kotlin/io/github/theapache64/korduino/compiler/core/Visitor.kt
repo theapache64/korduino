@@ -31,16 +31,6 @@ class Visitor(
             "Please raise a issue here if you think its a framework miss -> https://github.com/theapache64/korduino/issues/new"
 
         /**
-         * these functions don't need further processing.
-         * by the time they reach `visitFunction`, they've already been handled by other functions,
-         * so `visitFunction` can skip them.
-         */
-        val SKIPPED_VISIT_FUNCTIONS = setOf(
-            "kotlin.Int.inc_${POSTFIX_INCR.debugName}",
-            "kotlin.Int.dec_${POSTFIX_DECR.debugName}",
-        )
-
-        /**
          * A special function used to put raw cpp code in the generated file.
          */
         private const val FUNCTION_RAW_CPP = "io.github.theapache64.korduino.core.cpp"
@@ -91,7 +81,6 @@ class Visitor(
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
-        if ("${fqName}_${expression.origin?.debugName}" in SKIPPED_VISIT_FUNCTIONS) return // already managed by other functions
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
             if (expArg == null) continue
@@ -110,17 +99,19 @@ class Visitor(
             // known function
             val cppFqName = functions[fqName]
                 ?: error("Unsupported function name '$fqName' (platform: $target). $LINK_GITHUB_ISSUES ")
-            val headers = if(cppFqName.header != null) listOf(cppFqName.header.fileName) else emptyList()
+            val headers = if (cppFqName.header != null) listOf(cppFqName.header.fileName) else emptyList()
             Pair(cppFqName.fqName(argValues.joinToString(separator = ", ")), headers)
         }
 
-        val semicolon = if (!functionCall.trim().endsWith(";")) {
-            ";"
-        } else {
+        val semicolon = if (functionCall.isBlank() || functionCall.trim().endsWith(";")) {
             ""
+        } else {
+            ";"
         }
 
-        codeBuilder.appendLine("""$functionCall$semicolon""") // TODO: Remove multi-quotes
+        if(functionCall.isNotBlank()) {
+            codeBuilder.appendLine("$functionCall$semicolon")
+        }
 
         for (header in headers) {
             // Check if the header is present
@@ -196,8 +187,7 @@ class Visitor(
             is IrSetValueImpl -> {
                 val symbol = when (val name = this.origin?.debugName) {
                     POSTFIX_INCR.debugName,
-                    POSTFIX_DECR.debugName,
-                        -> "" // already handled
+                    POSTFIX_DECR.debugName -> "" // already handled these two
                     PREFIX_INCR.debugName -> "++"
                     PREFIX_DECR.debugName -> "--"
                     else -> error("Unhandled setValue call `$name`")

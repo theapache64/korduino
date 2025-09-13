@@ -48,6 +48,6 @@ fun executeCommand(
     errorThread.join()
 
     if (exitCode != 0) {
-        throw kotlin.RuntimeException("`${command.joinToString(" ")}` failed with exit code: $exitCode")
+        println("❌ ERROR: `${command.joinToString(" ")}` failed with exit code: $exitCode")
     }
 }

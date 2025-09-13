@@ -12,7 +12,7 @@ enum class Function(
 
     // Std CPP
     COUT({ "std::cout << $it << std::endl" }, Header.IoStream),
-    INCREMENT({ "++$it" }, null),
+    INCREMENT({ varName -> if (varName.isNullOrBlank()) "" else "++$varName" }, null),
 }
 
 val functions = mapOf<String, Function>(
