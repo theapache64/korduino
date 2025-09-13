@@ -93,7 +93,7 @@ class Visitor(
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
-        if (fqName in SKIPPED_VISIT_FUNCTIONS) return // already managed by other functions
+        if ("${fqName}_${expression.origin?.debugName}" in SKIPPED_VISIT_FUNCTIONS) return // already managed by other functions
 
         val argValues = mutableListOf<String>()
         for (expArg in expression.arguments) {
