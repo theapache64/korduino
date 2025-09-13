@@ -78,7 +78,7 @@ Give a ⭐️ if this project helped you!
 - [x] Mathematical Operators (`+-*/%`) 
 - [x] Missing setup()/loop() function handling
 - [x] Increment/decrement operators (`++`, `--`)
-- [ ] Clean up and arch lookback
+- [ ] 🚧 Clean up and arch lookback
 - [ ] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`) 
 - [ ] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`) 
 - [ ] Logical operators
