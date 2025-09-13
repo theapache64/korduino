@@ -27,7 +27,8 @@ class ArduinoCoreTest {
         """.trimIndent(),
         )
 
-        val actualOutput = generateAndCompileArduinoSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
+        val actualOutput =
+            generateAndCompileArduinoSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
 
         val expectedOutput = """
             #include <Arduino.h>

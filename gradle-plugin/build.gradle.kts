@@ -12,7 +12,7 @@ repositories {
 
 gradlePlugin {
     plugins {
-        create("korduinoGradlePlugin"){
+        create("korduinoGradlePlugin") {
             id = "io.github.theapache64.korduino.gradle"
             implementationClass = "io.github.theapache64.korduino.gradle.KorduinoPlugin"
         }
@@ -29,7 +29,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    
+
     // Ensure dependencies are published to maven local before running tests
     dependsOn(":common:publishToMavenLocal")
 }
@@ -52,11 +52,11 @@ val functionalTest = tasks.register<Test>("functionalTest") {
     group = "verification"
     testClassesDirs = sourceSets["functionalTests"].output.classesDirs
     classpath = sourceSets["functionalTests"].runtimeClasspath
-    
+
     // Ensure all publishable modules are published to maven local before running tests
     dependsOn(
         ":common:publishToMavenLocal",
-        ":compiler-plugin:publishToMavenLocal", 
+        ":compiler-plugin:publishToMavenLocal",
         ":gradle-plugin:publishToMavenLocal"
     )
 }

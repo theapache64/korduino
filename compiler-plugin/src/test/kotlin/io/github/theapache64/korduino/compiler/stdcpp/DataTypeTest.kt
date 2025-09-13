@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class DataTypeTest {
     companion object {
-        const val IMPORT_STATEMENTS ="""
+        const val IMPORT_STATEMENTS = """
             
         """
     }
@@ -103,7 +103,6 @@ class DataTypeTest {
 
         actualOutput.should.equal(expectedOutput)
     }
-
 
 
 }

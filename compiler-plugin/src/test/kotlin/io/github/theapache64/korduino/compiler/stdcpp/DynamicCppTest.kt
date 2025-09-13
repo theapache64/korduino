@@ -4,14 +4,13 @@ import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
 import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.util.generateAndCompileCppSourceCode
-import io.github.theapache64.korduino.compiler.util.generateArduinoSourceCode
 import io.github.theapache64.korduino.compiler.util.generateCppSourceCode
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
 class DynamicCppTest {
     companion object {
-        const val IMPORT_STATEMENTS ="""
+        const val IMPORT_STATEMENTS = """
             import io.github.theapache64.korduino.core.cpp
         """
     }
@@ -45,7 +44,6 @@ class DynamicCppTest {
 
         actualOutput.should.equal(expectedOutput)
     }
-
 
 
     @Test

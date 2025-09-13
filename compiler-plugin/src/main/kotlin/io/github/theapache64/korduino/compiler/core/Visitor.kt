@@ -188,9 +188,10 @@ class Visitor(
 
             is IrSetValueImpl -> {
                 val symbol = when (val name = this.origin?.debugName) {
-                    POSTFIX_INCR.debugName, POSTFIX_DECR.debugName -> "" // already handled these two
-                    PREFIX_INCR.debugName -> ""
-                    PREFIX_DECR.debugName -> "" // TODO: adopt above approach
+                    POSTFIX_INCR.debugName,
+                    POSTFIX_DECR.debugName,
+                    PREFIX_INCR.debugName,
+                    PREFIX_DECR.debugName -> "" // already handled these two
                     else -> error("Unhandled setValue call `$name`")
                 }
                 argValues.add(symbol)
@@ -205,12 +206,12 @@ class Visitor(
             }
 
             is IrBlockImpl -> {
-                val symbol = when(this.origin?.debugName){
+                val symbol = when (this.origin?.debugName) {
                     PREFIX_INCR.debugName -> "++"
                     PREFIX_DECR.debugName -> "--"
                     else -> null
                 }
-                if (symbol!=null) {
+                if (symbol != null) {
                     val variableName =
                         ((this.statements.firstOrNull() as? IrDeclarationReference)?.symbol?.owner as? IrDeclarationWithName)?.name?.asString()
                     require(variableName != null) { "Couldn't find variable name" }

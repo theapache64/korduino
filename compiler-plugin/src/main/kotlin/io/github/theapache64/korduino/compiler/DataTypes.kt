@@ -30,7 +30,6 @@ private val arduinoDataTypes = mapOf<String, DataType>(
 val dataTypes = commonDataTypes + arduinoDataTypes
 
 
-
 internal fun StringBuilder.containsHeader(dataType: DataType): Boolean {
     return contains(dataType.type.includeStatement())
 }

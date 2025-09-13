@@ -8,9 +8,8 @@
 
 > An attempt to write programs for Arduino in Kotlin
 
-Korduino is a Kotlin compiler plugin that'll convert Kotlin code to Arduino C++ code or plain C++ code, compile the C++ code, upload it to the microcontroller and start a serial monitor to observe the output 🙌🏼
-
-
+Korduino is a Kotlin compiler plugin that'll convert Kotlin code to Arduino C++ code or plain C++ code, compile the C++
+code, upload it to the microcontroller and start a serial monitor to observe the output 🙌🏼
 
 ### ✨ Demo
 
@@ -26,9 +25,9 @@ TODO
 
 ## 🏗 Project Status
 
-|![](https://i.giphy.com/media/7Sk1DclBgQoVyGCSPx/giphy.gif) |
-|:--:|
-| Under construction |
+| ![](https://i.giphy.com/media/7Sk1DclBgQoVyGCSPx/giphy.gif) |
+|:-----------------------------------------------------------:|
+|                     Under construction                      |
 
 ## ✍️ Author
 
@@ -61,7 +60,6 @@ Give a ⭐️ if this project helped you!
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="160">
 </a>
 
-
 ## 🛣️ Roadmap
 
 > Primary Goal: Arduino Support; Secondary Goal: Standard C++ Support
@@ -73,14 +71,14 @@ Give a ⭐️ if this project helped you!
 - [x] Add `pinMode` support
 - [x] Setup PlatformIO installation (building, uploading, and serial monitor)
 - [x] Add `function` support (with and without `return`)
-- [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS) 
+- [x] Add `cpp` and `cppWithImport` to add raw CPP code without compile time check (more like asDynamic in KotlinJS)
 - [x] Add `int/String/Long/Double/Float/Boolean/return` support
-- [x] Mathematical Operators (`+-*/%`) 
+- [x] Mathematical Operators (`+-*/%`)
 - [x] Missing setup()/loop() function handling
 - [x] Increment/decrement operators (`++`, `--`)
 - [ ] 🚧 Clean up and arch lookback
-- [ ] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`) 
-- [ ] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`) 
+- [ ] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`)
+- [ ] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`)
 - [ ] Logical operators
 - [ ] Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
@@ -92,12 +90,14 @@ Give a ⭐️ if this project helped you!
 - [ ] Add `Array` support
 - [ ] Add `List` support
 - [ ] Add `Map` support
-- [ ] Add nested structure support (nested-ifs, nested-loops etc) 
+- [ ] Add nested structure support (nested-ifs, nested-loops etc)
 - [ ] Add `Class/Object/init block/ constructor (both primary and secondary)` support
 - [ ] Add `extension function` support (with and without `return`)
 - [ ] Add multi-file support
 - [ ] Add networking support (For Arduino, via: `ESP8266HTTPClient.h` and `WiFiClientSecureBearSSL.h` )
-- [ ] Add compiler flags for: setting mode (either Arduino/StandardC++), target platform (eg: `espressif8266` via an enum), board, framework, monitor_speed, upload speed (platform/IO). See [this](https://github.com/theapache64/green/blob/master/platformio.ini) for reference
+- [ ] Add compiler flags for: setting mode (either Arduino/StandardC++), target platform (eg: `espressif8266` via an
+  enum), board, framework, monitor_speed, upload speed (platform/IO).
+  See [this](https://github.com/theapache64/green/blob/master/platformio.ini) for reference
 - [ ] Add/verify testing support
 - [ ] Release 0.0.1
 - [ ] [Hard keyword](https://kotlinlang.org/docs/keyword-reference.html#hard-keywords) support

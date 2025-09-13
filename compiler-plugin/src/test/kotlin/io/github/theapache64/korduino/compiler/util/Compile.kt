@@ -62,7 +62,7 @@ private fun compileAndVerifyCompilability(
         )
     }.compile()
 
-    if(isCompile){
+    if (isCompile) {
         val projectDir = result.findProjectRootDir()
         when (target) {
             Arg.Platform.Target.ARDUINO -> {

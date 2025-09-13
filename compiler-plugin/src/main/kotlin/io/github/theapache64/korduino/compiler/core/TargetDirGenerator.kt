@@ -21,7 +21,8 @@ class StdCppDirGenerator : TargetDirGenerator {
 
 class ArduinoDirGenerator : TargetDirGenerator {
     override fun create(cppFiles: List<Path>, buildDir: String): Path {
-        val zipPath = TargetDirGenerator::class.java.getResource("/pio.zip")?.path ?: error("Couldn't find pio zip file in resources")
+        val zipPath = TargetDirGenerator::class.java.getResource("/pio.zip")?.path
+            ?: error("Couldn't find pio zip file in resources")
         var srcZipPath = Path(zipPath)
         if (!srcZipPath.exists()) {
             // Read from JAR otherwise.

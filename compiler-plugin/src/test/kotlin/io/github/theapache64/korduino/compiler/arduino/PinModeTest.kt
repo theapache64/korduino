@@ -8,7 +8,7 @@ import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
 
 class PinModeTest {
-    companion object{
+    companion object {
         val IMPORT_STATEMENTS = """
             import io.github.theapache64.korduino.core.*
         """.trimIndent()
@@ -33,7 +33,8 @@ class PinModeTest {
             """.trimIndent(),
         )
 
-        val actualOutput = generateAndCompileArduinoSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
+        val actualOutput =
+            generateAndCompileArduinoSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.ARDUINO)
 
         val expectedOutput = """
             #include <Arduino.h>
