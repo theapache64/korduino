@@ -6,6 +6,7 @@ import io.github.theapache64.korduino.compiler.dataTypes
 import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
@@ -186,9 +187,8 @@ class Visitor(
 
             is IrSetValueImpl -> {
                 val symbol = when (val name = this.origin?.debugName) {
-                    POSTFIX_INCR.debugName,
-                    POSTFIX_DECR.debugName -> "" // already handled these two
-                    PREFIX_INCR.debugName -> "++"
+                    POSTFIX_INCR.debugName, POSTFIX_DECR.debugName -> "" // already handled these two
+                    PREFIX_INCR.debugName -> ""
                     PREFIX_DECR.debugName -> "--"
                     else -> error("Unhandled setValue call `$name`")
                 }
@@ -204,7 +204,14 @@ class Visitor(
             }
 
             is IrBlockImpl -> {
-                argValues.addAll(this.statements.map { it.toCodeString().joinToString("") })
+                if (this.origin?.debugName == PREFIX_INCR.debugName) {
+                    val variableName =
+                        ((this.statements.firstOrNull() as? IrDeclarationReference)?.symbol?.owner as? IrDeclarationWithName)?.name?.asString()
+                    require(variableName != null) { "Couldn't find variable name" }
+                    argValues.add("++$variableName")
+                } else {
+                    argValues.addAll(this.statements.map { it.toCodeString().joinToString("") })
+                }
             }
 
             is IrVariableImpl -> {
