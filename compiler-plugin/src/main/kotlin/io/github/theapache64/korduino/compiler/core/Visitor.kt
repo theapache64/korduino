@@ -37,8 +37,8 @@ class Visitor(
          * so `visitFunction` can skip them.
          */
         val SKIPPED_VISIT_FUNCTIONS = setOf(
-            "kotlin.Int.inc",
-            "kotlin.Int.dec"
+            "kotlin.Int.inc_${POSTFIX_INCR.debugName}",
+            "kotlin.Int.dec_${POSTFIX_DECR.debugName}"
         )
 
         /**

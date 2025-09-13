@@ -11,7 +11,7 @@ import kotlin.test.Test
 class IncrementOperatorTest {
 
     @Test
-    fun increment() {
+    fun postfixIncrement() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
@@ -38,7 +38,7 @@ class IncrementOperatorTest {
     }
 
     @Test
-    fun incrementAndReturn() {
+    fun postfixIncrementAndReturn() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
@@ -65,7 +65,7 @@ class IncrementOperatorTest {
     }
 
     @Test
-    fun incrementAndReturnAndIncrement() {
+    fun postfixDualIncrementAndReturn() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
@@ -148,7 +148,7 @@ class IncrementOperatorTest {
     }
 
     @Test
-    fun prefixIncrementAndReturnAndIncrement() {
+    fun prefixDualIncrementAndReturn() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
@@ -177,7 +177,7 @@ class IncrementOperatorTest {
     }
 
     @Test
-    fun mixedPrefixAndPostfixIncrement() {
+    fun mixedIncrement() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
