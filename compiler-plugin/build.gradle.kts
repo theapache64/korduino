@@ -17,13 +17,17 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(project(":core"))
 
+    // JUnit 5 dependencies
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0") // For parameterized tests
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+
     // Kotlin Compiler for testing
     testImplementation("dev.zacsweers.kctfork:core:0.8.0")
 
     // Assertion
     testImplementation("com.github.theapache64:expekt:1.0.3")
 }
-
 
 tasks.test {
     useJUnitPlatform()

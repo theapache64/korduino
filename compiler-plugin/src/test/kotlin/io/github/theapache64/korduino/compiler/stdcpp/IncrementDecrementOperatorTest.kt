@@ -6,18 +6,21 @@ import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.stdcpp.DataTypeTest.Companion.IMPORT_STATEMENTS
 import io.github.theapache64.korduino.compiler.util.generateAndCompileCppSourceCode
 import io.github.theapache64.korduino.compiler.util.readActualOutput
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.Test
 
-class IncrementOperatorTest {
+class IncrementDecrementOperatorTest {
 
-    @Test
-    fun postfixIncrement() {
+    @ParameterizedTest
+    @ValueSource(strings = ["++", "--"])
+    fun postfix(symbol: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """$IMPORT_STATEMENTS
             fun main() : Int {
                 var a = 1
-                a++
+                a${symbol}
                 return 0
             }
         """.trimIndent(),
@@ -28,7 +31,7 @@ class IncrementOperatorTest {
         val expectedOutput = """
             int main() {
                 int a = 1;
-                a++;
+                a${symbol};
                 return 0;
             }
             
