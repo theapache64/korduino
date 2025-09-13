@@ -70,11 +70,11 @@ class Visitor(
     }
 
     override fun visitReturn(expression: IrReturn) {
-        codeBuilder.appendLine("return ${expression.toCodeString().joinToString(separator = "")};")
+        codeBuilder.appendLine("return ${expression.toCodeString().joinToString(separator = " ")};")
     }
 
     override fun visitVariable(declaration: IrVariable) {
-        codeBuilder.appendLine("${declaration.toCodeString().joinToString(separator = "")};")
+        codeBuilder.appendLine("${declaration.toCodeString().joinToString(separator = " ")};")
     }
 
 
@@ -169,7 +169,7 @@ class Visitor(
                         else -> error("Unknown operator `$opName`")
                     }
                     argValues.add(
-                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }.joinToString(opSymbol),
+                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }.joinToString(" $opSymbol "),
                     )
                 } else {
                     argValues.addAll(
@@ -189,7 +189,7 @@ class Visitor(
                 val symbol = when (val name = this.origin?.debugName) {
                     POSTFIX_INCR.debugName, POSTFIX_DECR.debugName -> "" // already handled these two
                     PREFIX_INCR.debugName -> ""
-                    PREFIX_DECR.debugName -> "--"
+                    PREFIX_DECR.debugName -> "--" // TODO: adopt above approach
                     else -> error("Unhandled setValue call `$name`")
                 }
                 argValues.add(symbol)
@@ -210,7 +210,7 @@ class Visitor(
                     require(variableName != null) { "Couldn't find variable name" }
                     argValues.add("++$variableName")
                 } else {
-                    argValues.addAll(this.statements.map { it.toCodeString().joinToString("") })
+                    argValues.addAll(this.statements.map { it.toCodeString().joinToString(" ") })
                 }
             }
 
