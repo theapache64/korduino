@@ -76,8 +76,8 @@ Give a ⭐️ if this project helped you!
 - [x] Mathematical Operators (`+-*/%`)
 - [x] Missing setup()/loop() function handling
 - [x] Increment/decrement operators (`++`, `--`)
-- [ ] 🚧 Clean up and arch lookback
-- [ ] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`)
+- [x] Clean up and arch lookback
+- [ ] 🚧 Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`)
 - [ ] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`)
 - [ ] Logical operators
 - [ ] Indexed access operator (`[, ]`)
@@ -92,6 +92,7 @@ Give a ⭐️ if this project helped you!
 - [ ] Add `Map` support
 - [ ] Add nested structure support (nested-ifs, nested-loops etc)
 - [ ] Add `Class/Object/init block/ constructor (both primary and secondary)` support
+- [ ] Support all PIO boards via gradle plugin enum
 - [ ] Add `extension function` support (with and without `return`)
 - [ ] Add multi-file support
 - [ ] Add networking support (For Arduino, via: `ESP8266HTTPClient.h` and `WiFiClientSecureBearSSL.h` )
