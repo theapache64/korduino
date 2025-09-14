@@ -16,37 +16,11 @@ enum class Function(
     Increment({ varName -> if (varName.isNullOrBlank()) "" else "++$varName" }, null),
     Decrement({ varName -> if (varName.isNullOrBlank()) "" else "--$varName" }, null),
 
-    PlusEquals(
-        { it ->
-            it.augment("+=")
-        },
-        null
-    ),
-
-    MinusEquals(
-        { it ->
-            it.augment("-=")
-        },
-        null
-    ),
-    TimesEquals(
-        { it ->
-            it.augment("*=")
-        },
-        null
-    ),
-    DivideEquals(
-        { it ->
-            it.augment("/=")
-        },
-        null
-    ),
-    ModEquals(
-        { it ->
-            it.augment("%=")
-        },
-        null
-    );
+    PlusEquals({ it -> it.augment("+=") }, null),
+    MinusEquals({ it -> it.augment("-=") }, null),
+    TimesEquals({ it -> it.augment("*=") }, null),
+    DivideEquals({ it -> it.augment("/=") }, null),
+    ModEquals({ it -> it.augment("%=") }, null);
 }
 
 private fun String?.augment(operator: String): String {
