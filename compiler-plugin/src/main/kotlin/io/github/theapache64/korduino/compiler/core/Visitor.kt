@@ -4,9 +4,11 @@ import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.CodeBuilder
 import io.github.theapache64.korduino.compiler.dataTypes
 import io.github.theapache64.korduino.compiler.functions
+import org.jetbrains.kotlin.backend.jvm.ir.getIoFile
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
+import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
@@ -37,8 +39,15 @@ class Visitor(
         private const val FUNCTION_RAW_CPP = "io.github.theapache64.korduino.core.cpp"
     }
 
+    var sourceText: String = ""
+
     private val codeBuilder = CodeBuilder()
     fun generateCode(): String = codeBuilder.getCode()
+
+    override fun visitFile(declaration: IrFile) {
+        sourceText = declaration.getIoFile()?.readText() ?: ""
+        super.visitFile(declaration)
+    }
 
     override fun visitElement(element: IrElement) {
         // This is the first function to get a hit. Here we're telling to recursively loop through each element
@@ -113,7 +122,7 @@ class Visitor(
 
         if (functionCall.isNotBlank()) {
             codeBuilder.appendLine("$functionCall$semicolon")
-        }else{
+        } else {
             // Couldn't figure out the function call, so visiting children to avoid missing anything
             super.visitCall(expression)
         }
@@ -170,9 +179,19 @@ class Visitor(
                         "rem" -> "%"
                         else -> error("Unknown operator `$opName`")
                     }
+
+                    var startBracket = ""
+                    var endBracket = ""
+                    if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset)) {
+                        startBracket = "("
+                        endBracket = ")"
+                    }
+
                     argValues.add(
-                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
-                            .joinToString(" $opSymbol "),
+                        "$startBracket${
+                            this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
+                                .joinToString(" $opSymbol ")
+                        }$endBracket"
                     )
                 } else {
                     argValues.addAll(
@@ -255,5 +274,29 @@ class Visitor(
         return argValues.filter { it.isNotBlank() }
     }
 
+    private fun isPrevCharIsBracket(startOffset: Int): Boolean {
+        var index = startOffset - 1
+        while (index >= 0) {
+            val char = sourceText[index]
+            if (char.isWhitespace()) {
+                index--
+                continue
+            }
+            return char == '('
+        }
+        return false
+    }
 
+    private fun isNextCharIsBracket(endOffset: Int): Boolean {
+        var index = endOffset
+        while (index < sourceText.length) {
+            val char = sourceText[index]
+            if (char.isWhitespace()) {
+                index++
+                continue
+            }
+            return char == ')'
+        }
+        return false
+    }
 }
