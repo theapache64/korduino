@@ -228,6 +228,35 @@ class AugAssignmentOperatorsTest {
     }
 
     @Test
+    fun augAssignmentWithIncrement() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                var a = 10
+                var b = 5
+                a += ++b
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int main() {
+                int a = 10;
+                int b = 5;
+                a += ++b;
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
     fun augAssignmentWithIncrementDecrement() {
         val input = SourceFile.kotlin(
             "Main.kt",

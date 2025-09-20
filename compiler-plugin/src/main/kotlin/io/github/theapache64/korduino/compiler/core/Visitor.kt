@@ -101,7 +101,8 @@ class Visitor(
             val cppFqName = functions[fqName]
                 ?: error("Unsupported function name '$fqName' (platform: $target). $LINK_GITHUB_ISSUES ")
             val headers = if (cppFqName.header != null) listOf(cppFqName.header.fileName) else emptyList()
-            Pair(cppFqName.fqName(argValues.joinToString(separator = ", ")), headers)
+            val funCall = cppFqName.fqName(argValues.joinToString(separator = ", "))
+            Pair(funCall, headers)
         }
 
         val semicolon = if (functionCall.isBlank() || functionCall.trim().endsWith(";")) {
@@ -112,6 +113,9 @@ class Visitor(
 
         if (functionCall.isNotBlank()) {
             codeBuilder.appendLine("$functionCall$semicolon")
+        }else{
+            // Couldn't figure out the function call, so visiting children to avoid missing anything
+            super.visitCall(expression)
         }
 
         for (header in headers) {
@@ -120,8 +124,6 @@ class Visitor(
                 codeBuilder.addHeader(header)
             }
         }
-
-        super.visitCall(expression)
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
