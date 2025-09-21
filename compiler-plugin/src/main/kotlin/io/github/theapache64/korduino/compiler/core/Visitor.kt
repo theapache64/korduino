@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.ANDAND
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.OROR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_DECR
@@ -284,18 +285,29 @@ class Visitor(
 
             is IrWhenImpl -> {
                 when (this.origin?.debugName) {
-                    OROR.debugName -> {
+                    OROR.debugName, ANDAND.debugName -> {
+                        val conditionSymbol = if (this.origin?.debugName == OROR.debugName) "||" else "&&"
                         val (startBracket, endBracket) = getBrackets(startOffset, endOffset)
                         val condition = this.branches
                             .map {
                                 when (it) {
                                     is IrBranchImpl -> it.condition.toCodeString()
-                                    is IrElseBranchImpl -> it.result.toCodeString()
+                                    is IrElseBranchImpl -> {
+                                        if (it.result is IrConstImpl) {
+                                            // Get the variable using offset values
+                                            listOf(
+                                                sourceText.substring(it.startOffset, it.endOffset)
+                                            )
+                                        } else {
+                                            it.result.toCodeString()
+                                        }
+                                    }
+
                                     else -> error("Unknown branch type ${it::class.simpleName}")
-                                }.joinToString("||")
+                                }.joinToString(conditionSymbol)
                             }
                             .filter { it.isNotBlank() }
-                            .joinToString(" || ")
+                            .joinToString(" $conditionSymbol ")
                         argValues.add("$startBracket$condition$endBracket")
                     }
 
