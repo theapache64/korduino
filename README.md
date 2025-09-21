@@ -79,12 +79,12 @@ Give a ⭐️ if this project helped you!
 - [x] Clean up and arch lookback
 - [x] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`)
 - [ ] 🚧 Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`)
+- [ ] 🚧 Add `if-else` support
 - [ ] Logical operators
 - [ ] Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
 - [ ] Ranges
 - [ ] Add `const` support
-- [ ] Add `if-else` support
 - [ ] Add `for` loop support
 - [ ] Add `while` loop support
 - [ ] Add `Array` support

@@ -42,7 +42,7 @@ class ComparisonOperatorsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = [/*">", ">=", "<", "<=", "==",*/ "!="])
+    @ValueSource(strings = [">", ">=", "<", "<=", "==", "!="])
     fun comparisonWithVariables(operator: String) {
         val input = SourceFile.kotlin(
             "Main.kt",

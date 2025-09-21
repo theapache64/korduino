@@ -192,7 +192,13 @@ class Visitor(
                             }
                         }
 
-                        "not" -> "!"
+                        "not" -> {
+                            if (this.origin?.debugName == EXCLEQ.debugName) {
+                                ""
+                            } else {
+                                "!"
+                            }
+                        }
                         else -> error("Unknown operator `$opName`")
                     }
 
