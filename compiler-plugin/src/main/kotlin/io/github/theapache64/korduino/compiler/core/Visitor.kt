@@ -13,6 +13,8 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQ
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.OROR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_DECR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_INCR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_DECR
@@ -169,7 +171,7 @@ class Visitor(
             }
 
             is IrCallImpl -> {
-                val isOperator = this.symbol.owner.isOperator
+                val isOperator = this.symbol.owner.isOperator || this.symbol.owner.origin.name == "OPERATOR"
                 if (isOperator) {
                     val opSymbol = when (val opName = this.symbol.owner.name.asString()) {
                         "plus" -> "+"
@@ -177,22 +179,37 @@ class Visitor(
                         "div" -> "/"
                         "times" -> "*"
                         "rem" -> "%"
+                        "greater" -> ">"
+                        "greaterOrEqual" -> ">="
+                        "less" -> "<"
+                        "lessOrEqual" -> "<="
+                        "EQEQ" -> {
+                            if (this.origin?.debugName == EXCLEQ.debugName) {
+                                "!="
+                            } else {
+                                "=="
+                            }
+                        }
+
+                        "not" -> "!"
                         else -> error("Unknown operator `$opName`")
                     }
 
-                    var startBracket = ""
-                    var endBracket = ""
-                    if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset)) {
-                        startBracket = "("
-                        endBracket = ")"
-                    }
+                    val (startBracket, endBracket) = getBrackets(startOffset, endOffset)
 
-                    argValues.add(
-                        "$startBracket${
-                            this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
-                                .joinToString(" $opSymbol ")
-                        }$endBracket"
-                    )
+                    if (this.arguments.size == 1) {
+                        argValues.add(
+                            "$opSymbol$startBracket${
+                                this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
+                                    .joinToString(" $opSymbol ")
+                            }$endBracket")
+                    } else {
+                        argValues.add(
+                            "$startBracket${
+                                this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
+                                    .joinToString(" $opSymbol ")
+                            }$endBracket")
+                    }
                 } else {
                     argValues.addAll(
                         listOf(
@@ -209,10 +226,7 @@ class Visitor(
 
             is IrSetValueImpl -> {
                 val symbol = when (val name = this.origin?.debugName) {
-                    POSTFIX_INCR.debugName,
-                    POSTFIX_DECR.debugName,
-                    PREFIX_INCR.debugName,
-                    PREFIX_DECR.debugName -> "" // already handled these two
+                    POSTFIX_INCR.debugName, POSTFIX_DECR.debugName, PREFIX_INCR.debugName, PREFIX_DECR.debugName -> "" // already handled these two
                     else -> error("Unhandled setValue call `$name`")
                 }
                 argValues.add(symbol)
@@ -268,10 +282,44 @@ class Visitor(
                 }
             }
 
+            is IrWhenImpl -> {
+                when (this.origin?.debugName) {
+                    OROR.debugName -> {
+                        val (startBracket, endBracket) = getBrackets(startOffset, endOffset)
+                        val condition = this.branches
+                            .map {
+                                when (it) {
+                                    is IrBranchImpl -> it.condition.toCodeString()
+                                    is IrElseBranchImpl -> it.result.toCodeString()
+                                    else -> error("Unknown branch type ${it::class.simpleName}")
+                                }.joinToString("||")
+                            }
+                            .filter { it.isNotBlank() }
+                            .joinToString(" || ")
+                        argValues.add("$startBracket$condition$endBracket")
+                    }
+
+                    else -> error("Unhandled IrWhenImpl origin `${this.origin?.debugName}`")
+                }
+            }
+
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }
         return argValues.filter { it.isNotBlank() }
+    }
+
+    private fun getBrackets(
+        startOffset: Int,
+        endOffset: Int
+    ): Pair<String, String> {
+        var startBracket = ""
+        var endBracket = ""
+        if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset)) {
+            startBracket = "("
+            endBracket = ")"
+        }
+        return Pair(startBracket, endBracket)
     }
 
     private fun isPrevCharIsBracket(startOffset: Int): Boolean {

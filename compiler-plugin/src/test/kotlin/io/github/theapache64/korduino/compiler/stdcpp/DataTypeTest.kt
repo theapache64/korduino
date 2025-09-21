@@ -80,6 +80,7 @@ class DataTypeTest {
                 val d = 2000L
                 val e = 3.14
                 val f = false
+                val g = !false
                 return 0
             }
         """.trimIndent(),
@@ -96,6 +97,99 @@ class DataTypeTest {
                 long long d = 2000;
                 double e = 3.14;
                 bool f = false;
+                bool g = !false;
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun simpleBooleanNegation() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                val a = !false
+                val b = !a
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int main() {
+                bool a = !false;
+                bool b = !a;
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun combinedBooleanNegation() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                val a = false
+                val b = false
+                val c = !(a || b)
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int main() {
+                bool a = false;
+                bool b = false;
+                bool c = !(a || b);
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun combinedComplexBooleanNegation() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            fun main() : Int {
+                val a = false
+                val b = false
+                val x = false
+                val y = false
+                val c = !(x || !y || (a || b))
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int main() {
+                bool a = false;
+                bool b = false;
+                bool x = false;
+                bool y = false;
+                bool c = !(x || !y || (a || b));
                 return 0;
             }
             
