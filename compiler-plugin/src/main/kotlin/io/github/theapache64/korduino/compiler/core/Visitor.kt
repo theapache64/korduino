@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.ANDAND
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQ
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.IF
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.OROR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_DECR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_INCR
@@ -87,6 +88,10 @@ class Visitor(
 
     override fun visitVariable(declaration: IrVariable) {
         codeBuilder.appendLine("${declaration.toCodeString().joinToString(separator = " ")};")
+    }
+
+    override fun visitWhen(expression: IrWhen) {
+        codeBuilder.appendLine(expression.toCodeString().joinToString(separator = " "))
     }
 
 
@@ -199,6 +204,7 @@ class Visitor(
                                 "!"
                             }
                         }
+
                         else -> error("Unknown operator `$opName`")
                     }
 
@@ -218,14 +224,16 @@ class Visitor(
                             }$endBracket")
                     }
                 } else {
-                    argValues.addAll(
+                    /*argValues.addAll(
                         listOf(
                             this.symbol.owner.name.asString(), // function name
                             "(",
                             this.arguments.mapNotNull { it?.toCodeString()?.joinToString(",") }.joinToString(","),
                             ")"
                         )
-                    )
+                    )*/
+
+                    visitCall(this)
                 }
 
             }
@@ -315,6 +323,27 @@ class Visitor(
                             .filter { it.isNotBlank() }
                             .joinToString(" $conditionSymbol ")
                         argValues.add("$startBracket$condition$endBracket")
+                    }
+
+                    IF.debugName -> {
+                        this.branches
+                            .forEachIndexed { index, branch ->
+                                when (branch) {
+                                    is IrBranchImpl -> {
+                                        val condition = branch.condition.toCodeString().joinToString(" ")
+                                        codeBuilder.appendLine("if($condition){")
+                                        val result = branch.result.toCodeString()
+                                        argValues.addAll(result)
+                                        codeBuilder.appendLine("}")
+                                    }
+
+                                    is IrElseBranchImpl -> {
+
+                                    }
+
+                                    else -> error("Unknown branch type ${branch::class.simpleName}")
+                                }
+                            }
                     }
 
                     else -> error("Unhandled IrWhenImpl origin `${this.origin?.debugName}`")

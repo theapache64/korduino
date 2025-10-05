@@ -25,6 +25,7 @@ class CodeBuilder(
     }
 
     fun appendLine(string: String): CodeBuilder {
+        if (string.isBlank()) return this
         stringBuilder.appendLine(string)
         return this
     }
