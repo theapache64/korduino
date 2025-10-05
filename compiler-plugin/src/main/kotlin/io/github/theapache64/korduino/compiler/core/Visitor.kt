@@ -331,7 +331,8 @@ class Visitor(
                                 when (branch) {
                                     is IrBranchImpl -> {
                                         val condition = branch.condition.toCodeString().joinToString(" ")
-                                        codeBuilder.appendLine("if($condition){")
+                                        val ifOrElseIf = if (index == 0) "if" else "else if"
+                                        codeBuilder.appendLine("$ifOrElseIf($condition){")
                                         val result = branch.result.toCodeString()
                                         argValues.addAll(result)
                                         codeBuilder.appendLine("}")
