@@ -338,7 +338,10 @@ class Visitor(
                                     }
 
                                     is IrElseBranchImpl -> {
-
+                                        codeBuilder.appendLine("else {")
+                                        val result = branch.result.toCodeString()
+                                        argValues.addAll(result)
+                                        codeBuilder.appendLine("}")
                                     }
 
                                     else -> error("Unknown branch type ${branch::class.simpleName}")
