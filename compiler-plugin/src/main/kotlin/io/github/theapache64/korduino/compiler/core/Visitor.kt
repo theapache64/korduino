@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_D
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_INCR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_DECR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_INCR
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.WHEN
 import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classFqName
@@ -67,7 +68,7 @@ class Visitor(
         codeBuilder.appendLine("${returnType.type} $functionName($params) {")
 
         val header = returnType.extraHeader
-        if (header != null && !codeBuilder.containsHeader(header)) {
+        if (header != null) {
             codeBuilder.addHeader(header)
         }
 
@@ -83,7 +84,7 @@ class Visitor(
     }
 
     override fun visitReturn(expression: IrReturn) {
-        codeBuilder.appendLine("return ${expression.toCodeString().joinToString(separator = " ")};")
+        codeBuilder.appendLine(expression.toCodeString().joinToString(separator = " "))
     }
 
     override fun visitVariable(declaration: IrVariable) {
@@ -97,10 +98,23 @@ class Visitor(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall) {
-        val function = expression.symbol.owner
+        val (functionCall, headers, semicolon) = expression.toFunctionCall()
+
+        if (functionCall.isNotBlank()) {
+            codeBuilder.appendLine("$functionCall$semicolon")
+        } else {
+            // Couldn't figure out the function call, so visiting children to avoid missing anything
+            super.visitCall(expression)
+        }
+
+        codeBuilder.addHeaders(headers)
+    }
+
+    private fun IrCall.toFunctionCall(): Triple<String, List<String>, String> {
+        val function = symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
         val argValues = mutableListOf<String>()
-        for (expArg in expression.arguments) {
+        for (expArg in arguments) {
             if (expArg == null) continue
             argValues.addAll(expArg.toCodeString())
         }
@@ -128,19 +142,7 @@ class Visitor(
             ";"
         }
 
-        if (functionCall.isNotBlank()) {
-            codeBuilder.appendLine("$functionCall$semicolon")
-        } else {
-            // Couldn't figure out the function call, so visiting children to avoid missing anything
-            super.visitCall(expression)
-        }
-
-        for (header in headers) {
-            // Check if the header is present
-            if (!codeBuilder.containsHeader(header)) {
-                codeBuilder.addHeader(header)
-            }
-        }
+        return Triple(functionCall, headers, semicolon)
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -157,7 +159,7 @@ class Visitor(
             }
 
             is IrGetObjectValue -> {
-                null
+                null // TODO: Remove this
             }
 
             is IrGetEnumValueImpl -> {
@@ -169,17 +171,17 @@ class Visitor(
                     val varArg = (it as IrConstImpl).value.toString()
                     argValues.add(varArg)
                 }
-                null
             }
 
             is IrReturnImpl -> {
-                argValues.addAll(this.value.toCodeString())
+                argValues.add("return ${this.value.toCodeString().joinToString(" ")};")
             }
 
             is IrCallImpl -> {
                 val isOperator = this.symbol.owner.isOperator || this.symbol.owner.origin.name == "OPERATOR"
                 if (isOperator) {
                     val opSymbol = when (val opName = this.symbol.owner.name.asString()) {
+                        // TODO: use constants from IR artifact here
                         "plus" -> "+"
                         "minus" -> "-"
                         "div" -> "/"
@@ -233,7 +235,12 @@ class Visitor(
                         )
                     )*/
 
-                    visitCall(this)
+                    val (functionCall, headers, semicolon) = this.toFunctionCall()
+                    argValues.addAll(listOf(functionCall, semicolon))
+
+                    if (headers.isNotEmpty()) {
+                        codeBuilder.addHeaders(headers)
+                    }
                 }
 
             }
@@ -325,30 +332,32 @@ class Visitor(
                         argValues.add("$startBracket$condition$endBracket")
                     }
 
-                    IF.debugName -> {
+                    IF.debugName, WHEN.debugName -> {
                         this.branches
                             .forEachIndexed { index, branch ->
                                 when (branch) {
                                     is IrBranchImpl -> {
                                         val condition = branch.condition.toCodeString().joinToString(" ")
                                         val ifOrElseIf = if (index == 0) "if" else "else if"
-                                        codeBuilder.appendLine("$ifOrElseIf($condition){")
+                                        argValues.add("$ifOrElseIf($condition){")
                                         val result = branch.result.toCodeString()
                                         argValues.addAll(result)
-                                        codeBuilder.appendLine("}")
+                                        argValues.add("}")
                                     }
 
                                     is IrElseBranchImpl -> {
-                                        codeBuilder.appendLine("else {")
+                                        argValues.add("else {")
                                         val result = branch.result.toCodeString()
                                         argValues.addAll(result)
-                                        codeBuilder.appendLine("}")
+                                        argValues.add("}")
                                     }
 
                                     else -> error("Unknown branch type ${branch::class.simpleName}")
                                 }
                             }
                     }
+
+
 
                     else -> error("Unhandled IrWhenImpl origin `${this.origin?.debugName}`")
                 }
@@ -366,11 +375,26 @@ class Visitor(
     ): Pair<String, String> {
         var startBracket = ""
         var endBracket = ""
-        if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset)) {
+        if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset) && !isIfStatement(startOffset)) {
             startBracket = "("
             endBracket = ")"
         }
         return Pair(startBracket, endBracket)
+    }
+
+    private fun isIfStatement(startOffset: Int): Boolean {
+        var index = startOffset - 1
+        while (index >= 0) {
+            val char = sourceText[index]
+            if (char.isWhitespace() || char == '(') {
+                index--
+                continue
+            }
+            return sourceText.substring(index - 1, index + 1).also {
+                println("QuickTag: Visitor:isIfStatement: comparing with `$it`")
+            } == "if"
+        }
+        return false
     }
 
     private fun isPrevCharIsBracket(startOffset: Int): Boolean {

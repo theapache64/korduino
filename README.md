@@ -83,7 +83,6 @@ Give a ⭐️ if this project helped you!
 - [ ] Logical operators
 - [ ] Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
-- [ ] Ranges
 - [ ] Add `const` support
 - [ ] Add `for` loop support
 - [ ] Add `while` loop support
@@ -101,6 +100,7 @@ Give a ⭐️ if this project helped you!
   See [this](https://github.com/theapache64/green/blob/master/platformio.ini) for reference
 - [ ] Add/verify testing support
 - [ ] Release 0.0.1
+- [ ] Ranges
 - [ ] [Hard keyword](https://kotlinlang.org/docs/keyword-reference.html#hard-keywords) support
 - [ ] [Soft keyword](https://kotlinlang.org/docs/keyword-reference.html#soft-keywords) support
 - [ ] [Modifier keyword](https://kotlinlang.org/docs/keyword-reference.html#modifier-keywords) support

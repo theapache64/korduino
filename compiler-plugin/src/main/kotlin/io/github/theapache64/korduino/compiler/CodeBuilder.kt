@@ -9,11 +9,12 @@ class CodeBuilder(
     private val stringBuilder = StringBuilder()
     var headerCursor: Int = 0;
 
-    internal fun containsHeader(fileName: String): Boolean {
+    private fun containsHeader(fileName: String): Boolean {
         return stringBuilder.contains(fileName.includeStatement())
     }
 
     internal fun addHeader(fileName: String): CodeBuilder {
+        if (containsHeader(fileName)) return this
         val newHeader = fileName.includeStatement() + "\n"
         stringBuilder.insert(headerCursor, newHeader)
         headerCursor += newHeader.length
@@ -55,6 +56,12 @@ class CodeBuilder(
             }
         }
         return this
+    }
+
+    fun addHeaders(headers: List<String>) {
+        for (header in headers) {
+            addHeader(header)
+        }
     }
 }
 
