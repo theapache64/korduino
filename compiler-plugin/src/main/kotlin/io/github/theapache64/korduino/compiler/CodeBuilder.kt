@@ -26,8 +26,9 @@ class CodeBuilder(
     }
 
     fun appendLine(string: String): CodeBuilder {
-        if (string.isBlank()) return this
-        stringBuilder.appendLine(string)
+        val finalString = string.trim()
+        if (finalString.isEmpty()) return this
+        stringBuilder.appendLine(string.addSemiColonIfNeeded())
         return this
     }
 
@@ -65,5 +66,14 @@ class CodeBuilder(
     }
 }
 
+fun String.addSemiColonIfNeeded(): String {
+    val string = this.trim()
+    if (string.isEmpty() ||
+        string.endsWith(";") ||
+        string.endsWith("{") ||
+        string.endsWith("}")
+    ) return this
+    return "$this;"
+}
 
 

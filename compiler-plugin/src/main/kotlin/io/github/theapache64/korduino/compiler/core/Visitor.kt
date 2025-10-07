@@ -2,6 +2,7 @@ package io.github.theapache64.korduino.compiler.core
 
 import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.CodeBuilder
+import io.github.theapache64.korduino.compiler.addSemiColonIfNeeded
 import io.github.theapache64.korduino.compiler.dataTypes
 import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.backend.jvm.ir.getIoFile
@@ -85,7 +86,7 @@ class Visitor(
 
     override fun visitReturn(expression: IrReturn) {
         codeBuilder.appendLine(
-            expression.toCodeString().addPreKeyword(expression).joinToString(separator = " ").addSemiColonIfNeeded()
+            expression.toCodeString().addPreKeyword(expression).joinToString(separator = " ")
         )
     }
 
@@ -103,7 +104,7 @@ class Visitor(
         val (functionCall, headers) = expression.toFunctionCall()
 
         if (functionCall.isNotBlank()) {
-            codeBuilder.appendLine(functionCall.addSemiColonIfNeeded())
+            codeBuilder.appendLine(functionCall)
         } else {
             // Couldn't figure out the function call, so visiting children to avoid missing anything
             super.visitCall(expression)
@@ -339,8 +340,7 @@ class Visitor(
                                         val ifOrElseIf = if (index == 0) "if" else "else if"
                                         argValues.add("$ifOrElseIf($condition){")
                                         val result =
-                                            branch.result.toCodeString().addPreKeyword(branch.result).joinToString(" ")
-                                                .addSemiColonIfNeeded()
+                                            branch.result.toCodeString().addPreKeyword(branch.result).joinToString(" ").addSemiColonIfNeeded()
                                         argValues.add(result)
                                         argValues.add("}")
                                     }
@@ -439,12 +439,3 @@ class Visitor(
     }
 }
 
-private fun String.addSemiColonIfNeeded(): String {
-    val string = this.trim()
-    if (string.isEmpty() ||
-        string.endsWith(";") ||
-        string.endsWith("{") ||
-        string.endsWith("}")
-    ) return this
-    return "$this;"
-}
