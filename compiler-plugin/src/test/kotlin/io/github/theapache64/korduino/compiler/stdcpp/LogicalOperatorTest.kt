@@ -233,6 +233,42 @@ class LogicalOperatorTest {
         actualOutput.should.equal(expectedOutput)
     }
 
+    @Test
+    fun complex(){
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """
+            fun main() : Int {
+                val a = 1
+                val b = 2
+                val c = 3
+                if ((a > 0 && b > 0) || (c < 0 && a < 0)) {
+                    println("Hello Kotlin!")
+                }
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int main() {
+                int a = 1;
+                int b = 2;
+                int c = 3;
+                if ((a > 0 && b > 0) || (c < 0 && a < 0)) {
+                    std::cout << "Hello Kotlin!" << std::endl;
+                }
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
 
 
 }

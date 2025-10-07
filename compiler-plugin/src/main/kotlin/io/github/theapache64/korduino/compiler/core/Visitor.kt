@@ -405,26 +405,41 @@ class Visitor(
     ): Pair<String, String> {
         var startBracket = ""
         var endBracket = ""
-        if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset) && !isIfStatement(startOffset)) {
+        if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset) && !isIfStatement(startOffset, endOffset)) {
             startBracket = "("
             endBracket = ")"
         }
         return Pair(startBracket, endBracket)
     }
 
-    private fun isIfStatement(startOffset: Int): Boolean {
+    private fun isIfStatement(startOffset: Int, endOffset: Int): Boolean {
         var index = startOffset - 1
+        var isIfFound = false
+        var isEndBracketFound = false
         while (index >= 0) {
             val char = sourceText[index]
             if (char.isWhitespace() || char == '(') {
                 index--
                 continue
             }
-            return sourceText.substring(index - 1, index + 1).also {
+            isIfFound = sourceText.substring(index - 1, index + 1).also {
                 println("QuickTag: Visitor:isIfStatement: comparing with `$it`")
             } == "if"
+            break
         }
-        return false
+
+        index = endOffset
+        while (index < sourceText.length) {
+            val char = sourceText[index]
+            if (char.isWhitespace() || char == ')') {
+                index++
+                continue
+            }
+            isEndBracketFound = char == '{'
+            break
+        }
+
+        return isIfFound && isEndBracketFound
     }
 
     private fun isPrevCharIsBracket(startOffset: Int): Boolean {
