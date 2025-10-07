@@ -15,9 +15,21 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.ANDAND
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.DIV
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EQEQ
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EQEQEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQ
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQEQ
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.GT
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.GTEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.IF
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.LT
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.LTEQ
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.MINUS
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.MUL
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.OROR
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PERC
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PLUS
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_DECR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_INCR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_DECR
@@ -179,8 +191,9 @@ class Visitor(
             is IrCallImpl -> {
                 val isOperator = this.symbol.owner.isOperator || this.symbol.owner.origin.name == "OPERATOR"
                 if (isOperator) {
-                    val opSymbol = when (val opName = this.symbol.owner.name.asString()) {
-                        // TODO: use constants from IR artifact here
+                    val opName = this.symbol.owner.name.asString()
+                    // TODO: use constants from IR artifact here
+                    val opSymbol = when (opName) {
                         "plus" -> "+"
                         "minus" -> "-"
                         "div" -> "/"
@@ -190,8 +203,8 @@ class Visitor(
                         "greaterOrEqual" -> ">="
                         "less" -> "<"
                         "lessOrEqual" -> "<="
-                        "EQEQ" -> {
-                            if (this.origin?.debugName == EXCLEQ.debugName) {
+                        "EQEQ", "EQEQEQ" -> {
+                            if (this.origin?.debugName == EXCLEQ.debugName || this.origin?.debugName == EXCLEQEQ.debugName) {
                                 "!="
                             } else {
                                 "=="
@@ -199,7 +212,7 @@ class Visitor(
                         }
 
                         "not" -> {
-                            if (this.origin?.debugName == EXCLEQ.debugName) {
+                            if (this.origin?.debugName == EXCLEQ.debugName || this.origin?.debugName == EXCLEQEQ.debugName) {
                                 ""
                             } else {
                                 "!"
@@ -209,6 +222,7 @@ class Visitor(
                         else -> error("Unknown operator `$opName`")
                     }
 
+                    val memAddress = if(opName == EQEQEQ.debugName) "&" else ""
                     val (startBracket, endBracket) = getBrackets(startOffset, endOffset)
 
                     if (this.arguments.size == 1) {
@@ -220,7 +234,7 @@ class Visitor(
                     } else {
                         argValues.add(
                             "$startBracket${
-                                this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
+                                this.arguments.mapNotNull { memAddress + it?.toCodeString()?.joinToString(opSymbol) }
                                     .joinToString(" $opSymbol ")
                             }$endBracket")
                     }
@@ -340,7 +354,8 @@ class Visitor(
                                         val ifOrElseIf = if (index == 0) "if" else "else if"
                                         argValues.add("$ifOrElseIf($condition){")
                                         val result =
-                                            branch.result.toCodeString().addPreKeyword(branch.result).joinToString(" ").addSemiColonIfNeeded()
+                                            branch.result.toCodeString().addPreKeyword(branch.result).joinToString(" ")
+                                                .addSemiColonIfNeeded()
                                         argValues.add(result)
                                         argValues.add("}")
                                     }

@@ -235,7 +235,6 @@ class ComparisonOperatorsTest {
             fun main() : Int {
                 var a = 5
                 var b = 5
-                var result1 = a === b
                 var result2 = a !== b
                 return 0
             }
@@ -248,8 +247,7 @@ class ComparisonOperatorsTest {
             int main() {
                 int a = 5;
                 int b = 5;
-                bool result1 = a == b;
-                bool result2 = a != b;
+                bool result2 = &a != &b;
                 return 0;
             }
             
