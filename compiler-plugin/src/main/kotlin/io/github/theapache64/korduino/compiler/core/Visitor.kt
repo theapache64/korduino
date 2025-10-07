@@ -85,9 +85,7 @@ class Visitor(
 
     override fun visitReturn(expression: IrReturn) {
         codeBuilder.appendLine(
-            "return ${
-                expression.toCodeString().joinToString(separator = " ").addSemiColonIfNeeded()
-            }"
+            expression.toCodeString().addPreKeyword(expression).joinToString(separator = " ").addSemiColonIfNeeded()
         )
     }
 
@@ -294,7 +292,7 @@ class Visitor(
                             error("Undefined getValue op `$debugName`")
                         }
                     }
-                    argValues.add("$statement;")
+                    argValues.add(statement)
                 } else {
                     val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
                     if (dataType.extraHeader != null) {
@@ -340,8 +338,8 @@ class Visitor(
                                         val condition = branch.condition.toCodeString().joinToString(" ")
                                         val ifOrElseIf = if (index == 0) "if" else "else if"
                                         argValues.add("$ifOrElseIf($condition){")
-                                        val result = branch.result.toCodeString()
-                                        argValues.addAll(result)
+                                        val result = branch.result.toCodeString().addPreKeyword(branch.result).joinToString(" ").addSemiColonIfNeeded()
+                                        argValues.add(result)
                                         argValues.add("}")
                                     }
 
@@ -366,6 +364,22 @@ class Visitor(
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }
         return argValues.filter { it.isNotBlank() }
+    }
+
+    private fun List<String>.addPreKeyword(result: IrStatement): List<String> {
+        val list = this.toMutableList()
+        when (result) {
+            is IrReturnImpl -> {
+                list.add(0, "return")
+            }
+
+            is IrBlockImpl -> {
+                result.statements.forEach { statement ->
+                    return list.addPreKeyword(statement)
+                }
+            }
+        }
+        return list
     }
 
     private fun getBrackets(
