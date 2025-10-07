@@ -78,9 +78,9 @@ Give a ⭐️ if this project helped you!
 - [x] Increment/decrement operators (`++`, `--`)
 - [x] Clean up and arch lookback
 - [x] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`)
-- [ ] 🚧 Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`)
-- [ ] 🚧 Add `if-else` support
-- [ ] Logical operators
+- [x] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`)
+- [x] Add `if-else` support
+- [ ] 🚧 Logical operators
 - [ ] Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
 - [ ] Add `const` support
