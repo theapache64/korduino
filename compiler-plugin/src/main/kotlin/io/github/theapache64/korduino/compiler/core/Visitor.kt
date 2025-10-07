@@ -203,7 +203,7 @@ class Visitor(
                         "greaterOrEqual" -> ">="
                         "less" -> "<"
                         "lessOrEqual" -> "<="
-                        "EQEQ", "EQEQEQ" -> {
+                        "EQEQ", "EQEQEQ", "ieee754equals" -> {
                             if (this.origin?.debugName == EXCLEQ.debugName || this.origin?.debugName == EXCLEQEQ.debugName) {
                                 "!="
                             } else {
