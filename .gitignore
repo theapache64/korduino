@@ -175,5 +175,6 @@ gpm.json
 *.aab
 kotlin-js-store
 .idea/ChatHistory_schema_v2.xml
+.idea/ChatHistory_schema_v3.xml
 .idea/copilot.data.migration.agent.xml
 .idea/copilot.data.migration.edit.xml
