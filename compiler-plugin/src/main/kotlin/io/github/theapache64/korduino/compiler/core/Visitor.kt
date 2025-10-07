@@ -84,11 +84,15 @@ class Visitor(
     }
 
     override fun visitReturn(expression: IrReturn) {
-        codeBuilder.appendLine(expression.toCodeString().joinToString(separator = " "))
+        codeBuilder.appendLine(
+            "return ${
+                expression.toCodeString().joinToString(separator = " ").addSemiColonIfNeeded()
+            }"
+        )
     }
 
     override fun visitVariable(declaration: IrVariable) {
-        codeBuilder.appendLine("${declaration.toCodeString().joinToString(separator = " ")};")
+        codeBuilder.appendLine(declaration.toCodeString().joinToString(separator = " "))
     }
 
     override fun visitWhen(expression: IrWhen) {
@@ -98,10 +102,10 @@ class Visitor(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall) {
-        val (functionCall, headers, semicolon) = expression.toFunctionCall()
+        val (functionCall, headers) = expression.toFunctionCall()
 
         if (functionCall.isNotBlank()) {
-            codeBuilder.appendLine("$functionCall$semicolon")
+            codeBuilder.appendLine(functionCall.addSemiColonIfNeeded())
         } else {
             // Couldn't figure out the function call, so visiting children to avoid missing anything
             super.visitCall(expression)
@@ -110,7 +114,8 @@ class Visitor(
         codeBuilder.addHeaders(headers)
     }
 
-    private fun IrCall.toFunctionCall(): Triple<String, List<String>, String> {
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
+    private fun IrCall.toFunctionCall(): Pair<String, List<String>> {
         val function = symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
         val argValues = mutableListOf<String>()
@@ -121,7 +126,7 @@ class Visitor(
 
         val (functionCall, headers) = if (fqName == FUNCTION_RAW_CPP) {
             val code = argValues[0].let { code ->
-                code.substring(1, code.lastIndex - 1) // stripping out `"`
+                code.substring(1, code.lastIndex) // stripping out `"`
             }
             Pair(code, argValues.subList(1, argValues.size))
         } else if (fqName != null && !functions.containsKey(fqName)) {
@@ -136,13 +141,8 @@ class Visitor(
             Pair(funCall, headers)
         }
 
-        val semicolon = if (functionCall.isBlank() || functionCall.trim().endsWith(";")) {
-            ""
-        } else {
-            ";"
-        }
 
-        return Triple(functionCall, headers, semicolon)
+        return Pair(functionCall, headers)
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -174,7 +174,7 @@ class Visitor(
             }
 
             is IrReturnImpl -> {
-                argValues.add("return ${this.value.toCodeString().joinToString(" ")};")
+                argValues.add(this.value.toCodeString().joinToString(" "))
             }
 
             is IrCallImpl -> {
@@ -235,8 +235,8 @@ class Visitor(
                         )
                     )*/
 
-                    val (functionCall, headers, semicolon) = this.toFunctionCall()
-                    argValues.addAll(listOf(functionCall, semicolon))
+                    val (functionCall, headers) = this.toFunctionCall()
+                    argValues.addAll(listOf(functionCall))
 
                     if (headers.isNotEmpty()) {
                         codeBuilder.addHeaders(headers)
@@ -294,13 +294,13 @@ class Visitor(
                             error("Undefined getValue op `$debugName`")
                         }
                     }
-                    argValues.add(statement)
+                    argValues.add("$statement;")
                 } else {
                     val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
                     if (dataType.extraHeader != null) {
                         codeBuilder.addHeader(dataType.extraHeader)
                     }
-                    argValues.add("${dataType.type} $variableName = $variableCall")
+                    argValues.add("${dataType.type} $variableName = $variableCall;")
                 }
             }
 
@@ -356,7 +356,6 @@ class Visitor(
                                 }
                             }
                     }
-
 
 
                     else -> error("Unhandled IrWhenImpl origin `${this.origin?.debugName}`")
@@ -422,4 +421,9 @@ class Visitor(
         }
         return false
     }
+}
+
+private fun String.addSemiColonIfNeeded(): String {
+    if (this.isBlank() || this.trim().endsWith(";")) return this
+    return "$this;"
 }

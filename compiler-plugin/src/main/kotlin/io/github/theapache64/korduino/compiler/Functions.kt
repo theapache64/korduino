@@ -5,13 +5,13 @@ enum class Function(
     val header: Header?
 ) {
     // Arduino
-    PrintLn({ "Serial.println($it)" }, Header.Arduino),
-    Begin({ "Serial.begin($it)" }, Header.Arduino),
-    Delay({ "delay($it)" }, Header.Arduino),
-    PinMode({ "pinMode($it)" }, Header.Arduino),
+    PrintLn({ "Serial.println($it);" }, Header.Arduino),
+    Begin({ "Serial.begin($it);" }, Header.Arduino),
+    Delay({ "delay($it);" }, Header.Arduino),
+    PinMode({ "pinMode($it);" }, Header.Arduino),
 
     // Std CPP
-    COUT({ "std::cout << $it << std::endl" }, Header.IoStream),
+    COUT({ "std::cout << $it << std::endl;" }, Header.IoStream),
 
     Increment({ varName -> if (varName.isNullOrBlank()) "" else "++$varName" }, null),
     Decrement({ varName -> if (varName.isNullOrBlank()) "" else "--$varName" }, null),
@@ -28,7 +28,7 @@ private fun String?.augment(operator: String): String {
     return if (variable.isNullOrBlank() || value.isNullOrBlank()) {
         error("Invalid usage of $operator operator")
     } else {
-        "$variable $operator $value"
+        "$variable $operator $value;"
     }
 }
 
