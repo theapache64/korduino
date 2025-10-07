@@ -338,7 +338,9 @@ class Visitor(
                                         val condition = branch.condition.toCodeString().joinToString(" ")
                                         val ifOrElseIf = if (index == 0) "if" else "else if"
                                         argValues.add("$ifOrElseIf($condition){")
-                                        val result = branch.result.toCodeString().addPreKeyword(branch.result).joinToString(" ").addSemiColonIfNeeded()
+                                        val result =
+                                            branch.result.toCodeString().addPreKeyword(branch.result).joinToString(" ")
+                                                .addSemiColonIfNeeded()
                                         argValues.add(result)
                                         argValues.add("}")
                                     }
@@ -438,6 +440,11 @@ class Visitor(
 }
 
 private fun String.addSemiColonIfNeeded(): String {
-    if (this.isBlank() || this.trim().endsWith(";")) return this
+    val string = this.trim()
+    if (string.isEmpty() ||
+        string.endsWith(";") ||
+        string.endsWith("{") ||
+        string.endsWith("}")
+    ) return this
     return "$this;"
 }
