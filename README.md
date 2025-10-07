@@ -80,8 +80,8 @@ Give a ⭐️ if this project helped you!
 - [x] Augmented assignment operators `+=`, `-=`, `*=`, `/=`, `%=`)
 - [x] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`)
 - [x] Add `if-else` support
-- [ ] 🚧 Logical operators
-- [ ] Indexed access operator (`[, ]`)
+- [x] Logical operators
+- [ ] 🚧 Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
 - [ ] Add `const` support
 - [ ] Add `for` loop support

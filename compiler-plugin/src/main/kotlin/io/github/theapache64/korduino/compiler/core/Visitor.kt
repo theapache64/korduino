@@ -169,10 +169,6 @@ class Visitor(
                 argValues.add(value)
             }
 
-            is IrGetObjectValue -> {
-                null // TODO: Remove this
-            }
-
             is IrGetEnumValueImpl -> {
                 argValues.add(symbol.owner.name.asString())
             }
