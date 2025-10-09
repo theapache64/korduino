@@ -1,3 +1,10 @@
 package io.github.theapache64.korduino.compiler.core
 
-const val INDEXED_ACCESS_OPERATOR = "[]"
+import io.github.theapache64.korduino.compiler.DataType
+
+data class ArrayInfo(
+    val dataType: DataType,
+    val size: Int,
+    val variableName: String,
+    val variableCall : String
+)

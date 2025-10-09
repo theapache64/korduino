@@ -26,8 +26,8 @@ class IndexedAccessOperatorTest {
         val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         val expectedOutput = """
-            #include <iostream>
             #include <array>
+            #include <iostream>
             int main() {
                 std::array<int, 5> arr = {1, 2, 3, 4, 5};
                 int thirdElement = arr[2];

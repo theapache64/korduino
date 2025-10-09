@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 
@@ -45,6 +46,9 @@ class Visitor(
          * A special function used to put raw cpp code in the generated file.
          */
         private const val FUNCTION_RAW_CPP = "io.github.theapache64.korduino.core.cpp"
+
+        const val INDEXED_ACCESS_OPERATOR = "[]"
+        private val arrayRegex = "VAR name:(\\w+) type:kotlin\\.Array<([A-Za-z0-9.]+)> \\[val]".toRegex()
     }
 
     var sourceText: String = ""
@@ -104,6 +108,26 @@ class Visitor(
         codeBuilder.appendLine(expression.toCodeString().joinToString(separator = " "))
     }
 
+
+    fun parseArray(irVariable: IrVariableImpl): ArrayInfo {
+        val signature = irVariable.symbol.owner.render()
+        val matchResult = arrayRegex.find(signature) ?: throw IllegalStateException("Not an array: $signature")
+        val (variableName, dataTypeString) = matchResult.destructured
+        val firstArray = (irVariable.initializer as? IrCallImpl)?.arguments?.getOrNull(0)
+        val firstArrayElements = firstArray?.toCodeString()
+        val variableCall = firstArrayElements?.joinToString(
+            prefix = "{",
+            separator = ", ",
+            postfix = "}"
+        ) ?: TODO()
+        val dataType = dataTypes[dataTypeString] ?: throw IllegalStateException("Unknown data type: $dataTypeString")
+        return ArrayInfo(
+            dataType = dataType,
+            size = firstArrayElements.size,
+            variableName = variableName,
+            variableCall = variableCall
+        )
+    }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall) {
@@ -311,11 +335,16 @@ class Visitor(
                     }
                     argValues.add(statement)
                 } else {
-                    val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
                     if (typeFqName == "kotlin.Array") {
-                        // Dummy
-                        argValues.add("std::array<int, 5> arr = {1, 2, 3, 4, 5};")
+                        // Dummy: std::array<int, 5> arr = {1, 2, 3, 4, 5};
+                        val arrayInfo = parseArray(this)
+                        val arrayStatement =
+                            "std::array<${arrayInfo.dataType.type}, ${arrayInfo.size}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                        argValues.add(arrayStatement)
+
+                        codeBuilder.addHeader("array")
                     } else {
+                        val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
                         val dataType =
                             dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName` ($variableCall)")
                         if (dataType.extraHeader != null) {

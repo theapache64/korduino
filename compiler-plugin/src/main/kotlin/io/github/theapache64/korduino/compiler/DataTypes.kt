@@ -20,7 +20,7 @@ private val commonDataTypes = mapOf(
     "kotlin.Float" to DataType.Float,
     "kotlin.Long" to DataType.Long,
     "kotlin.Double" to DataType.Double,
-    "kotlin.Boolean" to DataType.Boolean,
+    "kotlin.Boolean" to DataType.Boolean
 )
 
 private val arduinoDataTypes = mapOf<String, DataType>(
