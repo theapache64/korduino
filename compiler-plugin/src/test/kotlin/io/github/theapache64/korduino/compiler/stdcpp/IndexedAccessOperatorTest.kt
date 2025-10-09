@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class IndexedAccessOperatorTest {
 
-    // @Test
+    @Test
     fun array() {
         val input = SourceFile.kotlin(
             "Main.kt",

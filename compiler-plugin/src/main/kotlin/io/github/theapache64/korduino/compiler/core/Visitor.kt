@@ -15,21 +15,11 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.ANDAND
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.DIV
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EQEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EQEQEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQEQ
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.GT
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.GTEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.IF
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.LT
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.LTEQ
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.MINUS
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.MUL
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.OROR
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PERC
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PLUS
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_DECR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.POSTFIX_INCR
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_DECR
@@ -94,6 +84,10 @@ class Visitor(
         return declaration.parameters.joinToString(",") {
             "${dataTypes[it.type.classFqName?.asString()]?.type} ${it.name}"
         }
+    }
+
+    override fun visitConstantArray(expression: IrConstantArray) {
+        super.visitConstantArray(expression)
     }
 
     override fun visitReturn(expression: IrReturn) {
@@ -169,6 +163,10 @@ class Visitor(
                 argValues.add(value)
             }
 
+            is IrGetObjectValue -> {
+                null // TODO: This may change in future when OOP concepts are added
+            }
+
             is IrGetEnumValueImpl -> {
                 argValues.add(symbol.owner.name.asString())
             }
@@ -215,35 +213,44 @@ class Visitor(
                             }
                         }
 
+                        "get" -> {
+                            INDEXED_ACCESS_OPERATOR
+                        }
+
                         else -> error("Unknown operator `$opName`")
                     }
 
-                    val memAddress = if(opName == EQEQEQ.debugName) "&" else ""
-                    val (startBracket, endBracket) = getBrackets(startOffset, endOffset)
+                    when (opSymbol) {
+                        INDEXED_ACCESS_OPERATOR -> {
+                            // array
+                            val result = this.arguments.mapNotNull { it?.toCodeString()?.joinToString(" ") }
+                            val varName = result[0]
+                            val index = result[1]
+                            argValues.add("$varName[$index]")
+                        }
 
-                    if (this.arguments.size == 1) {
-                        argValues.add(
-                            "$opSymbol$startBracket${
-                                this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
-                                    .joinToString(" $opSymbol ")
-                            }$endBracket")
-                    } else {
-                        argValues.add(
-                            "$startBracket${
-                                this.arguments.mapNotNull { memAddress + it?.toCodeString()?.joinToString(opSymbol) }
-                                    .joinToString(" $opSymbol ")
-                            }$endBracket")
+                        else -> {
+                            val memAddress = if (opName == EQEQEQ.debugName) "&" else ""
+                            val (startBracket, endBracket) = getBrackets(startOffset, endOffset)
+
+                            if (this.arguments.size == 1) {
+                                argValues.add(
+                                    "$opSymbol$startBracket${
+                                        this.arguments.mapNotNull { it?.toCodeString()?.joinToString(opSymbol) }
+                                            .joinToString(" $opSymbol ")
+                                    }$endBracket")
+                            } else {
+                                argValues.add(
+                                    "$startBracket${
+                                        this.arguments.mapNotNull {
+                                            memAddress + it?.toCodeString()?.joinToString(opSymbol)
+                                        }
+                                            .joinToString(" $opSymbol ")
+                                    }$endBracket")
+                            }
+                        }
                     }
                 } else {
-                    /*argValues.addAll(
-                        listOf(
-                            this.symbol.owner.name.asString(), // function name
-                            "(",
-                            this.arguments.mapNotNull { it?.toCodeString()?.joinToString(",") }.joinToString(","),
-                            ")"
-                        )
-                    )*/
-
                     val (functionCall, headers) = this.toFunctionCall()
                     argValues.addAll(listOf(functionCall))
 
@@ -289,7 +296,6 @@ class Visitor(
 
             is IrVariableImpl -> {
                 val typeFqName = type.classFqName?.asString()
-                val dataType = dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName`")
                 val variableName = name.asString()
                 if (variableName == "<unary>") {
                     val debugName = (initializer as? IrGetValueImpl)?.origin?.debugName
@@ -306,10 +312,17 @@ class Visitor(
                     argValues.add(statement)
                 } else {
                     val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
-                    if (dataType.extraHeader != null) {
-                        codeBuilder.addHeader(dataType.extraHeader)
+                    if (typeFqName == "kotlin.Array") {
+                        // Dummy
+                        argValues.add("std::array<int, 5> arr = {1, 2, 3, 4, 5};")
+                    } else {
+                        val dataType =
+                            dataTypes[typeFqName] ?: error("couldn't find dataType for `$typeFqName` ($variableCall)")
+                        if (dataType.extraHeader != null) {
+                            codeBuilder.addHeader(dataType.extraHeader)
+                        }
+                        argValues.add("${dataType.type} $variableName = $variableCall;")
                     }
-                    argValues.add("${dataType.type} $variableName = $variableCall;")
                 }
             }
 
@@ -401,7 +414,11 @@ class Visitor(
     ): Pair<String, String> {
         var startBracket = ""
         var endBracket = ""
-        if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset) && !isIfStatement(startOffset, endOffset)) {
+        if (isPrevCharIsBracket(startOffset) && isNextCharIsBracket(endOffset) && !isIfStatement(
+                startOffset,
+                endOffset
+            )
+        ) {
             startBracket = "("
             endBracket = ")"
         }
