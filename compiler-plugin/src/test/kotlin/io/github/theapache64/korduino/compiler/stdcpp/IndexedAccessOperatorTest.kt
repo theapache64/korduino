@@ -39,4 +39,39 @@ class IndexedAccessOperatorTest {
 
         actualOutput.should.equal(expectedOutput)
     }
+
+    @Test
+    fun twoDimensionalArray(){
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """
+            fun main() : Int {
+                val arr = arrayOf(
+                    arrayOf(1, 2, 3),
+                    arrayOf(4, 5, 6, 7),
+                    arrayOf(7, 8, 9)
+                )
+                val element = arr[1][2]
+                println(element)
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <array>
+            #include <iostream>
+            int main() {
+                std::array<std::array<<int, 3>, 3> arr = {{{1, 2, 3}, {4, 5, 6, 7}, {7, 8, 9}}};
+                int element = arr[1][2];
+                std::cout <<<< element <<<< std::endl;
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
 }
