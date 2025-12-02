@@ -11,7 +11,7 @@ import kotlin.test.Test
 class IndexedAccessOperatorTest {
 
     @Test
-    fun array() {
+    fun oneDimensionalIntArray() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -43,7 +43,61 @@ class IndexedAccessOperatorTest {
     }
 
     @Test
-    fun twoDimensionalArray(){
+    fun oneDimensionalStringArray() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """
+            fun main() : Int {
+                val arr = arrayOf("apple", "banana", "cherry", "date", "elderberry")
+                val thirdElement = arr[2]
+                println(thirdElement)
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val expectedOutput = """
+            #include <array>
+            #include <iostream>
+            int main() {
+                std::array<std::string, 5> arr = {"apple", "banana", "cherry", "date",
+                                                  "elderberry"};
+                std::string thirdElement = arr[2];
+                std::cout << thirdElement << std::endl;
+                return 0;
+            }
+            
+        """.trimIndent().verifyRunnability()
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun oneDimensionalAnyArray() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """
+            fun main() : Int {
+                val arr = arrayOf(1, 2, 3, 4, 5, "apple", "banana")
+                val thirdElement = arr[2]
+                println(thirdElement)
+                return 0
+            }
+        """.trimIndent(),
+        )
+        try {
+            generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+            assert(false) {
+                "Expected IllegalStateException for mixed type array"
+            } // Should not reach here
+        } catch (_: Exception) {
+            assert(true)
+        }
+    }
+
+    @Test
+    fun twoDimensionalIntArray(){
         val input = SourceFile.kotlin(
             "Main.kt",
             """

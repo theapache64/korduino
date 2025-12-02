@@ -48,7 +48,7 @@ class Visitor(
         private const val FUNCTION_RAW_CPP = "io.github.theapache64.korduino.core.cpp"
 
         const val INDEXED_ACCESS_OPERATOR = "[]"
-        private val arrayRegex = "VAR name:(\\w+) type:kotlin\\.Array<([A-Za-z0-9.]+)> \\[val]".toRegex()
+        private val arrayRegex = "VAR name:(\\w+) type:kotlin\\.Array<([A-Za-z0-9.<>]+)> \\[val]".toRegex()
     }
 
     var sourceText: String = ""
@@ -111,7 +111,10 @@ class Visitor(
 
     fun parseArray(irVariable: IrVariableImpl): ArrayInfo {
         val signature = irVariable.symbol.owner.render()
-        val matchResult = arrayRegex.find(signature) ?: throw IllegalStateException("Not an array: $signature")
+        if (signature.contains("kotlin.Any")) {
+            throw UnsupportedFeature("Arrays of type Any are not supported yet: `$signature`\nSee https://github.com/theapache64/korduino/issues/2")
+        }
+        val matchResult = arrayRegex.find(signature) ?: throw IllegalStateException("Not an array: `$signature`")
         val (variableName, dataTypeString) = matchResult.destructured
         val firstArray = (irVariable.initializer as? IrCallImpl)?.arguments?.getOrNull(0)
         val firstArrayElements = firstArray?.toCodeString()
@@ -126,7 +129,9 @@ class Visitor(
             size = firstArrayElements.size,
             variableName = variableName,
             variableCall = variableCall
-        )
+        ).also {
+            println("QuickTag: Visitor:parseArray: Parsed array info: `$it`")
+        }
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -197,7 +202,12 @@ class Visitor(
 
             is IrVarargImpl -> {
                 elements.forEach {
-                    val varArg = (it as IrConstImpl).value.toString()
+                    val constImpl = it as IrConstImpl
+                    val varArg = if(constImpl.kind == IrConstKind.String){
+                        "\"${constImpl.value}\""
+                    } else {
+                        "${constImpl.value}"
+                    }
                     argValues.add(varArg)
                 }
             }
@@ -340,6 +350,7 @@ class Visitor(
                         val arrayInfo = parseArray(this)
                         val arrayStatement =
                             "std::array<${arrayInfo.dataType.type}, ${arrayInfo.size}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                        println("QuickTag: Visitor:toCodeString: Parsed array statement: `$arrayStatement`")
                         argValues.add(arrayStatement)
 
                         codeBuilder.addHeader("array")

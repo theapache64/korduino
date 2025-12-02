@@ -18,7 +18,7 @@ fun executeCommand(
         }
     }.toTypedArray()
 
-    println("QuickTag: :executeCommand: `cd ${directory.absolutePath} && ${expandedCommand.joinToString(separator = " ")}`")
+    // println("QuickTag: :executeCommand: `cd ${directory.absolutePath} && ${expandedCommand.joinToString(separator = " ")}`")
     val process = ProcessBuilder(*expandedCommand).directory(directory)
         .redirectOutput(ProcessBuilder.Redirect.PIPE)
         .redirectError(ProcessBuilder.Redirect.PIPE)
