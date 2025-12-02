@@ -10,6 +10,7 @@ import io.github.theapache64.korduino.compiler.core.Extension
 import io.github.theapache64.korduino.compiler.core.Registrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.File
+import kotlin.io.path.createTempDirectory
 
 
 fun generateAndCompileArduinoSourceCode(sourceFiles: List<SourceFile>): JvmCompilationResult {
@@ -75,6 +76,17 @@ private fun compileAndVerifyCompilability(
         }
     }
     return result
+}
+
+// Extension function to run raw c++ code
+fun String.verifyRunnability(): String {
+    val tempDir = createTempDirectory()
+    val cppFile = tempDir.resolve("temp.cpp").toFile()
+    cppFile.writeText(this)
+    val outputFile = tempDir.resolve("out").toFile()
+    executeCommand(tempDir.toFile(), arrayOf("g++", cppFile.absolutePath, "-o", outputFile.absolutePath), shouldExitOnError = true)
+    executeCommand(tempDir.toFile(), arrayOf(outputFile.absolutePath), shouldExitOnError = true)
+    return this
 }
 
 private fun JvmCompilationResult.findProjectRootDir(): File {

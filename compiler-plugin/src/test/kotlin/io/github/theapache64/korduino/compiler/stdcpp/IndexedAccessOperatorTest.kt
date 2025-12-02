@@ -5,6 +5,7 @@ import com.tschuchort.compiletesting.SourceFile
 import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.util.generateAndCompileCppSourceCode
 import io.github.theapache64.korduino.compiler.util.readActualOutput
+import io.github.theapache64.korduino.compiler.util.verifyRunnability
 import kotlin.test.Test
 
 class IndexedAccessOperatorTest {
@@ -23,8 +24,6 @@ class IndexedAccessOperatorTest {
         """.trimIndent(),
         )
 
-        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
-
         val expectedOutput = """
             #include <array>
             #include <iostream>
@@ -35,7 +34,10 @@ class IndexedAccessOperatorTest {
                 return 0;
             }
             
-        """.trimIndent()
+        """.trimIndent().also{
+            it.verifyRunnability()
+        }
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
 
         actualOutput.should.equal(expectedOutput)
     }
@@ -58,20 +60,20 @@ class IndexedAccessOperatorTest {
         """.trimIndent(),
         )
 
-        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
-
         val expectedOutput = """
             #include <array>
             #include <iostream>
+
             int main() {
-                std::array<std::array<<int, 3>, 3> arr = {{{1, 2, 3}, {4, 5, 6, 7}, {7, 8, 9}}};
+                std::array<std::array<int, 4>, 3> arr = {{{1, 2, 3}, {4, 5, 6, 7}, {7, 8, 9}}};
                 int element = arr[1][2];
-                std::cout <<<< element <<<< std::endl;
+                std::cout << element << std::endl;
                 return 0;
             }
             
-        """.trimIndent()
+        """.trimIndent().verifyRunnability()
 
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
         actualOutput.should.equal(expectedOutput)
     }
 }

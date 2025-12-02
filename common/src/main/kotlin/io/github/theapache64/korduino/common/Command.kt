@@ -5,6 +5,7 @@ import java.io.File
 fun executeCommand(
     directory: File,
     command: Array<String>,
+    shouldExitOnError: Boolean = false
 ) {
     // Expand wildcards manually
     val expandedCommand = command.flatMap { arg ->
@@ -48,6 +49,11 @@ fun executeCommand(
     errorThread.join()
 
     if (exitCode != 0) {
-        println("❌ ERROR: `${command.joinToString(" ")}` failed with exit code: $exitCode")
+        val message = "❌ ERROR: `${command.joinToString(" ")}` failed with exit code: $exitCode"
+        if(shouldExitOnError){
+            error(message)
+        } else {
+            println(message)
+        }
     }
 }
