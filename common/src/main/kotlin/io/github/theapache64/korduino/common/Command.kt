@@ -36,7 +36,7 @@ fun executeCommand(
     val errorThread = Thread {
         process.errorStream.bufferedReader().useLines { lines ->
             lines.forEach { line ->
-                println("ERROR: $line")
+                println("> ERROR: $line")
             }
         }
     }

@@ -15,9 +15,10 @@ import kotlin.io.path.createTempDirectory
 
 fun generateAndCompileArduinoSourceCode(sourceFiles: List<SourceFile>): JvmCompilationResult {
     return compileAndVerifyCompilability(
-        sourceFiles,
-        Arg.Platform.Target.ARDUINO,
-        isCompile = true
+        sourceFiles = sourceFiles,
+        target = Arg.Platform.Target.ARDUINO,
+        isCompile = true,
+        board = Arg.Board.Type.ESP_32_DOIT_DEVKIT_V1
     )
 }
 
@@ -48,7 +49,8 @@ fun generateCppSourceCode(sourceFiles: List<SourceFile>): JvmCompilationResult {
 private fun compileAndVerifyCompilability(
     sourceFiles: List<SourceFile>,
     target: Arg.Platform.Target,
-    isCompile: Boolean
+    isCompile: Boolean,
+    board : Arg.Board.Type? = null,
 ): JvmCompilationResult {
     val result = KotlinCompilation().apply {
         sources = sourceFiles
@@ -60,6 +62,7 @@ private fun compileAndVerifyCompilability(
         kotlincArguments += listOf(
             "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:PLATFORM=${target.name}",
             "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:BUILD_DIR=build",
+            "-P", "plugin:com.tschuchort.compiletesting.maincommandlineprocessor:korduino:BOARD=${board?.name}",
         )
     }.compile()
 

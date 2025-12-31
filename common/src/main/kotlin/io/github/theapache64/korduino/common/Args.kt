@@ -78,7 +78,7 @@ sealed class Arg<T>(
                 framework = arduino
             """.trimIndent(),
                 defaultMonitorSpeed = Baud.RATE_115200,
-                defaultUploadSpeed = Baud.RATE_921600
+                defaultUploadSpeed = Baud.RATE_460800
             ),
 
             ESP_32_DEV(

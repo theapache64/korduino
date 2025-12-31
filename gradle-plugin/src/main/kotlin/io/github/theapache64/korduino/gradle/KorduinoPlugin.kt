@@ -1,6 +1,7 @@
 package io.github.theapache64.korduino.gradle
 
 import io.github.theapache64.korduino.common.Arg
+import io.github.theapache64.korduino.common.ArgId
 import io.github.theapache64.korduino.common.Baud
 import io.github.theapache64.korduino.common.executeCommand
 import org.gradle.api.DefaultTask
@@ -33,9 +34,9 @@ class KorduinoPlugin : Plugin<Project> {
                     extension.buildDir = buildDir
                 }
 
-                freeCompilerArgs.addAll("-P", "plugin:korduino:BUILD_DIR=$buildDir")
+                freeCompilerArgs.addAll("-P", "plugin:korduino:${ArgId.BUILD_DIR}=$buildDir")
                 freeCompilerArgs.addAll(
-                    "-P", "plugin:korduino:PLATFORM=${
+                    "-P", "plugin:korduino:${ArgId.PLATFORM}=${
                         extension.platform ?: error(
                             """
                     Korduino mode not set. <ARDUINO|STD_CPP>
@@ -48,6 +49,9 @@ class KorduinoPlugin : Plugin<Project> {
                         )
                     }"
                 )
+                freeCompilerArgs.addAll("-P", "plugin:korduino:${ArgId.BOARD}=${extension.board}")
+                freeCompilerArgs.addAll("-P", "plugin:korduino:${ArgId.MONITOR_SPEED}=${extension.monitorSpeed}")
+                freeCompilerArgs.addAll("-P", "plugin:korduino:${ArgId.UPLOAD_SPEED}=${extension.uploadSpeed}")
             }
         }
 
@@ -64,9 +68,14 @@ class KorduinoPlugin : Plugin<Project> {
 open class KorduinoExtension {
     var buildDir: File? = null
     var platform: Arg.Platform.Target? = null
+    var monitorSpeed: Baud? = null
+    var uploadSpeed : Baud? = null
     var board: Arg.Board.Type? = null
-    var monitorSpeed: Baud? = board?.defaultMonitorSpeed
-    var uploadSpeed : Baud? = board?.defaultUploadSpeed
+        set(value) {
+            field = value
+            monitorSpeed = value?.defaultMonitorSpeed
+            uploadSpeed = value?.defaultUploadSpeed
+        }
 }
 
 abstract class RunKorduinoTask : DefaultTask() {

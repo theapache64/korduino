@@ -23,8 +23,8 @@ class StdCppDirGenerator : TargetDirGenerator {
 
 class ArduinoDirGenerator(
     private val board: Arg.Board.Type,
-    private val monitorSpeed: Baud,
-    private val uploadSpeed: Baud,
+    private val monitorSpeed: Baud = board.defaultMonitorSpeed,
+    private val uploadSpeed: Baud = board.defaultUploadSpeed,
 ) : TargetDirGenerator {
     override fun create(cppFiles: List<Path>, buildDir: String): Path {
         val zipPath = TargetDirGenerator::class.java.getResource("/pio.zip")?.path
@@ -38,25 +38,23 @@ class ArduinoDirGenerator(
                 toFile().writeBytes(zipStream.readBytes())
             }
         }
-        val pioDir = srcZipPath.unzip(Path(buildDir))
-        updatePlatformIoIni(pioDir)
-        val srcDir = pioDir.resolve("pio/src")
+        val pioParentDir = srcZipPath.unzip(Path(buildDir))
+        updatePlatformIoIni(pioParentDir)
+        val srcDir = pioParentDir.resolve("pio/src")
         for (cppFile in cppFiles) {
             cppFile.copyTo(srcDir.resolve(cppFile.name), overwrite = true)
         }
-        return pioDir
+        return pioParentDir
     }
 
     /**
      * Update platformio.ini file based on plugin params
      */
     private fun updatePlatformIoIni(pioDir: Path) {
-        val configFile = pioDir.resolve("platformio.ini").toFile()
-        val newConfig = """
-            ${board.config}
-            monitor_speed = $monitorSpeed
-            upload_speed = $uploadSpeed
-        """.trimIndent()
+        val configFile = pioDir.resolve("pio/platformio.ini").toFile()
+        val newConfig = """${board.config}
+monitor_speed = ${monitorSpeed.value}
+upload_speed = ${uploadSpeed.value}""".trimIndent()
         configFile.writeText(newConfig)
     }
 }
