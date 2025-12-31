@@ -62,7 +62,11 @@ class KorduinoPlugin : Plugin<Project> {
 
 open class KorduinoExtension {
     var buildDir: File? = null
-    var platform: String? = null
+
+    /**
+     * Any value of [io.github.theapache64.korduino.common.Arg.Platform.Target]
+     */
+    var platform: Arg.Platform.Target? = null
 }
 
 abstract class RunKorduinoTask : DefaultTask() {
@@ -73,7 +77,7 @@ abstract class RunKorduinoTask : DefaultTask() {
     @TaskAction
     fun execute() {
 
-        val platform = Arg.Platform.Target.valueOf(extension.platform ?: error("platform can't be null"))
+        val platform = extension.platform ?: error("platform can't be null")
         when (platform) {
             Arg.Platform.Target.ARDUINO -> {
                 try {

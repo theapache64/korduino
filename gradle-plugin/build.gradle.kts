@@ -64,3 +64,16 @@ val functionalTest = tasks.register<Test>("functionalTest") {
 tasks.named("test") {
     dependsOn(functionalTest)
 }
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
+}
