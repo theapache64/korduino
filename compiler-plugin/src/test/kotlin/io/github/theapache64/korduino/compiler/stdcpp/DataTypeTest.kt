@@ -41,6 +41,48 @@ class DataTypeTest {
     }
 
     @Test
+    fun globalInt() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            val a = 1
+
+            """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            int a = 1;
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun globalConstInt() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """$IMPORT_STATEMENTS
+            const val a = 1
+
+            """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            const int a = 1;
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
     fun string() {
 
         val input = SourceFile.kotlin(

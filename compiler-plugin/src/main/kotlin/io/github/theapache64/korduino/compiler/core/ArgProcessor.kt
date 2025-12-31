@@ -1,6 +1,5 @@
 package io.github.theapache64.korduino.compiler.core
 
-import com.intellij.ide.plugins.PluginManagerCore.logger
 import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.common.ArgId
 import io.github.theapache64.korduino.common.Baud
@@ -25,6 +24,7 @@ class ArgProcessor : CommandLineProcessor {
     }
 
     override fun processOption(option: AbstractCliOption, value: String, configuration: CompilerConfiguration) {
+        if (value == "null") return
         val argId = ArgId.valueOf(option.optionName)
 
         when (argId) {

@@ -2,16 +2,15 @@ package io.github.theapache64.korduino.compiler.core
 
 import io.github.theapache64.korduino.common.Arg
 import io.github.theapache64.korduino.compiler.CodeBuilder
+import io.github.theapache64.korduino.compiler.DataType
 import io.github.theapache64.korduino.compiler.addSemiColonIfNeeded
 import io.github.theapache64.korduino.compiler.dataTypes
 import io.github.theapache64.korduino.compiler.functions
 import org.jetbrains.kotlin.backend.jvm.ir.getIoFile
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
-import org.jetbrains.kotlin.ir.declarations.IrFile
-import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.impl.IrPropertyImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.ANDAND
@@ -64,6 +63,10 @@ class Visitor(
     override fun visitElement(element: IrElement) {
         // This is the first function to get a hit. Here we're telling to recursively loop through each element
         element.acceptChildrenVoid(this)
+    }
+
+    override fun visitProperty(declaration: IrProperty) {
+        codeBuilder.appendLine(declaration.toCodeString().joinToString(separator = " "))
     }
 
     override fun visitFunction(declaration: IrFunction) {
@@ -426,10 +429,34 @@ class Visitor(
                 }
             }
 
+            is IrPropertyImpl -> {
+                // int a = 1;
+                val constLabel = if(this.isConst) "const " else ""
+                val dataType = this.backingField?.initializer?.expression?.getMappedDataType()
+                val variableName = this.name
+                val value = this.backingField?.initializer?.expression?.toCodeString()?.joinToString()
+                argValues.add("$constLabel$dataType $variableName=$value;")
+            }
+
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }
         return argValues.filter { it.isNotBlank() }
+    }
+
+    private fun IrExpression?.getMappedDataType() : String? {
+        return when(this){
+            is IrConstImpl -> when(this.kind){
+                IrConstKind.Boolean -> DataType.Boolean
+                IrConstKind.Double -> DataType.Double
+                IrConstKind.Float -> DataType.Float
+                IrConstKind.Int -> DataType.Int
+                IrConstKind.Long -> DataType.Long
+                IrConstKind.String -> DataType.String
+                else -> error("Unsupported const kind ${this.kind}")
+            }.type
+            else -> error("Undefined expression `${this}`")
+        }
     }
 
     private fun List<String>.addPreKeyword(result: IrStatement): List<String> {
