@@ -5,7 +5,10 @@ import org.jetbrains.kotlin.config.CompilerConfigurationKey
 enum class ArgId {
     ENABLED,
     PLATFORM,
-    BUILD_DIR
+    BUILD_DIR,
+    BOARD,
+    MONITOR_SPEED,
+    UPLOAD_SPEED
 }
 
 sealed class Arg<T>(
@@ -41,4 +44,49 @@ sealed class Arg<T>(
         description = "Build directory where the C++ code will be generated",
         isRequired = true
     )
+
+    object MonitorSpeed : Arg<Baud>(
+        id = ArgId.MONITOR_SPEED,
+        valueDescription = "<Log monitor speed>",
+        description = "Value for `monitor_speed`. See https://docs.platformio.org/en/stable/projectconf/sections/env/options/monitor/monitor_speed.html",
+        isRequired = false
+    )
+
+    object UploadSpeed : Arg<Baud>(
+        id = ArgId.UPLOAD_SPEED,
+        valueDescription = "<Upload speed>",
+        description = "A connection speed (baud rate) which “uploader” tool uses when sending firmware to board. See https://docs.platformio.org/en/stable/projectconf/sections/env/options/upload/upload_speed.html",
+        isRequired = false
+    )
+
+    object Board : Arg<Board.Type>(
+        id = ArgId.BOARD,
+        valueDescription = "<Board name>",
+        description = "Your microcontroller board name (look behind the board)",
+        isRequired = false,
+    ) {
+        enum class Type(
+            val config: String,
+        ) {
+            ESP_32_DOIT_DEVKIT_V1(
+                """
+                [env:esp32doit-devkit-v1]
+                platform = espressif32
+                board = esp32doit-devkit-v1
+                framework = arduino
+            """.trimIndent()
+            ),
+
+            ESP_32_DEV(
+                """
+                [env:esp32dev]
+                platform = espressif32
+                board = esp32dev
+                framework = arduino
+            """.trimIndent()
+            ),
+
+        }
+    }
 }
+

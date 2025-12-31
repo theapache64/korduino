@@ -1,6 +1,7 @@
 package io.github.theapache64.korduino.gradle
 
 import io.github.theapache64.korduino.common.Arg
+import io.github.theapache64.korduino.common.Baud
 import io.github.theapache64.korduino.common.executeCommand
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
@@ -62,11 +63,10 @@ class KorduinoPlugin : Plugin<Project> {
 
 open class KorduinoExtension {
     var buildDir: File? = null
-
-    /**
-     * Any value of [io.github.theapache64.korduino.common.Arg.Platform.Target]
-     */
     var platform: Arg.Platform.Target? = null
+    var board: Arg.Board.Type? = null
+    var monitorSpeed: Baud = Baud.RATE_115200
+    var uploadSpeed : Baud = Baud.RATE_921600
 }
 
 abstract class RunKorduinoTask : DefaultTask() {

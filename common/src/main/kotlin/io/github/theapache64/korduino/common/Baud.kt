@@ -1,0 +1,27 @@
+package io.github.theapache64.korduino.common
+
+enum class Baud {
+    RATE_50,
+    RATE_75,
+    RATE_110,
+    RATE_134,
+    RATE_150,
+    RATE_200,
+    RATE_300,
+    RATE_600,
+    RATE_1200,
+    RATE_1800,
+    RATE_2400,
+    RATE_4800,
+    RATE_9600,
+    RATE_19200,
+    RATE_28800,
+    RATE_38400,
+    RATE_57600,
+    RATE_76800,
+    RATE_115200,
+    RATE_230400,
+    RATE_460800,
+    RATE_576000,
+    RATE_921600,
+}
