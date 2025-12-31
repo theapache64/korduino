@@ -81,10 +81,10 @@ Give a ⭐️ if this project helped you!
 - [x] Comparison operators (`>, >=, <, <=, ==, !=, ===, !==`)
 - [x] Add `if-else` support
 - [x] Logical operators
-- [ ] 🚧 Support ESP32
+- [x] Add multiboard support
+- [x] Add `const` support
 - [ ] 🚧 Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
-- [ ] Add `const` support
 - [ ] Add `for` loop support
 - [ ] Add `while` loop support
 - [ ] Add `Array` support
