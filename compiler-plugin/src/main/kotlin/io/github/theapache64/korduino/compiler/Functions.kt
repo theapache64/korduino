@@ -9,6 +9,7 @@ enum class Function(
     Begin({ "Serial.begin($it);" }, Header.Arduino),
     Delay({ "delay($it);" }, Header.Arduino),
     PinMode({ "pinMode($it);" }, Header.Arduino),
+    AnalogRead({ "analogRead($it);" }, Header.Arduino),
 
     // Std CPP
     COUT({ "std::cout << $it << std::endl;" }, Header.IoStream),
@@ -39,6 +40,7 @@ val functions = mapOf<String, Function>(
     "io.github.theapache64.korduino.core.Serial.begin" to Function.Begin,
     "io.github.theapache64.korduino.core.delay" to Function.Delay,
     "io.github.theapache64.korduino.core.pinMode" to Function.PinMode,
+    "io.github.theapache64.korduino.core.analogRead" to Function.AnalogRead,
 
     // Inc/Dec
     "kotlin.Int.inc" to Function.Increment,

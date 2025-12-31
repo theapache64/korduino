@@ -1,0 +1,32 @@
+package io.github.theapache64.korduino.core
+
+enum class Pin {
+    D0,
+    D1,
+    D2,
+    D3,
+    D4,
+    D5,
+    D6,
+    D7,
+    D8,
+    D9,
+    D10,
+    A0,
+    A3,
+    A4,
+    A5,
+    A6,
+    A7,
+    A10,
+    A11,
+    A12,
+    A13,
+    A14,
+    A15,
+    A16,
+    A17,
+    A18,
+    A19,
+
+}
