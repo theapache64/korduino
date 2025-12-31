@@ -1,11 +1,7 @@
 package io.github.theapache64.korduino.compiler.core
 
 import io.github.theapache64.korduino.common.Arg
-import io.github.theapache64.korduino.compiler.CodeBuilder
-import io.github.theapache64.korduino.compiler.DataType
-import io.github.theapache64.korduino.compiler.addSemiColonIfNeeded
-import io.github.theapache64.korduino.compiler.dataTypes
-import io.github.theapache64.korduino.compiler.functions
+import io.github.theapache64.korduino.compiler.*
 import org.jetbrains.kotlin.backend.jvm.ir.getIoFile
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
@@ -165,7 +161,7 @@ class Visitor(
             val code = argValues[0].let { code ->
                 code.substring(1, code.lastIndex) // stripping out `"`
             }
-            Pair(code, argValues.subList(1, argValues.size))
+            Pair(code, argValues.subList(1, argValues.size).stripQuotes())
         } else if (fqName != null && !functions.containsKey(fqName)) {
             // unknown function
             Pair("$fqName(${argValues.joinToString(separator = ", ")})", emptyList())
@@ -180,6 +176,18 @@ class Visitor(
 
 
         return Pair(functionCall, headers)
+    }
+
+    private fun List<String>.stripQuotes(): List<String> {
+        return map {
+            val firstChar = it[0]
+            val lastChar = it[it.lastIndex]
+            if (firstChar == '"' && lastChar == '"') {
+                it.substring(1, it.lastIndex)
+            } else {
+                it
+            }
+        }
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
