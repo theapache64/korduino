@@ -15,7 +15,12 @@ class Registrar : CompilerPluginRegistrar() {
         val target = configuration.get(Arg.Platform.key, Arg.Platform.Target.ARDUINO)
         val buildDir = configuration.get(Arg.BuildDir.key) ?: error("buildDir can't be null")
         val dirGenerator = when (target) {
-            Arg.Platform.Target.ARDUINO -> ArduinoDirGenerator()
+            Arg.Platform.Target.ARDUINO -> {
+                val board = configuration.get(Arg.Board.key) ?: error("board can't be null")
+                val monitorSpeed = configuration.get(Arg.MonitorSpeed.key) ?: board.defaultMonitorSpeed
+                val uploadSpeed = configuration.get(Arg.UploadSpeed.key) ?: board.defaultUploadSpeed
+                ArduinoDirGenerator(board, monitorSpeed, uploadSpeed)
+            }
             Arg.Platform.Target.STD_CPP -> StdCppDirGenerator()
         }
         IrGenerationExtension.registerExtension(

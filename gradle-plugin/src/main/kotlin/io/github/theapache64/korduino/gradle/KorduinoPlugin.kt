@@ -65,8 +65,8 @@ open class KorduinoExtension {
     var buildDir: File? = null
     var platform: Arg.Platform.Target? = null
     var board: Arg.Board.Type? = null
-    var monitorSpeed: Baud = Baud.RATE_115200
-    var uploadSpeed : Baud = Baud.RATE_921600
+    var monitorSpeed: Baud? = board?.defaultMonitorSpeed
+    var uploadSpeed : Baud? = board?.defaultUploadSpeed
 }
 
 abstract class RunKorduinoTask : DefaultTask() {

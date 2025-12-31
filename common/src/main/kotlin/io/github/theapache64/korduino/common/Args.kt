@@ -67,23 +67,29 @@ sealed class Arg<T>(
     ) {
         enum class Type(
             val config: String,
+            val defaultMonitorSpeed: Baud,
+            val defaultUploadSpeed: Baud,
         ) {
             ESP_32_DOIT_DEVKIT_V1(
-                """
+                config = """
                 [env:esp32doit-devkit-v1]
                 platform = espressif32
                 board = esp32doit-devkit-v1
                 framework = arduino
-            """.trimIndent()
+            """.trimIndent(),
+                defaultMonitorSpeed = Baud.RATE_115200,
+                defaultUploadSpeed = Baud.RATE_921600
             ),
 
             ESP_32_DEV(
-                """
+                config = """
                 [env:esp32dev]
                 platform = espressif32
                 board = esp32dev
                 framework = arduino
-            """.trimIndent()
+            """.trimIndent(),
+                defaultMonitorSpeed = Baud.RATE_115200,
+                defaultUploadSpeed = Baud.RATE_921600
             ),
 
         }

@@ -26,7 +26,7 @@ class ArduinoDirGeneratorTest {
             """.trimIndent()
             )
         }
-        val dir = ArduinoDirGenerator().create(listOf(inputCppFile), createTempDir("build").path)
+        val dir = ArduinoDirGenerator(board, monitorSpeed, uploadSpeed).create(listOf(inputCppFile), createTempDir("build").path)
         val actualCppFile = dir.resolve("pio/src/${inputCppFile.name}")
 
         actualCppFile.exists().should.`true`
