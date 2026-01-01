@@ -83,6 +83,7 @@ Give a ⭐️ if this project helped you!
 - [x] Logical operators
 - [x] Add multiboard support
 - [x] Add `const` support
+- [x] Add string concat support
 - [ ] 🚧 Indexed access operator (`[, ]`)
 - [ ] Null safety operator (`.?`)
 - [ ] Add `for` loop support
