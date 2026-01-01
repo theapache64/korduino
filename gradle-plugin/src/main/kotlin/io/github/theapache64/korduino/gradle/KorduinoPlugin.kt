@@ -92,8 +92,9 @@ abstract class RunKorduinoTask : DefaultTask() {
                 try {
                     // Build and upload code
                     executeCommand(
-                        extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
-                        arrayOf("pio", "run", "--target", "upload")
+                        directory = extension.buildDir?.resolve("pio") ?: error("buildDir can't be null"),
+                        command = arrayOf("pio", "run", "--target", "upload"),
+                        shouldExitOnError = true
                     )
                     // Start serial monitor
                     launchTerminal(

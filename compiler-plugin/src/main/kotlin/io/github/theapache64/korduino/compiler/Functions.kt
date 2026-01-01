@@ -33,9 +33,12 @@ private fun String?.augment(operator: String): String {
     }
 }
 
+object KotlinStdFunction {
+    const val PRINT_LN = "kotlin.io.println"
+}
 val functions = mapOf<String, Function>(
     // Std CPP
-    "kotlin.io.println" to Function.COUT,
+    KotlinStdFunction.PRINT_LN to Function.COUT,
     "io.github.theapache64.korduino.core.Serial.println" to Function.PrintLn,
     "io.github.theapache64.korduino.core.Serial.begin" to Function.Begin,
     "io.github.theapache64.korduino.core.delay" to Function.Delay,

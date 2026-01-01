@@ -33,9 +33,11 @@ fun executeCommand(
         }
     }
 
+    val errorString = StringBuilder()
     val errorThread = Thread {
         process.errorStream.bufferedReader().useLines { lines ->
             lines.forEach { line ->
+                errorString.appendLine(line)
                 println("> ERROR: $line")
             }
         }
@@ -49,7 +51,11 @@ fun executeCommand(
     errorThread.join()
 
     if (exitCode != 0) {
-        val message = "❌ ERROR: `${command.joinToString(" ")}` failed with exit code: $exitCode"
+        val message = """❌ ERROR: `${command.joinToString(" ")}` failed with exit code: $exitCode 
+###########
+Stacktrace:
+###########
+$errorString""".trimIndent()
         if(shouldExitOnError){
             error(message)
         } else {

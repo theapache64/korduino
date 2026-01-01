@@ -154,7 +154,7 @@ class Visitor(
         val argValues = mutableListOf<String>()
         for (expArg in arguments) {
             if (expArg == null) continue
-            argValues.addAll(expArg.toCodeString())
+            argValues.addAll(expArg.toCodeString(fqName))
         }
 
         val (functionCall, headers) = if (fqName == FUNCTION_RAW_CPP) {
@@ -191,7 +191,9 @@ class Visitor(
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
-    private fun IrStatement.toCodeString(): List<String> {
+    private fun IrStatement.toCodeString(
+        fqName:String? = null,
+    ): List<String> {
         val argValues = mutableListOf<String>()
         when (this) {
             is IrConst -> {
@@ -447,9 +449,10 @@ class Visitor(
             }
 
             is IrStringConcatenationImpl -> {
+                val symbol = if(fqName == KotlinStdFunction.PRINT_LN) "<<" else "+"
                 argValues.add(
                     this.arguments.joinToString(
-                        separator = " + ",
+                        separator = " $symbol ",
                     ) {
                         it.toCodeString().joinToString("")
                     }
