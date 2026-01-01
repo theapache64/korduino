@@ -45,6 +45,35 @@ class DynamicCppTest {
         actualOutput.should.equal(expectedOutput)
     }
 
+    @Test
+    fun stringConcat() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            $$"""$$IMPORT_STATEMENTS
+            fun main() : Int {
+                val variable = 0
+                println("Hello $variable Kotlin!")
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int main() {
+                int variable = 0;
+                std::cout << "Hello " + variable + " Kotlin!" << std::endl;
+                return 0;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
 
     @Test
     fun withSingleHeaders() {

@@ -446,6 +446,16 @@ class Visitor(
                 argValues.add("$constLabel$dataType $variableName=$value;")
             }
 
+            is IrStringConcatenationImpl -> {
+                argValues.add(
+                    this.arguments.joinToString(
+                        separator = " + ",
+                    ) {
+                        it.toCodeString().joinToString("")
+                    }
+                )
+            }
+
 
             else -> error("Unhandled argValue type ${this::class.simpleName}")
         }
