@@ -33,11 +33,11 @@ fun executeCommand(
         }
     }
 
-    val errorString = StringBuilder()
+    val errorLines = StringBuilder()
     val errorThread = Thread {
         process.errorStream.bufferedReader().useLines { lines ->
             lines.forEach { line ->
-                errorString.appendLine(line)
+                errorLines.appendLine(line)
                 println("> ERROR: $line")
             }
         }
@@ -55,7 +55,7 @@ fun executeCommand(
 ###########
 Stacktrace:
 ###########
-$errorString""".trimIndent()
+$errorLines""".trimIndent()
         if(shouldExitOnError){
             error(message)
         } else {

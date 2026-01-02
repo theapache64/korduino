@@ -89,8 +89,19 @@ sealed class Arg<T>(
                 framework = arduino
             """.trimIndent(),
                 defaultMonitorSpeed = Baud.RATE_115200,
-                defaultUploadSpeed = Baud.RATE_921600
+                defaultUploadSpeed = Baud.RATE_115200
             ),
+
+            ESP_8266_NODE_MCU_V2(
+                config = """
+                [env:nodemcuv2]
+                platform = espressif8266
+                board = nodemcuv2
+                framework = arduino
+            """.trimIndent(),
+                defaultMonitorSpeed = Baud.RATE_115200,
+                defaultUploadSpeed = Baud.RATE_115200
+            )
 
         }
     }
