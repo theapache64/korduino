@@ -298,11 +298,21 @@ class Visitor(
                         }
                     }
                 } else {
-                    val (functionCall, headers) = this.toFunctionCall()
-                    argValues.addAll(listOf(functionCall))
+                    val isPropAccessor = this.symbol.owner.origin.name == "DEFAULT_PROPERTY_ACCESSOR"
+                    if (isPropAccessor) {
+                        val propertyName = this.symbol.owner.correspondingPropertySymbol?.owner?.name?.asString()
+                        if (propertyName != null) {
+                            argValues.add(propertyName)
+                        } else {
+                            error("Couldn't find propertName")
+                        }
+                    } else {
+                        val (functionCall, headers) = this.toFunctionCall()
+                        argValues.addAll(listOf(functionCall))
 
-                    if (headers.isNotEmpty()) {
-                        codeBuilder.addHeaders(headers)
+                        if (headers.isNotEmpty()) {
+                            codeBuilder.addHeaders(headers)
+                        }
                     }
                 }
 
