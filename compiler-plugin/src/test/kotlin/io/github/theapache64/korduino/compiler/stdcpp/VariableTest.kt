@@ -3,7 +3,6 @@ package io.github.theapache64.korduino.compiler.stdcpp
 import com.github.theapache64.expekt.should
 import com.tschuchort.compiletesting.SourceFile
 import io.github.theapache64.korduino.common.Arg
-import io.github.theapache64.korduino.compiler.util.generateAndCompileArduinoSourceCode
 import io.github.theapache64.korduino.compiler.util.generateAndCompileCppSourceCode
 import io.github.theapache64.korduino.compiler.util.readActualOutput
 import kotlin.test.Test
@@ -64,6 +63,70 @@ class VariableTest {
             int globalVariable = 0;
             void loop() {
                 globalVariable = 3;
+                std::cout << "Global variable is " << globalVariable << std::endl;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun writePostfixIncDec() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            $$"""$$IMPORT_STATEMENTS
+            var globalVariable = 0
+            fun loop() {
+                globalVariable++
+                globalVariable--
+                println("Global variable is $globalVariable")
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput =
+            generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int globalVariable = 0;
+            void loop() {
+                globalVariable++;
+                globalVariable--;
+                std::cout << "Global variable is " << globalVariable << std::endl;
+            }
+            
+        """.trimIndent()
+
+        actualOutput.should.equal(expectedOutput)
+    }
+
+    @Test
+    fun writePrefixIncDec() {
+
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            $$"""$$IMPORT_STATEMENTS
+            var globalVariable = 0
+            fun loop() {
+                ++globalVariable
+                --globalVariable
+                println("Global variable is $globalVariable")
+            }
+        """.trimIndent(),
+        )
+
+        val actualOutput =
+            generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+
+        val expectedOutput = """
+            #include <iostream>
+            int globalVariable = 0;
+            void loop() {
+                ++globalVariable;
+                --globalVariable;
                 std::cout << "Global variable is " << globalVariable << std::endl;
             }
             

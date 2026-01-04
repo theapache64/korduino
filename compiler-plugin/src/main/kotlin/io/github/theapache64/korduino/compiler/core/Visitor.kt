@@ -135,6 +135,7 @@ class Visitor(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall) {
+        if (expression.origin.isIncDecRelated()) return
         val (functionCall, headers) = expression.toFunctionCall()
 
         if (functionCall.isNotBlank()) {
@@ -149,6 +150,24 @@ class Visitor(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrCall.toFunctionCall(): Pair<String, List<String>> {
+        val isPropAccessor = this.symbol.owner.origin.name == "DEFAULT_PROPERTY_ACCESSOR"
+        if (isPropAccessor) {
+            val propertyName = this.symbol.owner.correspondingPropertySymbol?.owner?.name?.asString() ?: error(
+                "Couldn't get propert name for prop accessor"
+            )
+            require(this.arguments.size <= 1) {
+                "propAccess found with more than 1 variable"
+            }
+            var args = this.arguments.getOrNull(0)?.toCodeString()?.joinToString()
+            args = if (args != null) {
+                " = $args;"
+            } else {
+                ""
+            }
+            return Pair("$propertyName$args", emptyList())
+        }
+
+
         val function = symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
         val argValues = mutableListOf<String>()
@@ -298,21 +317,10 @@ class Visitor(
                         }
                     }
                 } else {
-                    val isPropAccessor = this.symbol.owner.origin.name == "DEFAULT_PROPERTY_ACCESSOR"
-                    if (isPropAccessor) {
-                        val propertyName = this.symbol.owner.correspondingPropertySymbol?.owner?.name?.asString()
-                        if (propertyName != null) {
-                            argValues.add(propertyName)
-                        } else {
-                            error("Couldn't find propertName")
-                        }
-                    } else {
-                        val (functionCall, headers) = this.toFunctionCall()
-                        argValues.addAll(listOf(functionCall))
-
-                        if (headers.isNotEmpty()) {
-                            codeBuilder.addHeaders(headers)
-                        }
+                    val (functionCall, headers) = this.toFunctionCall()
+                    argValues.addAll(listOf(functionCall))
+                    if (headers.isNotEmpty()) {
+                        codeBuilder.addHeaders(headers)
                     }
                 }
 
@@ -355,10 +363,27 @@ class Visitor(
                 val typeFqName = type.classFqName?.asString()
                 val variableName = name.asString()
                 if (variableName == "<unary>") {
-                    val debugName = (initializer as? IrGetValueImpl)?.origin?.debugName
-                    val variableName = (initializer as IrGetValueImpl).symbol.owner.name.asString()
+                    val (debugName, variableName) = when (initializer) {
+                        is IrValueAccessExpression -> {
+                            val debugName = (initializer as IrValueAccessExpression).origin?.debugName
+                            val variableName = (initializer as? IrGetValueImpl)?.symbol?.owner?.name?.asString()
+                            Pair(debugName, variableName)
+                        }
+
+                        is IrFunctionAccessExpression -> {
+                            val dName = (initializer as IrFunctionAccessExpression).origin?.debugName
+                            val vName = initializer?.toCodeString()?.joinToString()
+                            Pair(dName, vName)
+                        }
+
+                        else -> {
+                            error("Unknown initializer $initializer")
+                        }
+                    }
                     val statement = when (debugName) {
-                        POSTFIX_INCR.debugName -> "$variableName++"
+                        POSTFIX_INCR.debugName -> "$variableName++".also {
+                            println("QuickTag: Visitor:toCodeString: created $it")
+                        }
                         POSTFIX_DECR.debugName -> "$variableName--"
                         PREFIX_INCR.debugName -> "++$variableName"
                         PREFIX_DECR.debugName -> "--$variableName"
@@ -578,5 +603,14 @@ class Visitor(
         }
         return false
     }
+}
+
+private fun IrStatementOrigin?.isIncDecRelated(): Boolean {
+    return this in listOf(
+        POSTFIX_INCR,
+        POSTFIX_DECR,
+        PREFIX_INCR,
+        PREFIX_DECR
+    )
 }
 
