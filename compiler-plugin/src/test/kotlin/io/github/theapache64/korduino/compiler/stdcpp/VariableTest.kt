@@ -112,6 +112,7 @@ class VariableTest {
             var globalVariable = 0
             fun loop() {
                 ++globalVariable
+                --globalVariable
                 println("Global variable is $globalVariable")
             }
         """.trimIndent(),
@@ -125,6 +126,7 @@ class VariableTest {
             int globalVariable = 0;
             void loop() {
                 ++globalVariable;
+                --globalVariable;
                 std::cout << "Global variable is " << globalVariable << std::endl;
             }
             
