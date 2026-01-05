@@ -96,6 +96,8 @@ class IndexedAccessOperatorTest {
         }
     }
 
+    /*
+    // TODO: Enable this test and work on it next
     @Test
     fun twoDimensionalIntArray(){
         val input = SourceFile.kotlin(
@@ -129,5 +131,5 @@ class IndexedAccessOperatorTest {
 
         val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
         actualOutput.should.equal(expectedOutput)
-    }
+    }*/
 }

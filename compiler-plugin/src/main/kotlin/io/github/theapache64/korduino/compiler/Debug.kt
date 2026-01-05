@@ -68,6 +68,33 @@ private fun Any?.toPropertyMapInternal(
     }
 }
 
+
+// Optional: Pretty print extension
+fun Map<*, *>.prettyPrint(indent: Int = 0): String {
+    val pad = "  ".repeat(indent)
+    return entries.joinToString("\n") { (k, v) ->
+        when (v) {
+            is Map<*, *> -> "$pad$k:\n${v.prettyPrint(indent + 1)}"
+            is List<*> -> "$pad$k: ${v.prettyPrintList(indent)}"
+            else -> "$pad$k: $v"
+        }
+    }
+}
+
+private fun List<*>.prettyPrintList(indent: Int): String {
+    if (isEmpty()) return "[]"
+    if (all { it !is Map<*, *> && it !is List<*> }) return toString()
+
+    val pad = "  ".repeat(indent + 1)
+    return "[\n" + joinToString(",\n") { item ->
+        when (item) {
+            is Map<*, *> -> "$pad{\n${item.prettyPrint(indent + 2)}\n$pad}"
+            is List<*> -> "$pad${item.prettyPrintList(indent + 1)}"
+            else -> "$pad$item"
+        }
+    } + "\n${"  ".repeat(indent)}]"
+}
+
 private fun Any.isLeafType(): Boolean = when (this) {
     is Number, is Boolean, is Char, is String, is Enum<*> -> true
     is ByteArray, is CharArray, is ShortArray, is IntArray,

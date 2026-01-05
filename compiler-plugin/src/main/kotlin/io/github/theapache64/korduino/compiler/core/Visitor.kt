@@ -46,7 +46,9 @@ class Visitor(
         private val arrayRegex = "VAR name:(\\w+) type:kotlin\\.Array<([A-Za-z0-9.<>]+)> \\[val]".toRegex()
 
         private val preIncDecRegex = "<set-(?<varName>\\w+?)>\\((?<symbol>([+\\-]){2})\\1\\)".toRegex()
+        private val simpleSetRegex = "<set-(?<varName>\\w+?)>\\((?<args>.+)\\)".toRegex()
         private val simpleGetRegex = "<get-(?<varName>\\w+)>\\(\\)".toRegex()
+
     }
 
     var sourceText: String = ""
@@ -186,6 +188,11 @@ class Visitor(
             functionCall = "$symbol$varName"
         } else if (functionCall.matches(simpleGetRegex)) {
             functionCall = simpleGetRegex.find(functionCall)?.groups["varName"]?.value ?: error("Couldn't find varName")
+        } else if(functionCall.matches(simpleSetRegex)){
+            val matcher = simpleSetRegex.find(functionCall)
+            val varName = matcher?.groups["varName"]?.value ?: error("Couldn't find varName")
+            val args = matcher.groups["args"]?.value ?: error("Couldn't find args")
+            functionCall = "$varName = $args;"
         }
 
         return Pair(functionCall, headers)
