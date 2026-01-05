@@ -44,6 +44,9 @@ class Visitor(
 
         const val INDEXED_ACCESS_OPERATOR = "[]"
         private val arrayRegex = "VAR name:(\\w+) type:kotlin\\.Array<([A-Za-z0-9.<>]+)> \\[val]".toRegex()
+
+        private val preIncDecRegex = "<set-(?<varName>\\w+?)>\\((?<symbol>([+\\-]){2})\\1\\)".toRegex()
+        private val simpleGetRegex = "<get-(?<varName>\\w+)>\\(\\)".toRegex()
     }
 
     var sourceText: String = ""
@@ -135,7 +138,7 @@ class Visitor(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall) {
-        if (expression.origin.isIncDecRelated()) return
+        if (expression.origin.isPostfixIncDecRelated()) return
         val (functionCall, headers) = expression.toFunctionCall()
 
         if (functionCall.isNotBlank()) {
@@ -150,24 +153,6 @@ class Visitor(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrCall.toFunctionCall(): Pair<String, List<String>> {
-        val isPropAccessor = this.symbol.owner.origin.name == "DEFAULT_PROPERTY_ACCESSOR"
-        if (isPropAccessor) {
-            val propertyName = this.symbol.owner.correspondingPropertySymbol?.owner?.name?.asString() ?: error(
-                "Couldn't get propert name for prop accessor"
-            )
-            require(this.arguments.size <= 1) {
-                "propAccess found with more than 1 variable"
-            }
-            var args = this.arguments.getOrNull(0)?.toCodeString()?.joinToString()
-            args = if (args != null) {
-                " = $args;"
-            } else {
-                ""
-            }
-            return Pair("$propertyName$args", emptyList())
-        }
-
-
         val function = symbol.owner
         val fqName = function.fqNameWhenAvailable?.asString()
         val argValues = mutableListOf<String>()
@@ -176,7 +161,7 @@ class Visitor(
             argValues.addAll(expArg.toCodeString(fqName))
         }
 
-        val (functionCall, headers) = if (fqName == FUNCTION_RAW_CPP) {
+        var (functionCall, headers) = if (fqName == FUNCTION_RAW_CPP) {
             val code = argValues[0].let { code ->
                 code.substring(1, code.lastIndex) // stripping out `"`
             }
@@ -193,6 +178,15 @@ class Visitor(
             Pair(funCall, headers)
         }
 
+        // Further transformation
+        if (functionCall.matches(preIncDecRegex)) {
+            val matcher = preIncDecRegex.find(functionCall)?.groups ?: error("preIncDec regEx failed")
+            val varName = matcher["varName"]?.value ?: error("Couldn't find varName")
+            val symbol = matcher["symbol"]?.value ?: error("Couldn't find symbol")
+            functionCall = "$symbol$varName"
+        } else if (functionCall.matches(simpleGetRegex)) {
+            functionCall = simpleGetRegex.find(functionCall)?.groups["varName"]?.value ?: error("Couldn't find varName")
+        }
 
         return Pair(functionCall, headers)
     }
@@ -282,6 +276,9 @@ class Visitor(
                         "get" -> {
                             INDEXED_ACCESS_OPERATOR
                         }
+
+                        "inc" -> "++"
+                        "dec" -> "--"
 
                         else -> error("Unknown operator `$opName`")
                     }
@@ -381,9 +378,7 @@ class Visitor(
                         }
                     }
                     val statement = when (debugName) {
-                        POSTFIX_INCR.debugName -> "$variableName++".also {
-                            println("QuickTag: Visitor:toCodeString: created $it")
-                        }
+                        POSTFIX_INCR.debugName -> "$variableName++"
                         POSTFIX_DECR.debugName -> "$variableName--"
                         PREFIX_INCR.debugName -> "++$variableName"
                         PREFIX_DECR.debugName -> "--$variableName"
@@ -605,12 +600,10 @@ class Visitor(
     }
 }
 
-private fun IrStatementOrigin?.isIncDecRelated(): Boolean {
+private fun IrStatementOrigin?.isPostfixIncDecRelated(): Boolean {
     return this in listOf(
         POSTFIX_INCR,
         POSTFIX_DECR,
-        PREFIX_INCR,
-        PREFIX_DECR
     )
 }
 

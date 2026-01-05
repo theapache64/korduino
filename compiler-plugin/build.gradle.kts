@@ -27,6 +27,8 @@ dependencies {
 
     // Assertion
     testImplementation("com.github.theapache64:expekt:1.0.3")
+
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 }
 
 tasks.test {
