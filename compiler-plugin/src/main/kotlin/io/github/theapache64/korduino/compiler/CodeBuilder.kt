@@ -28,6 +28,7 @@ class CodeBuilder(
     fun appendLine(string: String): CodeBuilder {
         val finalString = string.trim()
         if (finalString.isEmpty()) return this
+        if (finalString == ";") return this
         if(finalString.matches("\\w+".toRegex())){
             val lastLine = stringBuilder.lines().last { it.isNotBlank() }
             if(lastLine == "++$finalString;" || lastLine == "--$finalString;"){
