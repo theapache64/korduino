@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
     id("java-gradle-plugin")
     id("maven-publish")
 }
@@ -23,8 +23,8 @@ dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation(project(":common"))
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("com.github.theapache64:expekt:1.0.3")
+    testImplementation(libs.junit)
+    testImplementation(libs.expekt)
 }
 
 tasks.test {

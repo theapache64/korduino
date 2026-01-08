@@ -1,11 +1,10 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
     id("maven-publish")
 }
 
 repositories {
     mavenCentral()
-    // mavenLocal()
     maven { url = uri("https://jitpack.io") }
 }
 
@@ -18,15 +17,15 @@ dependencies {
     testImplementation(project(":core"))
 
     // JUnit 5 dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0") // For parameterized tests
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 
     // Kotlin Compiler for testing
-    testImplementation("dev.zacsweers.kctfork:core:0.8.0")
+    testImplementation(libs.kctfork.core)
 
     // Assertion
-    testImplementation("com.github.theapache64:expekt:1.0.3")
+    testImplementation(libs.expekt)
 }
 
 tasks.test {
