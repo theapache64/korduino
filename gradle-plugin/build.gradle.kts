@@ -4,7 +4,6 @@ plugins {
     id("maven-publish")
 }
 
-
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
@@ -20,7 +19,7 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation(kotlin("gradle-plugin"))
+    implementation(libs.kotlin.gradle.plugin)
     implementation(project(":common"))
 
     testImplementation(libs.junit)
@@ -35,7 +34,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain((property("jvmToolchain") as String).toInt())
 }
 
 sourceSets {

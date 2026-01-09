@@ -3,7 +3,6 @@ plugins {
     id("maven-publish")
 }
 
-
 repositories {
     mavenCentral()
 }
@@ -11,6 +10,10 @@ repositories {
 dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+}
+
+kotlin {
+    jvmToolchain((property("jvmToolchain") as String).toInt())
 }
 
 java {

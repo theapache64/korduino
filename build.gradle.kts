@@ -4,5 +4,5 @@ plugins {
 
 allprojects {
     group = "io.github.theapache64.korduino"
-    version = "0.0.1"
+    version = property("korduino.version") as String
 }

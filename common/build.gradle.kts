@@ -8,15 +8,16 @@ repositories {
 }
 
 dependencies {
-    compileOnly(kotlin("compiler"))
-    testImplementation(kotlin("test"))
+    compileOnly(libs.kotlin.compiler)
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain((property("jvmToolchain") as String).toInt())
 }
 
 java {

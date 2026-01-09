@@ -9,11 +9,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly(kotlin("compiler"))
+    compileOnly(libs.kotlin.compiler)
     implementation(project(":common"))
 
     // ### Testing ###
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(project(":core"))
 
     // JUnit 5 dependencies
@@ -36,7 +36,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain((property("jvmToolchain") as String).toInt())
 
     compilerOptions {
         freeCompilerArgs.addAll(
