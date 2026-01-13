@@ -96,8 +96,6 @@ class IndexedAccessOperatorTest {
         }
     }
 
-    /*
-    // TODO: Enable this test and work on it next
     @Test
     fun twoDimensionalIntArray(){
         val input = SourceFile.kotlin(
@@ -117,11 +115,15 @@ class IndexedAccessOperatorTest {
         )
 
         val expectedOutput = """
-            #include <array>
             #include <iostream>
-
+            #include <vector>
+            
             int main() {
-                std::array<std::array<int, 4>, 3> arr = {{{1, 2, 3}, {4, 5, 6, 7}, {7, 8, 9}}};
+                std::vector<std::vector<int>> arr = {
+                    {1, 2, 3},
+                    {4, 5, 6, 7},
+                    {7, 8, 9}
+                };
                 int element = arr[1][2];
                 std::cout << element << std::endl;
                 return 0;
@@ -131,5 +133,5 @@ class IndexedAccessOperatorTest {
 
         val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
         actualOutput.should.equal(expectedOutput)
-    }*/
+    }
 }
