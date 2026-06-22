@@ -3,6 +3,7 @@
 package io.theapache64.github.korduino.gradle.platform
 
 import com.github.theapache64.expekt.should
+import io.github.theapache64.korduino.common.Arg
 import io.theapache64.github.korduino.gradle.createProject
 import org.junit.Rule
 import org.junit.Test
@@ -16,6 +17,7 @@ class StdCppTest {
     fun `Run single cpp file`() {
         val project = testProjectDir.createProject(
             """
+           import io.github.theapache64.korduino.common.Arg.Platform.Target.STD_CPP
            plugins {
                 kotlin("jvm")
                 id("io.github.theapache64.korduino.gradle")
@@ -27,7 +29,7 @@ class StdCppTest {
            }
            
            korduino {
-               platform = "STD_CPP"
+               platform = ${Arg.Platform.Target.STD_CPP}
            }
         """.trimIndent()
         )
