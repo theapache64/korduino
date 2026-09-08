@@ -56,7 +56,7 @@ fun executeCommand(
 Stacktrace:
 ###########
 $errorLines""".trimIndent()
-        if(shouldExitOnError){
+        if (shouldExitOnError) {
             error(message)
         } else {
             println(message)

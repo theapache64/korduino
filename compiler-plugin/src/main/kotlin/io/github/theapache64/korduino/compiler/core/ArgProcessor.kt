@@ -31,7 +31,7 @@ class ArgProcessor : CommandLineProcessor {
             ArgId.ENABLED -> configuration.put(Arg.Enabled.key, value.toBoolean())
             ArgId.PLATFORM -> configuration.put(Arg.Platform.key, Arg.Platform.Target.valueOf(value))
             ArgId.BUILD_DIR -> configuration.put(Arg.BuildDir.key, value)
-            ArgId.BOARD -> configuration.put(Arg.Board.key ,Arg.Board.Type.valueOf(value))
+            ArgId.BOARD -> configuration.put(Arg.Board.key, Arg.Board.Type.valueOf(value))
             ArgId.MONITOR_SPEED -> configuration.put(Arg.MonitorSpeed.key, Baud.valueOf(value))
             ArgId.UPLOAD_SPEED -> configuration.put(Arg.UploadSpeed.key, Baud.valueOf(value))
         }

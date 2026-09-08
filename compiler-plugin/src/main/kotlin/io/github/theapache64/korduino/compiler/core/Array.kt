@@ -6,5 +6,5 @@ data class ArrayInfo(
     val dataType: DataType,
     val size: Int,
     val variableName: String,
-    val variableCall : String
+    val variableCall: String
 )

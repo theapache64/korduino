@@ -422,13 +422,15 @@ class Visitor(
                         val arrayInfo = parseArray(this)
                         when (arrayInfo.dataType) {
                             DataType.IntVector -> {
-                                val intArrayName = "std::${arrayInfo.dataType.type} ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                                val intArrayName =
+                                    "std::${arrayInfo.dataType.type} ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
                                 argValues.add(intArrayName)
                                 codeBuilder.addHeader("vector")
                             }
 
                             else -> {
-                                val arrayStatement = "std::array<${arrayInfo.dataType.type}, ${arrayInfo.size}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                                val arrayStatement =
+                                    "std::array<${arrayInfo.dataType.type}, ${arrayInfo.size}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
                                 argValues.add(arrayStatement)
                                 codeBuilder.addHeader("array")
                             }

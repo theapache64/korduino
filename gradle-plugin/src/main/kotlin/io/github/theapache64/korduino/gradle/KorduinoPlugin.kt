@@ -69,7 +69,7 @@ open class KorduinoExtension {
     var buildDir: File? = null
     var platform: Arg.Platform.Target? = null
     var monitorSpeed: Baud? = null
-    var uploadSpeed : Baud? = null
+    var uploadSpeed: Baud? = null
     var board: Arg.Board.Type? = null
         set(value) {
             field = value

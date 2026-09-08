@@ -50,7 +50,7 @@ private fun compileAndVerifyCompilability(
     sourceFiles: List<SourceFile>,
     target: Arg.Platform.Target,
     isCompile: Boolean,
-    board : Arg.Board.Type? = null,
+    board: Arg.Board.Type? = null,
 ): JvmCompilationResult {
     val result = KotlinCompilation().apply {
         sources = sourceFiles
@@ -87,7 +87,11 @@ fun String.verifyRunnability(): String {
     val cppFile = tempDir.resolve("temp.cpp").toFile()
     cppFile.writeText(this)
     val outputFile = tempDir.resolve("out").toFile()
-    executeCommand(tempDir.toFile(), arrayOf("g++", cppFile.absolutePath, "-o", outputFile.absolutePath), shouldExitOnError = true)
+    executeCommand(
+        tempDir.toFile(),
+        arrayOf("g++", cppFile.absolutePath, "-o", outputFile.absolutePath),
+        shouldExitOnError = true
+    )
     executeCommand(tempDir.toFile(), arrayOf(outputFile.absolutePath), shouldExitOnError = true)
     return this
 }

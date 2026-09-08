@@ -29,9 +29,9 @@ class CodeBuilder(
         val finalString = string.trim()
         if (finalString.isEmpty()) return this
         if (finalString == ";") return this
-        if(finalString.matches("\\w+".toRegex())){
+        if (finalString.matches("\\w+".toRegex())) {
             val lastLine = stringBuilder.lines().last { it.isNotBlank() }
-            if(lastLine == "++$finalString;" || lastLine == "--$finalString;"){
+            if (lastLine == "++$finalString;" || lastLine == "--$finalString;") {
                 return this
             }
         }

@@ -18,10 +18,10 @@ POC Demo: https://x.com/theapache64/status/1961612291243458703
 ## 🦿 Prerequisites
 
 - PlatformIO (for compiling C++, uploading, and serial monitor)
-  - `brew install platformio`
+    - `brew install platformio`
 
 - Development only
-  - `clang-format` : `brew install clang-format`
+    - `clang-format` : `brew install clang-format`
 
 ## ⌨️ Usage
 

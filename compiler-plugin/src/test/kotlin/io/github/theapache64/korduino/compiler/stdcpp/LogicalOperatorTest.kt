@@ -81,7 +81,7 @@ class LogicalOperatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["&&", "||"])
-    fun inElseIf(operator : String){
+    fun inElseIf(operator: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -120,7 +120,7 @@ class LogicalOperatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["&&", "||"])
-    fun inBothIfAndElseIf(operator :String){
+    fun inBothIfAndElseIf(operator: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -159,7 +159,7 @@ class LogicalOperatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["&&", "||"])
-    fun withFunction(operator : String){
+    fun withFunction(operator: String) {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -200,7 +200,7 @@ class LogicalOperatorTest {
     }
 
     @Test
-    fun mixed(){
+    fun mixed() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -234,7 +234,7 @@ class LogicalOperatorTest {
     }
 
     @Test
-    fun complex(){
+    fun complex() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -268,7 +268,6 @@ class LogicalOperatorTest {
 
         actualOutput.should.equal(expectedOutput)
     }
-
 
 
 }

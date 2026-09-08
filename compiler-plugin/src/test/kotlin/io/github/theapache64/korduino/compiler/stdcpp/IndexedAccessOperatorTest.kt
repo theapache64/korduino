@@ -34,7 +34,7 @@ class IndexedAccessOperatorTest {
                 return 0;
             }
             
-        """.trimIndent().also{
+        """.trimIndent().also {
             it.verifyRunnability()
         }
         val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
@@ -97,7 +97,7 @@ class IndexedAccessOperatorTest {
     }
 
     @Test
-    fun twoDimensionalIntArray(){
+    fun twoDimensionalIntArray() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """

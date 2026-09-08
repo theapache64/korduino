@@ -21,6 +21,7 @@ class Registrar : CompilerPluginRegistrar() {
                 val uploadSpeed = configuration.get(Arg.UploadSpeed.key) ?: board.defaultUploadSpeed
                 ArduinoDirGenerator(board, monitorSpeed, uploadSpeed)
             }
+
             Arg.Platform.Target.STD_CPP -> StdCppDirGenerator()
         }
         IrGenerationExtension.registerExtension(

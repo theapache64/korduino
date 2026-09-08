@@ -5,6 +5,7 @@ enum class DataType(
     val extraHeader: String? = null
 ) {
     Int("int"),
+
     // TODO: maybe just make kotlin.Array<*> to reduce the number of combination
     IntVector("vector<std::vector<int>>", "vector"),
     Float("float"),

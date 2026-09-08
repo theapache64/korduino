@@ -118,7 +118,7 @@ class IfTest {
     }
 
     @Test
-    fun nestedIf(){
+    fun nestedIf() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -158,7 +158,7 @@ class IfTest {
     }
 
     @Test
-    fun nestedIfElse(){
+    fun nestedIfElse() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -206,7 +206,7 @@ class IfTest {
     }
 
     @Test
-    fun nestedIfElseIfElse(){
+    fun nestedIfElseIfElse() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -258,7 +258,7 @@ class IfTest {
     }
 
     @Test
-    fun ifWithDirectCondition(){
+    fun ifWithDirectCondition() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -288,7 +288,7 @@ class IfTest {
     }
 
     @Test
-    fun ifElseIfWithDirectCondition(){
+    fun ifElseIfWithDirectCondition() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -326,7 +326,7 @@ class IfTest {
     }
 
     @Test
-    fun ifElseIfWithMixedCondition(){
+    fun ifElseIfWithMixedCondition() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -366,7 +366,7 @@ class IfTest {
     }
 
     @Test
-    fun ifWithFunctionCallCondition(){
+    fun ifWithFunctionCallCondition() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
@@ -403,7 +403,7 @@ class IfTest {
     }
 
     @Test
-    fun ifElseIfWithFunctionCallCondition(){
+    fun ifElseIfWithFunctionCallCondition() {
         val input = SourceFile.kotlin(
             "Main.kt",
             """
