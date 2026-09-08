@@ -18,11 +18,11 @@ enum class Function(
     Increment({ varName -> if (varName.isNullOrBlank()) "" else "++$varName" }, null),
     Decrement({ varName -> if (varName.isNullOrBlank()) "" else "--$varName" }, null),
 
-    PlusEquals({ it -> it.augment("+=") }, null),
-    MinusEquals({ it -> it.augment("-=") }, null),
-    TimesEquals({ it -> it.augment("*=") }, null),
-    DivideEquals({ it -> it.augment("/=") }, null),
-    ModEquals({ it -> it.augment("%=") }, null);
+    PlusEquals({ it.augment("+=") }, null),
+    MinusEquals({ it.augment("-=") }, null),
+    TimesEquals({ it.augment("*=") }, null),
+    DivideEquals({ it.augment("/=") }, null),
+    ModEquals({ it.augment("%=") }, null),
 }
 
 private fun String?.augment(operator: String): String {
@@ -37,6 +37,7 @@ private fun String?.augment(operator: String): String {
 object KotlinStdFunction {
     const val PRINT_LN = "kotlin.io.println"
 }
+
 val functions = mapOf<String, Function>(
     // Std CPP
     KotlinStdFunction.PRINT_LN to Function.COUT,

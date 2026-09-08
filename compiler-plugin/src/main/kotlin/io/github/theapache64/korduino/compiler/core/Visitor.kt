@@ -163,21 +163,34 @@ class Visitor(
             argValues.addAll(expArg.toCodeString(fqName))
         }
 
-        var (functionCall, headers) = if (fqName == FUNCTION_RAW_CPP) {
-            val code = argValues[0].let { code ->
-                code.substring(1, code.lastIndex) // stripping out `"`
+        var (functionCall, headers) = when {
+            fqName == FUNCTION_RAW_CPP -> {
+                val code = argValues[0].let { code ->
+                    code.substring(1, code.lastIndex) // stripping out `"`
+                }
+                Pair(code, argValues.subList(1, argValues.size).stripQuotes())
             }
-            Pair(code, argValues.subList(1, argValues.size).stripQuotes())
-        } else if (fqName != null && !functions.containsKey(fqName)) {
-            // unknown function
-            Pair("$fqName(${argValues.joinToString(separator = ", ")})", emptyList())
-        } else {
-            // known function
-            val cppFqName = functions[fqName]
-                ?: error("Unsupported function name '$fqName' (platform: $target). $LINK_GITHUB_ISSUES ")
-            val headers = if (cppFqName.header != null) listOf(cppFqName.header.fileName) else emptyList()
-            val funCall = cppFqName.fqName(argValues.joinToString(separator = ", "))
-            Pair(funCall, headers)
+
+            fqName == "kotlin.arrayOf" -> {
+                Pair(
+                    argValues.joinToString(prefix = "{", separator = ", ", postfix = "}"),
+                    emptyList()
+                )
+            }
+
+            fqName != null && !functions.containsKey(fqName) -> {
+                // unknown function
+                Pair("$fqName(${argValues.joinToString(separator = ", ")})", emptyList())
+            }
+
+            else -> {
+                // known function
+                val cppFqName = functions[fqName]
+                    ?: error("Unsupported function name '$fqName' (platform: $target). $LINK_GITHUB_ISSUES ")
+                val headers = if (cppFqName.header != null) listOf(cppFqName.header.fileName) else emptyList()
+                val funCall = cppFqName.fqName(argValues.joinToString(separator = ", "))
+                Pair(funCall, headers)
+            }
         }
 
         // Further transformation
@@ -188,7 +201,7 @@ class Visitor(
             functionCall = "$symbol$varName"
         } else if (functionCall.matches(simpleGetRegex)) {
             functionCall = simpleGetRegex.find(functionCall)?.groups["varName"]?.value ?: error("Couldn't find varName")
-        } else if(functionCall.matches(simpleSetRegex)){
+        } else if (functionCall.matches(simpleSetRegex)) {
             val matcher = simpleSetRegex.find(functionCall)
             val varName = matcher?.groups["varName"]?.value ?: error("Couldn't find varName")
             val args = matcher.groups["args"]?.value ?: error("Couldn't find args")
@@ -212,7 +225,7 @@ class Visitor(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrStatement.toCodeString(
-        fqName:String? = null,
+        fqName: String? = null,
     ): List<String> {
         val argValues = mutableListOf<String>()
         when (this) {
@@ -235,13 +248,22 @@ class Visitor(
 
             is IrVarargImpl -> {
                 elements.forEach {
-                    val constImpl = it as IrConstImpl
-                    val varArg = if(constImpl.kind == IrConstKind.String){
-                        "\"${constImpl.value}\""
-                    } else {
-                        "${constImpl.value}"
+                    when (it) {
+                        is IrCallImpl -> {
+                            argValues.addAll(it.toCodeString())
+                        }
+
+                        is IrConstImpl -> {
+                            val varArg = if (it.kind == IrConstKind.String) {
+                                "\"${it.value}\""
+                            } else {
+                                "${it.value}"
+                            }
+                            argValues.add(varArg)
+                        }
+
+                        else -> error("Unknown irVarArg type: '$it'")
                     }
-                    argValues.add(varArg)
                 }
             }
 
@@ -398,12 +420,19 @@ class Visitor(
                     if (typeFqName == "kotlin.Array") {
                         // Dummy: std::array<int, 5> arr = {1, 2, 3, 4, 5};
                         val arrayInfo = parseArray(this)
-                        val arrayStatement =
-                            "std::array<${arrayInfo.dataType.type}, ${arrayInfo.size}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
-                        println("QuickTag: Visitor:toCodeString: Parsed array statement: `$arrayStatement`")
-                        argValues.add(arrayStatement)
+                        when (arrayInfo.dataType) {
+                            DataType.IntVector -> {
+                                val intArrayName = "std::${arrayInfo.dataType.type} ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                                argValues.add(intArrayName)
+                                codeBuilder.addHeader("vector")
+                            }
 
-                        codeBuilder.addHeader("array")
+                            else -> {
+                                val arrayStatement = "std::array<${arrayInfo.dataType.type}, ${arrayInfo.size}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                                argValues.add(arrayStatement)
+                                codeBuilder.addHeader("array")
+                            }
+                        }
                     } else {
                         val variableCall = initializer?.toCodeString()?.joinToString(separator = "")
                         val dataType =
@@ -478,7 +507,7 @@ class Visitor(
 
             is IrPropertyImpl -> {
                 // int a = 1;
-                val constLabel = if(this.isConst) "const " else ""
+                val constLabel = if (this.isConst) "const " else ""
                 val dataType = this.backingField?.initializer?.expression?.getMappedDataType()
                 val variableName = this.name
                 val value = this.backingField?.initializer?.expression?.toCodeString()?.joinToString()
@@ -486,7 +515,7 @@ class Visitor(
             }
 
             is IrStringConcatenationImpl -> {
-                val symbol = if(fqName == KotlinStdFunction.PRINT_LN) "<<" else "+"
+                val symbol = if (fqName == KotlinStdFunction.PRINT_LN) "<<" else "+"
                 argValues.add(
                     this.arguments.joinToString(
                         separator = " $symbol ",
@@ -502,9 +531,9 @@ class Visitor(
         return argValues.filter { it.isNotBlank() }
     }
 
-    private fun IrExpression?.getMappedDataType() : String? {
-        return when(this){
-            is IrConstImpl -> when(this.kind){
+    private fun IrExpression?.getMappedDataType(): String? {
+        return when (this) {
+            is IrConstImpl -> when (this.kind) {
                 IrConstKind.Boolean -> DataType.Boolean
                 IrConstKind.Double -> DataType.Double
                 IrConstKind.Float -> DataType.Float
@@ -513,6 +542,7 @@ class Visitor(
                 IrConstKind.String -> DataType.String
                 else -> error("Unsupported const kind ${this.kind}")
             }.type
+
             else -> error("Undefined expression `${this}`")
         }
     }

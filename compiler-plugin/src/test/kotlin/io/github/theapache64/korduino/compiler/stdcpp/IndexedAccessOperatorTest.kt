@@ -117,13 +117,8 @@ class IndexedAccessOperatorTest {
         val expectedOutput = """
             #include <iostream>
             #include <vector>
-            
             int main() {
-                std::vector<std::vector<int>> arr = {
-                    {1, 2, 3},
-                    {4, 5, 6, 7},
-                    {7, 8, 9}
-                };
+                std::vector<std::vector<int>> arr = {{1, 2, 3}, {4, 5, 6, 7}, {7, 8, 9}};
                 int element = arr[1][2];
                 std::cout << element << std::endl;
                 return 0;

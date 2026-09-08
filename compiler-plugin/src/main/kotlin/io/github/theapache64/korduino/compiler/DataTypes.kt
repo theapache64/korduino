@@ -5,6 +5,8 @@ enum class DataType(
     val extraHeader: String? = null
 ) {
     Int("int"),
+    // TODO: maybe just make kotlin.Array<*> to reduce the number of combination
+    IntVector("vector<std::vector<int>>", "vector"),
     Float("float"),
     Long("long long"),
     Boolean("bool"),
@@ -23,11 +25,15 @@ private val commonDataTypes = mapOf(
     "kotlin.Boolean" to DataType.Boolean
 )
 
+private val arrayDataTypes = mapOf(
+    "kotlin.Array<kotlin.Int>" to DataType.IntVector,
+)
+
 private val arduinoDataTypes = mapOf<String, DataType>(
 
 )
 
-val dataTypes = commonDataTypes + arduinoDataTypes
+val dataTypes = commonDataTypes + arduinoDataTypes + arrayDataTypes
 
 
 internal fun StringBuilder.containsHeader(dataType: DataType): Boolean {
