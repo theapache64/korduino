@@ -96,6 +96,7 @@ Give a ⭐️ if this project helped you!
 - [ ] Add `Array` support
 - [ ] Add `List` support
 - [ ] Add `Map` support
+- [ ] Add `return if($condition)` support
 - [ ] Add nested structure support (nested-ifs, nested-loops etc)
 - [ ] Add `Class/Object/init block/ constructor (both primary and secondary)` support
 - [ ] Support all PIO boards via gradle plugin enum

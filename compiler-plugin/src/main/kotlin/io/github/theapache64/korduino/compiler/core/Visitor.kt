@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrPropertyImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.ANDAND
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EQEQEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQ
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.EXCLEQEQ
@@ -22,6 +23,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.PREFIX_IN
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin.Companion.WHEN
 import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isNullable
@@ -74,27 +76,11 @@ class Visitor(
     override fun visitFunction(declaration: IrFunction) {
         val functionName = declaration.name.asString()
         val dataTypeClassName = declaration.returnType.classFqName?.asString()
-        val isNullableReturnType = declaration.returnType.isNullable()
         val returnType = dataTypes.get(key = dataTypeClassName)
             ?: error("Unsupported data type '$dataTypeClassName' (platform: $target). $LINK_GITHUB_ISSUES ")
         val params = extractParams(declaration)
-        val nullableStart = if (isNullableReturnType) {
-            "std::optional<"
-        } else {
-            ""
-        }
 
-        val nullableEnd = if (isNullableReturnType) {
-            ">"
-        } else {
-            ""
-        }
-
-        if (isNullableReturnType) {
-            codeBuilder.addHeader("optional")
-        }
-
-        codeBuilder.appendLine("$nullableStart${returnType.type}$nullableEnd $functionName($params) {")
+        codeBuilder.appendLine("${returnType.type.maybeWrapOptional(declaration.returnType)} $functionName($params) {")
 
         val header = returnType.extraHeader
         if (header != null) {
@@ -103,6 +89,13 @@ class Visitor(
 
         super.visitFunction(declaration) // TODO: Explore: declaration.acceptChildrenVoid(this)
         codeBuilder.appendLine("}")
+    }
+
+    fun String.maybeWrapOptional(returnType: IrType): String {
+        val isNullableReturnType = returnType.isNullable()
+        if (!isNullableReturnType) return this
+        codeBuilder.addHeader("optional")
+        return "std::optional<$this>"
     }
 
 
@@ -378,11 +371,20 @@ class Visitor(
 
 
             is IrSetValueImpl -> {
-                val symbol = when (val name = this.origin?.debugName) {
-                    POSTFIX_INCR.debugName, POSTFIX_DECR.debugName, PREFIX_INCR.debugName, PREFIX_DECR.debugName -> "" // already handled these two
+                when (val name = this.origin?.debugName) {
+                    POSTFIX_INCR.debugName, POSTFIX_DECR.debugName, PREFIX_INCR.debugName, PREFIX_DECR.debugName -> {
+                        argValues.add("")
+                    }
+                    // assignment operator
+                    EQ.debugName -> {
+                        argValues.add(this.symbol.owner.name.asString())
+                        argValues.add("=")
+                        argValues.add(this.value.toCodeString().joinToString())
+                        argValues.add(";")
+                    }
+
                     else -> error("Unhandled setValue call `$name`")
                 }
-                argValues.add(symbol)
             }
 
             is IrGetValueImpl -> {
@@ -466,7 +468,7 @@ class Visitor(
                         if (dataType.extraHeader != null) {
                             codeBuilder.addHeader(dataType.extraHeader)
                         }
-                        argValues.add("${dataType.type} $variableName = $variableCall;")
+                        argValues.add("${dataType.type.maybeWrapOptional(type)} $variableName = $variableCall;")
                     }
                 }
             }
@@ -526,6 +528,9 @@ class Visitor(
                             }
                     }
 
+                    null -> {
+
+                    }
 
                     else -> error("Unhandled IrWhenImpl origin `${this.origin?.debugName}`")
                 }
