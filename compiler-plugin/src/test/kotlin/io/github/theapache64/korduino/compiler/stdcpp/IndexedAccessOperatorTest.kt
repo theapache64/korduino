@@ -129,4 +129,39 @@ class IndexedAccessOperatorTest {
         val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
         actualOutput.should.equal(expectedOutput)
     }
+
+    @Test
+    fun threeDimensionalIntArray() {
+        val input = SourceFile.kotlin(
+            "Main.kt",
+            """
+            fun main() : Int {
+                val arr = arrayOf(
+                    arrayOf(arrayOf(1, 2), arrayOf(3, 4, 5)),
+                    arrayOf(arrayOf(7), arrayOf(8, 9, 10, 11)),
+                )
+                val element = arr[1][1][0] // Fixed index to safely point to an existing element (value 8)
+                println(element)
+                return 0
+            }
+        """.trimIndent(),
+        )
+
+        val expectedOutput = """
+            #include <iostream>
+            #include <vector>
+            int main() {
+                std::vector<std::vector<std::vector<int>>> arr = {{{1, 2}, {3, 4, 5}},
+                                                                  {{7}, {8, 9, 10, 11}}};
+                int element = arr[1][1][0];
+                std::cout << element << std::endl;
+                return 0;
+            }
+            
+            """.trimIndent().verifyRunnability()
+
+        val actualOutput = generateAndCompileCppSourceCode(listOf(input)).readActualOutput(Arg.Platform.Target.STD_CPP)
+        actualOutput.should.equal(expectedOutput)
+    }
+
 }

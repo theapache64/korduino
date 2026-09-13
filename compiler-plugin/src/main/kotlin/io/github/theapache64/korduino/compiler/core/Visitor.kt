@@ -127,15 +127,16 @@ class Visitor(
             separator = ", ",
             postfix = "}"
         ) ?: TODO()
-        val dataType = dataTypes[dataTypeString] ?: throw IllegalStateException("Unknown data type: $dataTypeString")
+
+        val dataType = dataTypes[dataTypeString]?.left() ?: dataTypeString.toVector()?.right()
+        ?: throw IllegalStateException("Unknown data type: $dataTypeString")
+
         return ArrayInfo(
-            dataType = dataType,
+            type = dataType,
             size = firstArrayElements.size,
             variableName = variableName,
             variableCall = variableCall
-        ).also {
-            println("QuickTag: Visitor:parseArray: Parsed array info: `$it`")
-        }
+        )
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -420,19 +421,19 @@ class Visitor(
                     if (typeFqName == "kotlin.Array") {
                         // Dummy: std::array<int, 5> arr = {1, 2, 3, 4, 5};
                         val arrayInfo = parseArray(this)
-                        when (arrayInfo.dataType) {
-                            DataType.IntVector -> {
+                        when (arrayInfo.type) {
+                            is Either.Left -> {
                                 val intArrayName =
-                                    "std::${arrayInfo.dataType.type} ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                                    "std::array<${arrayInfo.type.value.type}, ${arrayInfo.size}>  ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
                                 argValues.add(intArrayName)
-                                codeBuilder.addHeader("vector")
+                                codeBuilder.addHeader("array")
                             }
 
-                            else -> {
+                            is Either.Right -> { // vector
                                 val arrayStatement =
-                                    "std::array<${arrayInfo.dataType.type}, ${arrayInfo.size}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
+                                    "std::vector<${arrayInfo.type.value.toCppString()}> ${arrayInfo.variableName} = ${arrayInfo.variableCall};"
                                 argValues.add(arrayStatement)
-                                codeBuilder.addHeader("array")
+                                codeBuilder.addHeader("vector")
                             }
                         }
                     } else {

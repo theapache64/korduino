@@ -5,9 +5,6 @@ enum class DataType(
     val extraHeader: String? = null
 ) {
     Int("int"),
-
-    // TODO: maybe just make kotlin.Array<*> to reduce the number of combination
-    IntVector("vector<std::vector<int>>", "vector"),
     Float("float"),
     Long("long long"),
     Boolean("bool"),
@@ -26,15 +23,12 @@ private val commonDataTypes = mapOf(
     "kotlin.Boolean" to DataType.Boolean
 )
 
-private val arrayDataTypes = mapOf(
-    "kotlin.Array<kotlin.Int>" to DataType.IntVector,
-)
 
 private val arduinoDataTypes = mapOf<String, DataType>(
 
 )
 
-val dataTypes = commonDataTypes + arduinoDataTypes + arrayDataTypes
+val dataTypes = commonDataTypes + arduinoDataTypes
 
 
 internal fun StringBuilder.containsHeader(dataType: DataType): Boolean {
@@ -43,4 +37,28 @@ internal fun StringBuilder.containsHeader(dataType: DataType): Boolean {
 
 internal fun StringBuilder.addHeader(dataType: DataType): StringBuilder {
     return this.insert(0, dataType.type.includeStatement() + "\n")
+}
+
+private val vectorRegex = "kotlin\\.Array<(.*?)(${commonDataTypes.keys.joinToString("|")})>".toRegex(
+    setOf(RegexOption.MULTILINE)
+)
+
+data class Vector(
+    val nestCount: Int,
+    val dataType: DataType
+)
+
+fun String.toVector(): Vector? {
+    val match = vectorRegex.find(this) ?: return null
+    val nestCount = this.count { it == '>' }
+    val dataTypeString = match.groupValues.last()
+    return Vector(
+        nestCount = nestCount,
+        dataType = commonDataTypes[dataTypeString] ?: error("Unsupported data type: $dataTypeString")
+    )
+}
+
+fun Vector.toCppString(): String {
+    val count = this.nestCount
+    return "std::vector<".repeat(count) + this.dataType.type + ">".repeat(count)
 }
