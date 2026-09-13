@@ -74,7 +74,7 @@ private fun compileAndVerifyCompilability(
             }
 
             Arg.Platform.Target.STD_CPP -> {
-                executeCommand(projectDir.resolve("cpp"), arrayOf("g++", "*.cpp", "-o", "outs"))
+                executeCommand(projectDir.resolve("cpp"), arrayOf("g++","-std=c++17", "*.cpp", "-o", "outs"))
             }
         }
     }
@@ -89,7 +89,7 @@ fun String.verifyRunnability(): String {
     val outputFile = tempDir.resolve("out").toFile()
     executeCommand(
         tempDir.toFile(),
-        arrayOf("g++", cppFile.absolutePath, "-o", outputFile.absolutePath),
+        arrayOf("g++", "-std=c++17", cppFile.absolutePath, "-o", outputFile.absolutePath),
         shouldExitOnError = true
     )
     executeCommand(tempDir.toFile(), arrayOf(outputFile.absolutePath), shouldExitOnError = true)

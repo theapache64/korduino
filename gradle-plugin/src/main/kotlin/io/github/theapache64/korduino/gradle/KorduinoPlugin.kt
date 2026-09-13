@@ -113,7 +113,7 @@ abstract class RunKorduinoTask : DefaultTask() {
                     val cppFile = cppDir?.listFiles()?.find { it.extension == "cpp" }
                         ?: error("Couldn't find a cpp file in '${extension.buildDir?.absolutePath}'")
                     println("QuickTag: RunKorduinoTask:execute: cppFile: ${cppFile.absolutePath} -> ${cppFile.exists()}")
-                    executeCommand(cppDir, arrayOf("g++", cppFile.absolutePath, "-o", "outs"))
+                    executeCommand(cppDir, arrayOf("g++","-std=c++17", cppFile.absolutePath, "-o", "outs"))
                     executeCommand(cppDir, arrayOf("./outs"))
                 } catch (e: Exception) {
                     logger.error("Task execution failed: ${e.message}", e)

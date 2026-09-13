@@ -10,7 +10,7 @@ enum class DataType(
     Boolean("bool"),
     Double("double"),
     Void("void"),
-    String("std::string", "iostream");
+    String("std::string", "string");
 }
 
 private val commonDataTypes = mapOf(

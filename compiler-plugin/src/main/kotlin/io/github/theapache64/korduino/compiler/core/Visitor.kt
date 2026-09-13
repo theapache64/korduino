@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.isNullable
 import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
@@ -73,10 +74,27 @@ class Visitor(
     override fun visitFunction(declaration: IrFunction) {
         val functionName = declaration.name.asString()
         val dataTypeClassName = declaration.returnType.classFqName?.asString()
+        val isNullableReturnType = declaration.returnType.isNullable()
         val returnType = dataTypes.get(key = dataTypeClassName)
             ?: error("Unsupported data type '$dataTypeClassName' (platform: $target). $LINK_GITHUB_ISSUES ")
         val params = extractParams(declaration)
-        codeBuilder.appendLine("${returnType.type} $functionName($params) {")
+        val nullableStart = if (isNullableReturnType) {
+            "std::optional<"
+        } else {
+            ""
+        }
+
+        val nullableEnd = if (isNullableReturnType) {
+            ">"
+        } else {
+            ""
+        }
+
+        if (isNullableReturnType) {
+            codeBuilder.addHeader("optional")
+        }
+
+        codeBuilder.appendLine("$nullableStart${returnType.type}$nullableEnd $functionName($params) {")
 
         val header = returnType.extraHeader
         if (header != null) {
@@ -231,10 +249,13 @@ class Visitor(
         val argValues = mutableListOf<String>()
         when (this) {
             is IrConst -> {
-                val value = if (kind == IrConstKind.String) {
+                var value = if (kind == IrConstKind.String) {
                     "\"${value}\""
                 } else {
                     "$value"
+                }
+                if (value == "null") {
+                    value = "std::nullopt"
                 }
                 argValues.add(value)
             }
@@ -260,6 +281,7 @@ class Visitor(
                             } else {
                                 "${it.value}"
                             }
+
                             argValues.add(varArg)
                         }
 
@@ -269,7 +291,8 @@ class Visitor(
             }
 
             is IrReturnImpl -> {
-                argValues.add(this.value.toCodeString().joinToString(" "))
+                val value = this.value.toCodeString().joinToString(" ")
+                argValues.add(value)
             }
 
             is IrCallImpl -> {
