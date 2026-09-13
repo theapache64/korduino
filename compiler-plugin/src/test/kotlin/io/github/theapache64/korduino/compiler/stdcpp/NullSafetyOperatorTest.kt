@@ -120,7 +120,12 @@ class NullSafetyOperatorTest {
             #include <optional>
             #include <string>
             std::optional<std::string> foo(bool shouldReturnNull) {
-                std::optional<std::string> value = shouldReturnNull ? std::optional<std::string>(std::nullopt) : std::optional<std::string>("bar");
+                std::optional<std::string> value = "";
+                if (shouldReturnNull) {
+                    value = std::nullopt;
+                } else {
+                    value = "bar";
+                }
                 return value;
             }
             int main() {
